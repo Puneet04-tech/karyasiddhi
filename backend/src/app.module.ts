@@ -21,11 +21,12 @@ import { SnakeNamingStrategy } from './common/snake-naming.strategy';
       synchronize: false, // Disabled - schema managed by SQL files
       logging: process.env.NODE_ENV === 'development',
       namingStrategy: new SnakeNamingStrategy(), // Convert camelCase to snake_case
-      extra: {
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      extra: process.env.NODE_ENV === 'production' ? {
         ssl: {
-          rejectUnauthorized: false, // Required for Supabase
+          rejectUnauthorized: false,
         },
-      },
+      } : {},
     }),
     AuthModule,
     UsersModule,
