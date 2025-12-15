@@ -8,6 +8,10 @@ export interface Goal {
   startDate: string;
   endDate: string;
   departmentId: string;
+  department?: {
+    id: string;
+    name: string;
+  };
   assignedTo: string;
   assignedUser?: {
     id: string;
@@ -33,6 +37,15 @@ export interface KPI {
   category: string;
   departmentId: string;
   goalId?: string;
+  goal?: {
+    id: string;
+    title: string;
+    assignedUser?: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  };
   trend: 'up' | 'down' | 'stable';
   lastUpdated: string;
   createdAt: string;
