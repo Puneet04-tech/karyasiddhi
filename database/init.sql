@@ -1,17 +1,12 @@
 -- KaryaSiddhi Database Initialization Script
 -- Digital India Initiative - SIH 2025
-
--- Create database
-CREATE DATABASE karyasiddhi;
-
--- Connect to database
-\c karyasiddhi;
+-- Compatible with Render, Supabase, and other managed PostgreSQL services
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Create Departments table
-CREATE TABLE departments (
+CREATE TABLE IF NOT EXISTS departments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     code VARCHAR(50) UNIQUE NOT NULL,
@@ -25,7 +20,7 @@ CREATE TABLE departments (
 );
 
 -- Create Users table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -43,7 +38,7 @@ CREATE TABLE users (
 );
 
 -- Create Goals table
-CREATE TABLE goals (
+CREATE TABLE IF NOT EXISTS goals (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(500) NOT NULL,
     description TEXT,
@@ -61,7 +56,7 @@ CREATE TABLE goals (
 );
 
 -- Create KPIs table
-CREATE TABLE kpis (
+CREATE TABLE IF NOT EXISTS kpis (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -80,7 +75,7 @@ CREATE TABLE kpis (
 );
 
 -- Create Activities table for audit trail
-CREATE TABLE activities (
+CREATE TABLE IF NOT EXISTS activities (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     type VARCHAR(100) NOT NULL,
     title VARCHAR(500) NOT NULL,
@@ -92,76 +87,90 @@ CREATE TABLE activities (
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_department ON users(department_id);
-CREATE INDEX idx_goals_status ON goals(status);
-CREATE INDEX idx_goals_assigned_user ON goals(assigned_user_id);
-CREATE INDEX idx_goals_department ON goals(department_id);
-CREATE INDEX idx_kpis_goal ON kpis(goal_id);
-CREATE INDEX idx_kpis_department ON kpis(department_id);
-CREATE INDEX idx_activities_user ON activities(user_id);
-CREATE INDEX idx_activities_timestamp ON activities(timestamp);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_department ON users(department_id);
+CREATE INDEX IF NOT EXISTS idx_goals_status ON goals(status);
+CREATE INDEX IF NOT EXISTS idx_goals_assigned_user ON goals(assigned_user_id);
+CREATE INDEX IF NOT EXISTS idx_goals_department ON goals(department_id);
+CREATE INDEX IF NOT EXISTS idx_kpis_goal ON kpis(goal_id);
+CREATE INDEX IF NOT EXISTS idx_kpis_department ON kpis(department_id);
+CREATE INDEX IF NOT EXISTS idx_activities_user ON activities(user_id);
+CREATE INDEX IF NOT EXISTS idx_activities_timestamp ON activities(timestamp);
 
 -- Insert sample departments
 INSERT INTO departments (name, code, ministry, head_of_department, employee_count, state, location) VALUES
 ('Department of Information Technology', 'DIT', 'Ministry of Electronics and IT', 'Dr. Rajesh Kumar', 250, 'Delhi', 'New Delhi'),
 ('Digital Services Division', 'DSD', 'Ministry of Electronics and IT', 'Ms. Priya Sharma', 180, 'Karnataka', 'Bangalore'),
-('E-Governance Unit', 'EGU', 'Ministry of Electronics and IT', 'Mr. Amit Patel', 120, 'Maharashtra', 'Mumbai');
+('E-Governance Unit', 'EGU', 'Ministry of Electronics and IT', 'Mr. Amit Patel', 120, 'Maharashtra', 'Mumbai')
+ON CONFLICT (code) DO NOTHING;
 
 -- Insert users (password: 'password123' - hashed with bcrypt)
 -- 12 Regular employees + 1 Manager
 
 -- Manager Account
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Arun Singh', 'arun.singh@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Department Head', 'Joint Secretary', 'EMP-2025-000', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-0000');
+('Arun Singh', 'arun.singh@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Department Head', 'Joint Secretary', 'EMP-2025-000', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-0000')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 1 - High Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Rajesh Kumar', 'rajesh.kumar@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Senior Officer', 'Deputy Secretary', 'EMP-2025-001', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-1234');
+('Rajesh Kumar', 'rajesh.kumar@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Senior Officer', 'Deputy Secretary', 'EMP-2025-001', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-1234')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 2 - Good Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Priya Sharma', 'priya.sharma@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Manager', 'Section Officer', 'EMP-2025-002', (SELECT id FROM departments WHERE code = 'DSD'), '****-****-5678');
+('Priya Sharma', 'priya.sharma@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Manager', 'Section Officer', 'EMP-2025-002', (SELECT id FROM departments WHERE code = 'DSD'), '****-****-5678')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 3 - Average Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Amit Patel', 'amit.patel@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'Assistant Director', 'EMP-2025-003', (SELECT id FROM departments WHERE code = 'EGU'), '****-****-3456');
+('Amit Patel', 'amit.patel@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'Assistant Director', 'EMP-2025-003', (SELECT id FROM departments WHERE code = 'EGU'), '****-****-3456')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 4 - High Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Sneha Reddy', 'sneha.reddy@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Senior Officer', 'Technical Lead', 'EMP-2025-004', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-4567');
+('Sneha Reddy', 'sneha.reddy@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Senior Officer', 'Technical Lead', 'EMP-2025-004', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-4567')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 5 - Below Average
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Vikram Singh', 'vikram.singh@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'Project Manager', 'EMP-2025-005', (SELECT id FROM departments WHERE code = 'DSD'), '****-****-5678');
+('Vikram Singh', 'vikram.singh@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'Project Manager', 'EMP-2025-005', (SELECT id FROM departments WHERE code = 'DSD'), '****-****-5678')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 6 - Good Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Kavita Nair', 'kavita.nair@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Manager', 'Deputy Manager', 'EMP-2025-006', (SELECT id FROM departments WHERE code = 'EGU'), '****-****-6789');
+('Kavita Nair', 'kavita.nair@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Manager', 'Deputy Manager', 'EMP-2025-006', (SELECT id FROM departments WHERE code = 'EGU'), '****-****-6789')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 7 - Average Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Rahul Verma', 'rahul.verma@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'System Analyst', 'EMP-2025-007', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-7890');
+('Rahul Verma', 'rahul.verma@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'System Analyst', 'EMP-2025-007', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-7890')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 8 - High Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Anjali Mehta', 'anjali.mehta@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Senior Officer', 'Senior Analyst', 'EMP-2025-008', (SELECT id FROM departments WHERE code = 'DSD'), '****-****-8901');
+('Anjali Mehta', 'anjali.mehta@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Senior Officer', 'Senior Analyst', 'EMP-2025-008', (SELECT id FROM departments WHERE code = 'DSD'), '****-****-8901')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 9 - Below Average
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Suresh Yadav', 'suresh.yadav@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'Data Officer', 'EMP-2025-009', (SELECT id FROM departments WHERE code = 'EGU'), '****-****-9012');
+('Suresh Yadav', 'suresh.yadav@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'Data Officer', 'EMP-2025-009', (SELECT id FROM departments WHERE code = 'EGU'), '****-****-9012')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 10 - Good Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Deepika Roy', 'deepika.roy@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Manager', 'Quality Manager', 'EMP-2025-010', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-0123');
+('Deepika Roy', 'deepika.roy@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Manager', 'Quality Manager', 'EMP-2025-010', (SELECT id FROM departments WHERE code = 'DIT'), '****-****-0123')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 11 - Average Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Manish Gupta', 'manish.gupta@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'Security Officer', 'EMP-2025-011', (SELECT id FROM departments WHERE code = 'DSD'), '****-****-1234');
+('Manish Gupta', 'manish.gupta@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Officer', 'Security Officer', 'EMP-2025-011', (SELECT id FROM departments WHERE code = 'DSD'), '****-****-1234')
+ON CONFLICT (email) DO NOTHING;
 
 -- Employee 12 - High Performer
 INSERT INTO users (name, email, password, role, designation, employee_id, department_id, aadhaar) VALUES
-('Pooja Deshmukh', 'pooja.deshmukh@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Senior Officer', 'Infrastructure Lead', 'EMP-2025-012', (SELECT id FROM departments WHERE code = 'EGU'), '****-****-2345');
+('Pooja Deshmukh', 'pooja.deshmukh@gov.in', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', 'Senior Officer', 'Infrastructure Lead', 'EMP-2025-012', (SELECT id FROM departments WHERE code = 'EGU'), '****-****-2345')
+ON CONFLICT (email) DO NOTHING;
 
 -- Insert goals for each employee with varying performance levels
 
@@ -323,12 +332,17 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Create triggers for updated_at
+-- Create triggers for updated_at (DROP first to handle reruns)
+DROP TRIGGER IF EXISTS update_departments_updated_at ON departments;
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+DROP TRIGGER IF EXISTS update_goals_updated_at ON goals;
+DROP TRIGGER IF EXISTS update_kpis_updated_at ON kpis;
+
 CREATE TRIGGER update_departments_updated_at BEFORE UPDATE ON departments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_goals_updated_at BEFORE UPDATE ON goals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_kpis_updated_at BEFORE UPDATE ON kpis FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Grant permissions
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO karyasiddhi_user;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO karyasiddhi_user;
+-- Note: Managed database services (Render, Supabase) handle permissions automatically
+-- If running locally, create user: CREATE USER karyasiddhi_user WITH PASSWORD 'your_password';
+-- Then grant permissions: GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO karyasiddhi_user;

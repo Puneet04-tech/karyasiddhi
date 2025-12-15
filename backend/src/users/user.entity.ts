@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Goal } from '../goals/goal.entity';
 import { Department } from '../departments/department.entity';
 
@@ -50,6 +50,7 @@ export class User {
   }>;
 
   @ManyToOne(() => Department, department => department.users)
+  @JoinColumn({ name: 'department_id' })
   department: Department;
 
   @OneToMany(() => Goal, goal => goal.assignedUser)

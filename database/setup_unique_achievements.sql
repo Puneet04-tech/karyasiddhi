@@ -1,5 +1,7 @@
--- Complete script to add and populate unique achievements for all users
--- Run this script to implement user-specific achievements
+-- KaryaSiddhi - User Achievements Setup Script
+-- Compatible with: Supabase, Render, Neon, and all PostgreSQL databases
+-- Run this AFTER seed_complete_data.sql to add user achievements
+-- This script is idempotent and safe to run multiple times
 
 -- Step 1: Add achievements column to users table
 ALTER TABLE users 
@@ -35,18 +37,17 @@ UPDATE users SET achievements = '[
 ]'::jsonb
 WHERE email = 'priya.sharma@gov.in';
 
--- Update vikram.singh@gov.in - Technical Officer (lower performer)
+-- Update vikram.singh@gov.in - Below Average (45% performer)
 UPDATE users SET achievements = '[
   {"id": 1, "title": "Dedicated Worker", "icon": "Heart", "color": "text-pink-500", "earnedAt": "2024-09-05"},
   {"id": 2, "title": "Team Player", "icon": "Users", "color": "text-blue-500", "earnedAt": "2024-10-12"}
 ]'::jsonb
 WHERE email = 'vikram.singh@gov.in';
 
--- Update amit.patel@gov.in - Project Manager
+-- Update amit.patel@gov.in - Average Performer (60%)
 UPDATE users SET achievements = '[
-  {"id": 1, "title": "Project Leader", "icon": "Briefcase", "color": "text-slate-500", "earnedAt": "2024-05-20"},
-  {"id": 2, "title": "Delivery Master", "icon": "TrendingUp", "color": "text-emerald-500", "earnedAt": "2024-07-15"},
-  {"id": 3, "title": "Client Satisfaction", "icon": "Heart", "color": "text-rose-500", "earnedAt": "2024-09-08"}
+  {"id": 1, "title": "Project Contributor", "icon": "Briefcase", "color": "text-slate-500", "earnedAt": "2024-05-20"},
+  {"id": 2, "title": "Process Follower", "icon": "TrendingUp", "color": "text-emerald-500", "earnedAt": "2024-07-15"}
 ]'::jsonb
 WHERE email = 'amit.patel@gov.in';
 
@@ -59,58 +60,59 @@ UPDATE users SET achievements = '[
 ]'::jsonb
 WHERE email = 'sneha.reddy@gov.in';
 
--- Update deepika.roy@gov.in - Team Lead
+-- Update kavita.nair@gov.in - Good Performer (70%)
 UPDATE users SET achievements = '[
-  {"id": 1, "title": "Team Leader", "icon": "Users", "color": "text-blue-500", "earnedAt": "2024-07-10"},
-  {"id": 2, "title": "Collaboration Pro", "icon": "Award", "color": "text-indigo-500", "earnedAt": "2024-09-15"},
-  {"id": 3, "title": "Knowledge Sharer", "icon": "BookOpen", "color": "text-teal-500", "earnedAt": "2024-10-20"}
-]'::jsonb
-WHERE email = 'deepika.roy@gov.in';
-
--- Update kavita.nair@gov.in - Senior Analyst
-UPDATE users SET achievements = '[
-  {"id": 1, "title": "Data Expert", "icon": "TrendingUp", "color": "text-violet-500", "earnedAt": "2024-08-08"},
-  {"id": 2, "title": "Insight Generator", "icon": "Zap", "color": "text-yellow-500", "earnedAt": "2024-09-25"},
-  {"id": 3, "title": "Quality Champion", "icon": "Star", "color": "text-purple-500", "earnedAt": "2024-11-03"}
+  {"id": 1, "title": "Workflow Expert", "icon": "TrendingUp", "color": "text-violet-500", "earnedAt": "2024-08-08"},
+  {"id": 2, "title": "Process Optimizer", "icon": "Zap", "color": "text-yellow-500", "earnedAt": "2024-09-25"},
+  {"id": 3, "title": "Dashboard Creator", "icon": "Star", "color": "text-purple-500", "earnedAt": "2024-11-03"}
 ]'::jsonb
 WHERE email = 'kavita.nair@gov.in';
 
--- Update rahul.verma@gov.in - Data Officer (medium performer 62%)
+-- Update rahul.verma@gov.in - Average Performer (62%)
 UPDATE users SET achievements = '[
-  {"id": 1, "title": "Compliance Expert", "icon": "Shield", "color": "text-green-500", "earnedAt": "2024-07-22"},
-  {"id": 2, "title": "Process Improver", "icon": "TrendingUp", "color": "text-blue-500", "earnedAt": "2024-10-08"}
+  {"id": 1, "title": "Data Analyst", "icon": "TrendingUp", "color": "text-green-500", "earnedAt": "2024-07-22"},
+  {"id": 2, "title": "Testing Contributor", "icon": "Shield", "color": "text-blue-500", "earnedAt": "2024-10-08"}
 ]'::jsonb
 WHERE email = 'rahul.verma@gov.in';
 
--- Update anita.desai@gov.in - Senior Data Officer
+-- Update anjali.mehta@gov.in - High Performer (82%)
 UPDATE users SET achievements = '[
-  {"id": 1, "title": "Data Guardian", "icon": "Shield", "color": "text-cyan-500", "earnedAt": "2024-06-18"},
+  {"id": 1, "title": "AI Champion", "icon": "Zap", "color": "text-purple-500", "earnedAt": "2024-06-18"},
   {"id": 2, "title": "Analytics Pro", "icon": "TrendingUp", "color": "text-indigo-500", "earnedAt": "2024-08-30"},
-  {"id": 3, "title": "Best Practice Leader", "icon": "Award", "color": "text-yellow-500", "earnedAt": "2024-10-15"}
+  {"id": 3, "title": "Innovation Leader", "icon": "Rocket", "color": "text-yellow-500", "earnedAt": "2024-10-15"}
 ]'::jsonb
-WHERE email = 'anita.desai@gov.in';
+WHERE email = 'anjali.mehta@gov.in';
 
--- Update suresh.yadav@gov.in - Analyst
+-- Update suresh.yadav@gov.in - Below Average (48%)
 UPDATE users SET achievements = '[
-  {"id": 1, "title": "Rising Star", "icon": "Star", "color": "text-amber-500", "earnedAt": "2024-09-12"},
-  {"id": 2, "title": "Quick Learner", "icon": "BookOpen", "color": "text-green-500", "earnedAt": "2024-10-28"}
+  {"id": 1, "title": "Data Worker", "icon": "Database", "color": "text-amber-500", "earnedAt": "2024-09-12"},
+  {"id": 2, "title": "Backup Support", "icon": "Shield", "color": "text-green-500", "earnedAt": "2024-10-28"}
 ]'::jsonb
 WHERE email = 'suresh.yadav@gov.in';
 
--- Update manoj.gupta@gov.in - Data Analyst
+-- Update deepika.roy@gov.in - Good Performer (75%)
 UPDATE users SET achievements = '[
-  {"id": 1, "title": "Detail Oriented", "icon": "Target", "color": "text-blue-500", "earnedAt": "2024-08-05"},
-  {"id": 2, "title": "Problem Solver", "icon": "Zap", "color": "text-purple-500", "earnedAt": "2024-10-01"},
-  {"id": 3, "title": "Team Contributor", "icon": "Users", "color": "text-teal-500", "earnedAt": "2024-11-05"}
+  {"id": 1, "title": "QA Leader", "icon": "Award", "color": "text-blue-500", "earnedAt": "2024-08-05"},
+  {"id": 2, "title": "Quality Champion", "icon": "Star", "color": "text-purple-500", "earnedAt": "2024-10-01"},
+  {"id": 3, "title": "Testing Expert", "icon": "Shield", "color": "text-teal-500", "earnedAt": "2024-11-05"}
 ]'::jsonb
-WHERE email = 'manoj.gupta@gov.in';
+WHERE email = 'deepika.roy@gov.in';
 
--- Update pooja.iyer@gov.in - Junior Analyst
+-- Update manish.gupta@gov.in - Average Performer (58%)
 UPDATE users SET achievements = '[
-  {"id": 1, "title": "Fast Starter", "icon": "Rocket", "color": "text-orange-500", "earnedAt": "2024-10-10"},
-  {"id": 2, "title": "Eager Learner", "icon": "BookOpen", "color": "text-pink-500", "earnedAt": "2024-11-02"}
+  {"id": 1, "title": "Security Monitor", "icon": "Shield", "color": "text-red-500", "earnedAt": "2024-10-10"},
+  {"id": 2, "title": "Compliance Checker", "icon": "FileCheck", "color": "text-blue-500", "earnedAt": "2024-11-02"}
 ]'::jsonb
-WHERE email = 'pooja.iyer@gov.in';
+WHERE email = 'manish.gupta@gov.in';
+
+-- Update pooja.deshmukh@gov.in - High Performer (86%)
+UPDATE users SET achievements = '[
+  {"id": 1, "title": "Infrastructure Hero", "icon": "Server", "color": "text-orange-500", "earnedAt": "2024-06-10"},
+  {"id": 2, "title": "Network Master", "icon": "Network", "color": "text-cyan-500", "earnedAt": "2024-08-15"},
+  {"id": 3, "title": "DR Champion", "icon": "Shield", "color": "text-emerald-500", "earnedAt": "2024-10-20"},
+  {"id": 4, "title": "Critical Systems Lead", "icon": "Trophy", "color": "text-yellow-500", "earnedAt": "2024-11-12"}
+]'::jsonb
+WHERE email = 'pooja.deshmukh@gov.in';
 
 -- Step 4: Verification and reporting
 SELECT 

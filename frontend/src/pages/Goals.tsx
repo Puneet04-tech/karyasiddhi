@@ -16,6 +16,8 @@ const Goals = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [creating, setCreating] = useState(false);
@@ -40,6 +42,9 @@ const Goals = () => {
       try {
         // Let the backend scope results based on authenticated user
         const response = await api.get('/goals');
+        console.log('Goals API Response:', response.data);
+        console.log('Current user:', user);
+        console.log('User role:', user?.role);
         setGoals(response.data as Goal[]);
       } catch (error) {
         console.error('Failed to fetch goals:', error);
@@ -96,6 +101,82 @@ const Goals = () => {
       console.error('Failed to create goal:', error);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleEditGoal = (goal: Goal) => {
+    console.log('=== EDIT GOAL HANDLER CALLED ===');
+    console.log('Goal to edit:', goal);
+    
+    setEditingGoal(goal);
+    setNewGoal({
+      title: goal.title,
+      description: goal.description,
+      type: goal.type,
+      priority: goal.priority,
+      progress: Number(goal.progress),
+      startDate: goal.startDate?.split('T')[0] || goal.startDate,
+      endDate: goal.endDate?.split('T')[0] || goal.endDate,
+      departmentId: goal.department?.id || '',
+      assignedUserId: goal.assignedUser?.id || '',
+    });
+    setShowEditModal(true);
+    console.log('Edit modal should now be open');
+  };
+
+  const handleUpdateGoal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingGoal) return;
+    setCreating(true);
+    
+    try {
+      await api.put(`/goals/${editingGoal.id}`, newGoal);
+      setShowEditModal(false);
+      setEditingGoal(null);
+      setNewGoal({
+        title: '',
+        description: '',
+        type: 'specific',
+        priority: 'medium',
+        progress: 0,
+        startDate: '',
+        endDate: '',
+        departmentId: '',
+        assignedUserId: '',
+      });
+      // Refresh goals
+      const response = await api.get('/goals');
+      setGoals(response.data);
+    } catch (error) {
+      console.error('Failed to update goal:', error);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDeleteGoal = async (goalId: string) => {
+    console.log('=== DELETE GOAL HANDLER CALLED ===');
+    console.log('Goal ID to delete:', goalId);
+    
+    const confirmed = window.confirm('Are you sure you want to delete this goal? This action cannot be undone.');
+    console.log('User confirmed deletion:', confirmed);
+    
+    if (!confirmed) return;
+    
+    try {
+      console.log('Sending DELETE request to /goals/' + goalId);
+      const deleteResponse = await api.delete(`/goals/${goalId}`);
+      console.log('Delete response:', deleteResponse);
+      
+      // Refresh goals
+      console.log('Refreshing goals list...');
+      const response = await api.get('/goals');
+      setGoals(response.data);
+      console.log('Goals refreshed successfully');
+      alert('Goal deleted successfully!');
+    } catch (error: any) {
+      console.error('Failed to delete goal:', error);
+      alert('Failed to delete goal: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -188,13 +269,22 @@ const Goals = () => {
 
       {/* Goals Grid */}
       <div className="grid gap-6">
-        {filteredGoals.map((goal, index) => (
+        {filteredGoals.map((goal, index) => {
+          const isManager = user?.role === 'manager';
+          console.log(`Goal ${goal.id}:`, {
+            title: goal.title,
+            assignedUser: goal.assignedUser,
+            userRole: user?.role,
+            isManager: isManager,
+            showButtons: isManager ? 'YES - BUTTONS SHOULD SHOW' : 'NO - BUTTONS HIDDEN'
+          });
+          return (
           <motion.div
             key={goal.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="card p-6 hover:border-primary-500/50 transition-all cursor-pointer"
+            className="card p-6 hover:border-primary-500/50 transition-all"
           >
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
               <div className="flex-1">
@@ -211,14 +301,19 @@ const Goals = () => {
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-4">
-                      <div className="flex items-center">
+                    <div className="flex flex-wrap gap-4 text-sm mb-4">
+                      <div className="flex items-center text-gray-400">
                         <Calendar size={16} className="mr-2" />
                         <span>{formatDate(goal.startDate)} - {formatDate(goal.endDate)}</span>
                       </div>
                       <div className="flex items-center">
-                        <Target size={16} className="mr-2" />
-                        <span>Assigned to: {goal.assignedUser ? goal.assignedUser.name : 'Unassigned'}</span>
+                        <Target size={16} className="mr-2 text-blue-400" />
+                        <span className="text-white font-semibold">
+                          {goal.assignedUser?.name || 'Unassigned'}
+                        </span>
+                        {goal.assignedUser?.email && (
+                          <span className="text-gray-400 ml-2 text-xs">({goal.assignedUser.email})</span>
+                        )}
                       </div>
                     </div>
 
@@ -243,17 +338,43 @@ const Goals = () => {
                 </div>
               </div>
 
-              <div className="flex lg:flex-col gap-2">
-                <button className="p-2 bg-primary-500/20 text-primary-400 rounded-lg hover:bg-primary-500/30 transition-all">
-                  <Edit size={20} />
-                </button>
-                <button className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all">
-                  <Trash2 size={20} />
-                </button>
-              </div>
+              {user?.role === 'manager' && (
+                <div className="flex flex-row lg:flex-col gap-3 shrink-0 ml-4">
+                  <button 
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🔵 EDIT BUTTON MOUSEDOWN!', goal.id, goal.title);
+                      handleEditGoal(goal);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all cursor-pointer font-medium shadow-lg z-10"
+                    title="Edit Goal"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    <Edit size={18} />
+                    <span>Edit</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🔴 DELETE BUTTON MOUSEDOWN!', goal.id, goal.title);
+                      handleDeleteGoal(goal.id);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 active:scale-95 transition-all cursor-pointer font-medium shadow-lg z-10"
+                    title="Delete Goal"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    <Trash2 size={18} />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
-        ))}
+        )})}
       </div>
 
       {/* Empty State */}
@@ -275,6 +396,22 @@ const Goals = () => {
         users={users}
         creating={creating}
       />
+
+      {/* Edit Goal Modal */}
+      <CreateGoalModal
+        show={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingGoal(null);
+        }}
+        onSubmit={handleUpdateGoal}
+        newGoal={newGoal}
+        setNewGoal={(g: any) => setNewGoal(g)}
+        departments={departments}
+        users={users}
+        creating={creating}
+        isEdit={true}
+      />
     </div>
   );
 };
@@ -288,7 +425,8 @@ const CreateGoalModal = ({
   setNewGoal, 
   departments, 
   users, 
-  creating 
+  creating,
+  isEdit = false
 }: {
   show: boolean;
   onClose: () => void;
@@ -298,6 +436,7 @@ const CreateGoalModal = ({
   departments: Department[];
   users: any[];
   creating: boolean;
+  isEdit?: boolean;
 }) => {
   if (!show) return null;
 
@@ -308,7 +447,7 @@ const CreateGoalModal = ({
         animate={{ opacity: 1, scale: 1 }}
         className="bg-slate-900 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
-        <h2 className="text-2xl font-bold text-white mb-6">Create New Goal</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">{isEdit ? 'Edit Goal' : 'Create New Goal'}</h2>
         
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
@@ -446,7 +585,7 @@ const CreateGoalModal = ({
               disabled={creating}
               className="btn-primary"
             >
-              {creating ? 'Creating...' : 'Create Goal'}
+              {creating ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Goal' : 'Create Goal')}
             </button>
           </div>
         </form>

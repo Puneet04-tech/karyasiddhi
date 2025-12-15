@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Goal } from '../goals/goal.entity';
 import { Department } from '../departments/department.entity';
 
@@ -57,9 +57,11 @@ export class Kpi {
   trend: KpiTrend;
 
   @ManyToOne(() => Department)
+  @JoinColumn({ name: 'department_id' })
   department: Department;
 
   @ManyToOne(() => Goal, goal => goal.kpis, { nullable: true })
+  @JoinColumn({ name: 'goal_id' })
   goal: Goal;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

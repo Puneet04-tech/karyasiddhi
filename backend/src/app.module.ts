@@ -7,6 +7,7 @@ import { GoalsModule } from './goals/goals.module';
 import { KpisModule } from './kpis/kpis.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { DepartmentsModule } from './departments/departments.module';
+import { SnakeNamingStrategy } from './common/snake-naming.strategy';
 
 @Module({
   imports: [
@@ -17,8 +18,14 @@ import { DepartmentsModule } from './departments/departments.module';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: false, // Disabled - schema managed by SQL files
       logging: process.env.NODE_ENV === 'development',
+      namingStrategy: new SnakeNamingStrategy(), // Convert camelCase to snake_case
+      extra: {
+        ssl: {
+          rejectUnauthorized: false, // Required for Supabase
+        },
+      },
     }),
     AuthModule,
     UsersModule,

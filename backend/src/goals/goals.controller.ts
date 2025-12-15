@@ -26,9 +26,9 @@ export class GoalsController {
   @ApiOperation({ summary: 'Get all goals' })
   async findAll(@Request() req, @Query('userId') userId?: string, @Query('departmentId') departmentId?: string) {
     // Regular users can only see their own goals unless they're a manager
-    const targetUserId = req.user.role === 'Department Head' ? userId : (userId || req.user.id);
+    const targetUserId = req.user.role === 'manager' ? userId : (userId || req.user.id);
     
-    if (targetUserId && req.user.role !== 'Department Head') {
+    if (targetUserId && req.user.role !== 'manager') {
       return this.goalsService.findByUserId(req.user.id);
     }
     if (targetUserId) {
@@ -37,13 +37,13 @@ export class GoalsController {
     if (departmentId) {
       return this.goalsService.findByDepartmentId(departmentId);
     }
-    return req.user.role === 'Department Head' ? this.goalsService.findAll() : this.goalsService.findByUserId(req.user.id);
+    return req.user.role === 'manager' ? this.goalsService.findAll() : this.goalsService.findByUserId(req.user.id);
   }
 
   @Get('statistics')
   @ApiOperation({ summary: 'Get goals statistics' })
   async getStatistics(@Request() req, @Query('userId') userId?: string) {
-    const targetUserId = req.user.role === 'Department Head' ? userId : req.user.id;
+    const targetUserId = req.user.role === 'manager' ? userId : req.user.id;
     return targetUserId ? this.goalsService.getStatisticsByUser(targetUserId) : this.goalsService.getStatistics();
   }
 

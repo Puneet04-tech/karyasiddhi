@@ -7,14 +7,23 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS - support comma-separated list in CORS_ORIGIN env
-  const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:3000';
+  const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:5173';
   const origins = rawOrigins.split(',').map((s) => s.trim()).filter(Boolean);
 
   app.enableCors({
     origin: (incomingOrigin, callback) => {
       // Allow if no origin (same-origin requests) or origin is in configured list
       if (!incomingOrigin) return callback(null, true);
-      if (origins.includes(incomingOrigin) || origins.includes('*')) return callback(null, true);
+      
+      // Check if origin matches configured origins or Render/Netlify domains
+      const isAllowed = origins.includes(incomingOrigin) || 
+                       origins.includes('*') ||
+                       /\.render\.com$/.test(incomingOrigin) ||
+                       /\.netlify\.app$/.test(incomingOrigin) ||
+                       /\.onrender\.com$/.test(incomingOrigin);
+      
+      if (isAllowed) return callback(null, true);
+      
       // Not allowed
       return callback(new Error('Not allowed by CORS'), false);
     },

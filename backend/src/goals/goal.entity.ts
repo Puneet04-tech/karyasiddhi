@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Department } from '../departments/department.entity';
 import { Kpi } from '../kpis/kpi.entity';
@@ -67,12 +67,15 @@ export class Goal {
   endDate: Date;
 
   @ManyToOne(() => Department, department => department.goals)
+  @JoinColumn({ name: 'department_id' })
   department: Department;
 
   @ManyToOne(() => User, user => user.goals)
+  @JoinColumn({ name: 'assigned_user_id' })
   assignedUser: User;
 
   @ManyToOne(() => Goal, goal => goal.childGoals, { nullable: true })
+  @JoinColumn({ name: 'parent_goal_id' })
   parentGoal: Goal;
 
   @OneToMany(() => Goal, goal => goal.parentGoal)

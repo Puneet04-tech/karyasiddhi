@@ -19,21 +19,21 @@ export class KpisService {
 
   async findAll(): Promise<Kpi[]> {
     return this.kpisRepository.find({
-      relations: ['department', 'goal'],
+      relations: ['department', 'goal', 'goal.assignedUser'],
     });
   }
 
   async findById(id: string): Promise<Kpi> {
     return this.kpisRepository.findOne({
       where: { id },
-      relations: ['department', 'goal'],
+      relations: ['department', 'goal', 'goal.assignedUser'],
     });
   }
 
   async findByGoalId(goalId: string): Promise<Kpi[]> {
     return this.kpisRepository.find({
       where: { goal: { id: goalId } },
-      relations: ['department'],
+      relations: ['department', 'goal', 'goal.assignedUser'],
     });
   }
 
@@ -47,7 +47,7 @@ export class KpisService {
   async findByDepartmentId(departmentId: string): Promise<Kpi[]> {
     return this.kpisRepository.find({
       where: { department: { id: departmentId } },
-      relations: ['goal'],
+      relations: ['goal', 'goal.assignedUser'],
     });
   }
 

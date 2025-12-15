@@ -18,6 +18,7 @@ const Analytics = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   const [insights, setInsights] = useState<any[]>([]);
+  const [teamRankings, setTeamRankings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7d');
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -47,6 +48,10 @@ const Analytics = () => {
         // Fetch insights
         const insightsResponse = await api.get('/analytics/insights');
         setInsights(insightsResponse.data);
+        
+        // Fetch team rankings
+        const rankingsResponse = await api.get('/analytics/team-rankings');
+        setTeamRankings(rankingsResponse.data);
       } catch (error) {
         console.error('Failed to fetch analytics:', error);
       } finally {
@@ -349,6 +354,77 @@ const Analytics = () => {
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Team Rankings - Manager View */}
+      {user?.role === 'manager' && (
+        <div className="card p-6">
+          <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
+            <Award className="mr-2 text-yellow-500" />
+            Team Performance Rankings
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-700">
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Rank</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Employee</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Designation</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Department</th>
+                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Performance Score</th>
+                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Completion Rate</th>
+                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Avg Progress</th>
+                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Goals</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teamRankings.map((employee, index) => (
+                  <motion.tr
+                    key={employee.userId}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors"
+                  >
+                    <td className="py-4 px-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                        index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                        index === 1 ? 'bg-gray-400/20 text-gray-400' :
+                        index === 2 ? 'bg-orange-500/20 text-orange-500' :
+                        'bg-slate-700 text-gray-400'
+                      }`}>
+                        {employee.rank}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>
+                        <div className="font-semibold text-white">{employee.name}</div>
+                        <div className="text-sm text-gray-400">{employee.email}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-gray-300">{employee.designation || 'N/A'}</td>
+                    <td className="py-4 px-4 text-gray-300">{employee.department || 'N/A'}</td>
+                    <td className="py-4 px-4 text-center">
+                      <div className={`inline-flex items-center justify-center px-3 py-1 rounded-full font-semibold ${
+                        employee.performanceScore >= 80 ? 'bg-green-500/20 text-green-500' :
+                        employee.performanceScore >= 60 ? 'bg-yellow-500/20 text-yellow-500' :
+                        'bg-red-500/20 text-red-500'
+                      }`}>
+                        {employee.performanceScore}%
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-center text-gray-300">{employee.completionRate}%</td>
+                    <td className="py-4 px-4 text-center text-gray-300">{employee.averageProgress}%</td>
+                    <td className="py-4 px-4 text-center">
+                      <span className="text-white font-semibold">{employee.completedGoals}</span>
+                      <span className="text-gray-400">/{employee.totalGoals}</span>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Skills Assessment */}

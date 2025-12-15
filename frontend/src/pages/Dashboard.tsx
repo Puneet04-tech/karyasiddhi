@@ -22,6 +22,8 @@ const Dashboard = () => {
     completionRate: 0,
     weeklyTrend: 0,
   });
+  const [teamRankings, setTeamRankings] = useState<any[]>([]);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,6 +44,16 @@ const Dashboard = () => {
           completionRate: overviewRes.data.completionRate || 0,
           weeklyTrend: overviewRes.data.productivityTrend || 0,
         });
+
+        // Fetch team rankings if user is manager
+        if (user?.role === 'manager') {
+          const rankingsRes = await api.get('/analytics/team-rankings');
+          setTeamRankings(rankingsRes.data || []);
+          
+          // Fetch all users
+          const usersRes = await api.get('/users');
+          setAllUsers(usersRes.data || []);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
       } finally {
@@ -334,6 +346,111 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Team Rankings Section - Manager Only */}
+      {user?.role === 'manager' && teamRankings.length > 0 && (
+        <div className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <Award className="mr-3 text-yellow-500" size={32} />
+              Team Performance Rankings
+            </h2>
+            <p className="text-gray-400 mt-1">Top performers across all departments</p>
+          </div>
+          <div className="card p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-700">
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Rank</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Employee</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Designation</th>
+                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Performance</th>
+                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Completion</th>
+                  <th className="text-center py-3 px-4 text-gray-400 font-medium">Goals</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teamRankings.slice(0, 10).map((employee, index) => (
+                  <tr key={employee.userId} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
+                    <td className="py-4 px-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                        index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                        index === 1 ? 'bg-gray-400/20 text-gray-400' :
+                        index === 2 ? 'bg-orange-500/20 text-orange-500' :
+                        'bg-slate-700 text-gray-400'
+                      }`}>
+                        {employee.rank}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>
+                        <div className="font-semibold text-white">{employee.name}</div>
+                        <div className="text-sm text-gray-400">{employee.email}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-gray-300">{employee.designation || 'N/A'}</td>
+                    <td className="py-4 px-4 text-center">
+                      <div className={`inline-flex items-center justify-center px-3 py-1 rounded-full font-semibold ${
+                        employee.performanceScore >= 80 ? 'bg-green-500/20 text-green-500' :
+                        employee.performanceScore >= 60 ? 'bg-yellow-500/20 text-yellow-500' :
+                        'bg-red-500/20 text-red-500'
+                      }`}>
+                        {employee.performanceScore}%
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-center text-gray-300">{employee.completionRate}%</td>
+                    <td className="py-4 px-4 text-center">
+                      <span className="text-white font-semibold">{employee.completedGoals}</span>
+                      <span className="text-gray-400">/{employee.totalGoals}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        </div>
+      )}
+
+      {/* All Employees Section - Manager Only */}
+      {user?.role === 'manager' && allUsers.length > 0 && (
+        <div className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <Users className="mr-3 text-blue-500" size={32} />
+              All Employee Accounts
+            </h2>
+            <p className="text-gray-400 mt-1">Complete list of {allUsers.length} team members</p>
+          </div>
+          <div className="card p-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {allUsers.map((employee) => (
+              <div key={employee.id} className="p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-primary-500 transition-all">
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold text-lg">
+                    {employee.name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-white truncate">{employee.name}</h3>
+                    <p className="text-xs text-gray-400 truncate">{employee.email}</p>
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs text-gray-300">{employee.designation || 'Staff'}</p>
+                      <p className="text-xs text-gray-400">{employee.department?.name || 'No Department'}</p>
+                      <span className={`inline-block text-xs px-2 py-0.5 rounded ${
+                        employee.isActive ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                      }`}>
+                        {employee.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        </div>
+      )}
 
       {/* AI Insights and Recent Activity */}
       <div className="grid lg:grid-cols-2 gap-6">

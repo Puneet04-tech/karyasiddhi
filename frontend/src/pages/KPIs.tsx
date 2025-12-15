@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { BarChart3, TrendingUp, TrendingDown, Minus, Plus, Search, Calendar } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Minus, Plus, Search, Calendar, Edit, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Brush } from 'recharts';
 import api from '../lib/api';
@@ -14,8 +14,11 @@ const KPIs = () => {
   const chartRef = useRef<HTMLDivElement | null>(null);
   const [showBars, setShowBars] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingKPI, setEditingKPI] = useState<KPI | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [creating, setCreating] = useState(false);
+  const { user } = useAuthStore();
 
   // Form state for new KPI
   const [newKPI, setNewKPI] = useState({
@@ -80,6 +83,82 @@ const KPIs = () => {
       console.error('Failed to create KPI:', error);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleEditKPI = (kpi: KPI) => {
+    console.log('=== EDIT KPI HANDLER CALLED ===');
+    console.log('KPI to edit:', kpi);
+    
+    setEditingKPI(kpi);
+    setNewKPI({
+      name: kpi.name,
+      description: kpi.description,
+      unit: kpi.unit,
+      target: Number(kpi.target),
+      current: Number(kpi.current),
+      baseline: Number(kpi.baseline),
+      frequency: kpi.frequency,
+      category: kpi.category,
+      goalId: kpi.goal?.id || '',
+    });
+    setShowEditModal(true);
+    console.log('Edit modal should now be open');
+  };
+
+  const handleUpdateKPI = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingKPI) return;
+    setCreating(true);
+    
+    try {
+      await api.put(`/kpis/${editingKPI.id}`, newKPI);
+      setShowEditModal(false);
+      setEditingKPI(null);
+      setNewKPI({
+        name: '',
+        description: '',
+        unit: '',
+        target: 0,
+        current: 0,
+        baseline: 0,
+        frequency: 'monthly',
+        category: '',
+        goalId: '',
+      });
+      // Refresh KPIs
+      const response = await api.get('/kpis');
+      setKpis(response.data);
+    } catch (error) {
+      console.error('Failed to update KPI:', error);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDeleteKPI = async (kpiId: string) => {
+    console.log('=== DELETE KPI HANDLER CALLED ===');
+    console.log('KPI ID to delete:', kpiId);
+    
+    const confirmed = window.confirm('Are you sure you want to delete this KPI? This action cannot be undone.');
+    console.log('User confirmed deletion:', confirmed);
+    
+    if (!confirmed) return;
+    
+    try {
+      console.log('Sending DELETE request to /kpis/' + kpiId);
+      const deleteResponse = await api.delete(`/kpis/${kpiId}`);
+      console.log('Delete response:', deleteResponse);
+      
+      // Refresh KPIs
+      console.log('Refreshing KPIs list...');
+      const response = await api.get('/kpis');
+      setKpis(response.data);
+      console.log('KPIs refreshed successfully');
+      alert('KPI deleted successfully!');
+    } catch (error: any) {
+      console.error('Failed to delete KPI:', error);
+      alert('Failed to delete KPI: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -268,7 +347,41 @@ const KPIs = () => {
                   </div>
                   <p className="text-sm text-gray-400">{kpi.description}</p>
                 </div>
-                {getTrendIcon(kpi.trend)}
+                <div className="flex items-center gap-2">
+                  {getTrendIcon(kpi.trend)}
+                  {user?.role === 'manager' && (
+                    <div className="flex gap-2 ml-2">
+                      <button 
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('🔵 EDIT KPI BUTTON MOUSEDOWN!', kpi.id, kpi.name);
+                          handleEditKPI(kpi);
+                        }}
+                        className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all cursor-pointer shadow-lg z-10"
+                        title="Edit KPI"
+                        style={{ pointerEvents: 'auto' }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                      </button>
+                      <button 
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('🔴 DELETE KPI BUTTON MOUSEDOWN!', kpi.id, kpi.name);
+                          handleDeleteKPI(kpi.id);
+                        }}
+                        className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 active:scale-95 transition-all cursor-pointer shadow-lg z-10"
+                        title="Delete KPI"
+                        style={{ pointerEvents: 'auto' }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -306,6 +419,22 @@ const KPIs = () => {
                   </div>
                 </div>
 
+                {/* Assigned User */}
+                {kpi.goal?.assignedUser && (
+                  <div className="flex items-center gap-2 text-sm pt-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span className="text-white font-semibold">
+                      {kpi.goal.assignedUser.name}
+                    </span>
+                    {kpi.goal.assignedUser.email && (
+                      <span className="text-gray-400 text-xs">({kpi.goal.assignedUser.email})</span>
+                    )}
+                  </div>
+                )}
+
                 {/* Meta Info */}
                 <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-slate-700">
                   <span className="flex items-center">
@@ -331,6 +460,21 @@ const KPIs = () => {
         goals={goals}
         creating={creating}
       />
+
+      {/* Edit KPI Modal */}
+      <CreateKPIModal
+        show={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingKPI(null);
+        }}
+        onSubmit={handleUpdateKPI}
+        newKPI={newKPI}
+        setNewKPI={(k: any) => setNewKPI(k)}
+        goals={goals}
+        creating={creating}
+        isEdit={true}
+      />
     </div>
   );
 };
@@ -343,7 +487,8 @@ const CreateKPIModal = ({
   newKPI, 
   setNewKPI, 
   goals, 
-  creating 
+  creating,
+  isEdit = false
 }: {
   show: boolean;
   onClose: () => void;
@@ -352,6 +497,7 @@ const CreateKPIModal = ({
   setNewKPI: (kpi: any) => void;
   goals: Goal[];
   creating: boolean;
+  isEdit?: boolean;
 }) => {
   if (!show) return null;
 
@@ -362,7 +508,7 @@ const CreateKPIModal = ({
         animate={{ opacity: 1, scale: 1 }}
         className="bg-slate-900 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
-        <h2 className="text-2xl font-bold text-white mb-6">Create New KPI</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">{isEdit ? 'Edit KPI' : 'Create New KPI'}</h2>
         
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
@@ -495,7 +641,7 @@ const CreateKPIModal = ({
               disabled={creating}
               className="btn-primary"
             >
-              {creating ? 'Creating...' : 'Create KPI'}
+              {creating ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update KPI' : 'Create KPI')}
             </button>
           </div>
         </form>

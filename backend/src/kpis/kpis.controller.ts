@@ -27,12 +27,12 @@ export class KpisController {
     }
 
     // Department-scoped filter (managers) or explicit query
-    if (departmentId && req.user?.role === 'Department Head') {
+    if (departmentId && req.user?.role === 'manager') {
       return this.kpisService.findByDepartmentId(departmentId);
     }
 
-    // If the requester is a Department Head, return KPIs for their department (or all if necessary)
-    if (req.user?.role === 'Department Head') {
+    // If the requester is a manager, return KPIs for their department (or all if necessary)
+    if (req.user?.role === 'manager') {
       return this.kpisService.findAll();
     }
 
