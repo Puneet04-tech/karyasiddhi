@@ -13,7 +13,7 @@ services:
         value: 10000
       - key: DATABASE_URL
         sync: false
-      - key: JWT_SECRET
+      - key: JWT_SECRETn
         sync: false
       - key: CORS_ORIGIN
         value: http://localhost:5173,https://karyasiddhi.netlify.app
