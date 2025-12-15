@@ -1,0 +1,30 @@
+{
+  "name": "karyasiddhi",
+  "version": "1.0.0",
+  "description": "AI-Enhanced Government Performance Platform - Digital India Initiative SIH 2025",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "setup": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../ai-service && pip install -r requirements.txt",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:ai": "cd ai-service && uvicorn main:app --reload --port 8000",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "start": "docker-compose up"
+  },
+  "keywords": [
+    "digital-india",
+    "performance-management",
+    "ai",
+    "government",
+    "smart-goals"
+  ],
+  "author": "Ministry of Electronics and Information Technology",
+  "license": "MIT"
+}
