@@ -47,7 +47,9 @@ export const useAuthStore = create<AuthState>()(
         const normalizedEmail = (email || '').trim().toLowerCase();
         const normalizedPassword = (password || '').trim();
         try {
+          console.debug('Attempting login with:', { email: normalizedEmail });
           const response = await api.post('/auth/login', { email: normalizedEmail, password: normalizedPassword });
+          console.debug('Login response:', response.data);
           const { access_token, user } = response.data;
           
           set({
@@ -66,9 +68,11 @@ export const useAuthStore = create<AuthState>()(
             token: access_token,
             isAuthenticated: true,
           });
-        } catch (error) {
-          console.error('Login failed:', error);
-          throw new Error('Invalid credentials');
+        } catch (error: any) {
+          // Log detailed info to help debugging in production builds
+          console.error('Login failed:', error?.response?.status, error?.response?.data || error?.message || error);
+          const serverMessage = error?.response?.data?.message || error?.message || 'Invalid credentials';
+          throw new Error(serverMessage);
         }
       },
       
