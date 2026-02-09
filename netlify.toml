@@ -10,4 +10,4 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  VITE_API_URL = "https://karyasiddhi-backend.onrender.com/api"
+  VITE_API_URL = "https://karyasiddhi-3.onrender.com/api"
