@@ -13,23 +13,7 @@ services:
         value: 10000
       - key: DATABASE_URL
         sync: false
-      - key: JWT_SECRET
+      - key: JWT_SECRETn
         sync: false
       - key: CORS_ORIGIN
         value: http://localhost:5173,https://karyasiddhi.netlify.app
-      - key: AI_SERVICE_URL
-        value: http://karyasiddhi-ai-service:10000
-  - type: web
-    name: karyasiddhi-ai-service
-    env: python
-    region: oregon
-    plan: free
-    buildCommand: cd ai-service && pip install -r requirements.txt
-    startCommand: cd ai-service && uvicorn main:app --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: PORT
-        value: 10000
-      - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false

@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { 
   Settings as SettingsIcon, Bell, Lock, Globe, 
-  Shield, Database, Wifi, WifiOff
+  Moon, Sun, Shield, Database, Wifi, WifiOff
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../theme/ThemeContext';
 import api from '../lib/api';
 
 const Settings = () => {
   const { user, setUser } = useAuthStore();
+  const { theme, toggleTheme } = useTheme();
   const [localSettings, setLocalSettings] = useState({
     notifications: true,
     emailAlerts: true,
@@ -23,9 +25,9 @@ const Settings = () => {
     confirmPassword: '',
   });
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Initialize settings from user store on component mount
   useEffect(() => {
@@ -34,31 +36,67 @@ const Settings = () => {
     }
   }, [user]);
 
+  // Sync local settings with theme context
+  useEffect(() => {
+    setLocalSettings(prev => ({ ...prev, darkMode: theme === 'dark' }));
+  }, [theme]);
+
   const toggleSwitch = async (key: keyof typeof localSettings) => {
-    const newSettings = { ...localSettings, [key]: !localSettings[key] };
-    setLocalSettings(newSettings);
-    
-    // Update local user immediately for responsive UI
-    if (user) {
-      setUser({ ...user, settings: newSettings });
-    }
-    
-    // Save to backend
-    try {
-      setLoading(true);
-      const response = await api.put('/settings', newSettings);
-      if (response.data) {
-        console.log('Settings saved successfully');
-      }
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-      // Revert on error
-      setLocalSettings(user?.settings || localSettings);
+    if (key === 'darkMode') {
+      // Handle dark mode toggle using theme context
+      toggleTheme();
+      const newTheme = theme === 'dark' ? 'light' : 'dark';
+      const newSettings = { ...localSettings, [key]: newTheme === 'dark' };
+      
+      // Update local user immediately for responsive UI
       if (user) {
-        setUser({ ...user, settings: user?.settings || localSettings });
+        setUser({ ...user, settings: newSettings });
       }
-    } finally {
-      setLoading(false);
+      
+      // Save to backend
+      try {
+        setLoading(true);
+        const response = await api.put('/settings', newSettings);
+        if (response.data) {
+          console.log('Settings saved successfully');
+        }
+      } catch (error) {
+        console.error('Failed to save settings:', error);
+        // Revert on error
+        setLocalSettings(user?.settings || localSettings);
+        if (user) {
+          setUser({ ...user, settings: user?.settings || localSettings });
+        }
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Handle other settings normally
+      const newSettings = { ...localSettings, [key]: !localSettings[key] };
+      setLocalSettings(newSettings);
+      
+      // Update local user immediately for responsive UI
+      if (user) {
+        setUser({ ...user, settings: newSettings });
+      }
+      
+      // Save to backend
+      try {
+        setLoading(true);
+        const response = await api.put('/settings', newSettings);
+        if (response.data) {
+          console.log('Settings saved successfully');
+        }
+      } catch (error) {
+        console.error('Failed to save settings:', error);
+        // Revert on error
+        setLocalSettings(user?.settings || localSettings);
+        if (user) {
+          setUser({ ...user, settings: user?.settings || localSettings });
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -227,6 +265,46 @@ const Settings = () => {
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Appearance */}
+      <div className="card p-6">
+        <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
+          {theme === 'dark' ? <Moon className="mr-2 text-purple-500" /> : <Sun className="mr-2 text-yellow-500" />}
+          Appearance
+        </h2>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
+            <div>
+              <h3 className="text-white font-semibold">Dark Mode</h3>
+              <p className="text-sm text-gray-400">Use dark theme for better viewing</p>
+            </div>
+            <button
+              onClick={() => toggleSwitch('darkMode')}
+              className={`relative w-14 h-7 rounded-full transition-colors ${
+                theme === 'dark' ? 'bg-primary-600' : 'bg-slate-700'
+              }`}
+            >
+              <motion.div
+                className="absolute top-1 w-5 h-5 bg-white rounded-full"
+                animate={{ left: theme === 'dark' ? '30px' : '4px' }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            </button>
+          </div>
+
+          <div className="p-4 bg-slate-800/50 rounded-lg">
+            <h3 className="text-white font-semibold mb-3">Language</h3>
+            <p className="text-sm text-gray-400 mb-3">Current: {localSettings.language === 'en' ? 'English' : localSettings.language === 'hi' ? 'Hindi' : localSettings.language === 'ta' ? 'Tamil' : localSettings.language === 'te' ? 'Telugu' : localSettings.language === 'bn' ? 'Bengali' : 'Unknown'}</p>
+            <select className="input-field" value={localSettings.language} onChange={(e) => handleLanguageChange(e.target.value)}>
+              <option value="en">English</option>
+              <option value="hi">हिंदी (Hindi)</option>
+              <option value="ta">தமிழ் (Tamil)</option>
+              <option value="te">తెలుగు (Telugu)</option>
+              <option value="bn">বাংলা (Bengali)</option>
+            </select>
           </div>
         </div>
       </div>
