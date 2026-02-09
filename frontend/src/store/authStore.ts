@@ -62,6 +62,7 @@ export const useAuthStore = create<AuthState>()(
               aadhaarVerified: user.aadhaarVerified || false,
               digilockerVerified: user.digilockerVerified || false,
               avatar: user.avatar,
+              achievements: user.achievements || [],
             },
             token: access_token,
             isAuthenticated: true,
