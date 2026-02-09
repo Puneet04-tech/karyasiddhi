@@ -30,6 +30,7 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const overviewRes = await api.get('/analytics/overview');
+        console.debug('analytics/overview response:', overviewRes.status, overviewRes.data);
         
         const inProgress = overviewRes.data.totalGoals - overviewRes.data.completedGoals - overviewRes.data.delayedGoals;
         
@@ -48,14 +49,16 @@ const Dashboard = () => {
         // Fetch team rankings if user is manager
         if (user?.role === 'manager') {
           const rankingsRes = await api.get('/analytics/team-rankings');
+          console.debug('analytics/team-rankings response:', rankingsRes.status, rankingsRes.data?.length);
           setTeamRankings(rankingsRes.data || []);
           
           // Fetch all users
           const usersRes = await api.get('/users');
+          console.debug('users response:', usersRes.status, usersRes.data?.length);
           setAllUsers(usersRes.data || []);
         }
-      } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+      } catch (error: any) {
+        console.error('Failed to fetch dashboard data:', error?.response?.status, error?.response?.data || error?.message || error);
       } finally {
         setLoading(false);
       }
