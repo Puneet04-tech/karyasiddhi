@@ -21,7 +21,7 @@ import { SnakeNamingStrategy } from './common/snake-naming.strategy';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false, // Disabled - schema managed by SQL files
       logging: process.env.NODE_ENV === 'development',
-      namingStrategy: new SnakeNamingStrategy(), // Convert camelCase to snake_case
+      // namingStrategy: new SnakeNamingStrategy(), // Convert camelCase to snake_case
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       extra: process.env.NODE_ENV === 'production' ? {
         ssl: {
