@@ -1,19 +1,86 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Settings as SettingsIcon, Bell, Lock, Globe, 
   Moon, Sun, Shield, Database, Wifi, WifiOff
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '../store/authStore';
+import api from '../lib/api';
 
 const Settings = () => {
-  const [notifications, setNotifications] = useState(true);
-  const [emailAlerts, setEmailAlerts] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
-  const [offlineMode, setOfflineMode] = useState(false);
-  const [twoFactor, setTwoFactor] = useState(false);
+  const { user, setUser } = useAuthStore();
+  const [localSettings, setLocalSettings] = useState({
+    notifications: true,
+    emailAlerts: true,
+    darkMode: true,
+    offlineMode: false,
+    twoFactor: false,
+    language: 'English',
+  });
+  const [loading, setLoading] = useState(false);
 
-  const toggleSwitch = (current: boolean, setter: (value: boolean) => void) => {
-    setter(!current);
+  // Initialize settings from user store on component mount
+  useEffect(() => {
+    if (user?.settings) {
+      setLocalSettings(user.settings);
+    }
+  }, [user]);
+
+  const toggleSwitch = async (key: keyof typeof localSettings) => {
+    const newSettings = { ...localSettings, [key]: !localSettings[key] };
+    setLocalSettings(newSettings);
+    
+    // Update local user immediately for responsive UI
+    if (user) {
+      setUser({ ...user, settings: newSettings });
+    }
+    
+    // Save to backend
+    try {
+      setLoading(true);
+      const response = await api.put('/settings', newSettings);
+      if (response.data) {
+        // Backend confirmed the update
+        console.log('Settings saved successfully');
+      }
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      // Revert on error
+      setLocalSettings(user?.settings || localSettings);
+      if (user) {
+        setUser({ ...user, settings: user?.settings || localSettings });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLanguageChange = async (language: string) => {
+    const newSettings = { ...localSettings, language };
+    setLocalSettings(newSettings);
+    
+    // Update local user immediately for responsive UI
+    if (user) {
+      setUser({ ...user, settings: newSettings });
+    }
+    
+    // Save to backend
+    try {
+      setLoading(true);
+      const response = await api.put('/settings', newSettings);
+      if (response.data) {
+        console.log('Language saved successfully');
+      }
+    } catch (error) {
+      console.error('Failed to save language:', error);
+      // Revert on error
+      setLocalSettings(user?.settings || localSettings);
+      if (user) {
+        setUser({ ...user, settings: user?.settings || localSettings });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChangePassword = () => {
@@ -61,14 +128,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Receive notifications about goal updates</p>
             </div>
             <button
-              onClick={() => toggleSwitch(notifications, setNotifications)}
+              onClick={() => toggleSwitch('notifications')}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                notifications ? 'bg-primary-600' : 'bg-slate-700'
+                localSettings.notifications ? 'bg-primary-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: notifications ? '30px' : '4px' }}
+                animate={{ left: localSettings.notifications ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -80,14 +147,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Get email notifications for important updates</p>
             </div>
             <button
-              onClick={() => toggleSwitch(emailAlerts, setEmailAlerts)}
+              onClick={() => toggleSwitch('emailAlerts')}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                emailAlerts ? 'bg-primary-600' : 'bg-slate-700'
+                localSettings.emailAlerts ? 'bg-primary-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: emailAlerts ? '30px' : '4px' }}
+                animate={{ left: localSettings.emailAlerts ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -98,7 +165,7 @@ const Settings = () => {
       {/* Appearance */}
       <div className="card p-6">
         <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
-          {darkMode ? <Moon className="mr-2 text-purple-500" /> : <Sun className="mr-2 text-yellow-500" />}
+          {localSettings.darkMode ? <Moon className="mr-2 text-purple-500" /> : <Sun className="mr-2 text-yellow-500" />}
           Appearance
         </h2>
         <div className="space-y-4">
@@ -108,14 +175,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Use dark theme for better viewing</p>
             </div>
             <button
-              onClick={() => toggleSwitch(darkMode, setDarkMode)}
+              onClick={() => toggleSwitch('darkMode')}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                darkMode ? 'bg-primary-600' : 'bg-slate-700'
+                localSettings.darkMode ? 'bg-primary-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: darkMode ? '30px' : '4px' }}
+                animate={{ left: localSettings.darkMode ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -123,7 +190,7 @@ const Settings = () => {
 
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <h3 className="text-white font-semibold mb-3">Language</h3>
-            <select className="input-field">
+            <select className="input-field" value={localSettings.language} onChange={(e) => handleLanguageChange(e.target.value)}>
               <option>English</option>
               <option>हिंदी (Hindi)</option>
               <option>தமிழ் (Tamil)</option>
@@ -147,14 +214,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Add extra security to your account</p>
             </div>
             <button
-              onClick={() => toggleSwitch(twoFactor, setTwoFactor)}
+              onClick={() => toggleSwitch('twoFactor')}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                twoFactor ? 'bg-green-600' : 'bg-slate-700'
+                localSettings.twoFactor ? 'bg-green-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: twoFactor ? '30px' : '4px' }}
+                animate={{ left: localSettings.twoFactor ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -192,14 +259,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Work offline and sync when connected</p>
             </div>
             <button
-              onClick={() => toggleSwitch(offlineMode, setOfflineMode)}
+              onClick={() => toggleSwitch('offlineMode')}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                offlineMode ? 'bg-primary-600' : 'bg-slate-700'
+                localSettings.offlineMode ? 'bg-primary-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: offlineMode ? '30px' : '4px' }}
+                animate={{ left: localSettings.offlineMode ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>

@@ -7,6 +7,7 @@ import { GoalsModule } from './goals/goals.module';
 import { KpisModule } from './kpis/kpis.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { DepartmentsModule } from './departments/departments.module';
+import { SettingsModule } from './settings/settings.module';
 import { SnakeNamingStrategy } from './common/snake-naming.strategy';
 
 @Module({
@@ -34,6 +35,7 @@ import { SnakeNamingStrategy } from './common/snake-naming.strategy';
     KpisModule,
     AnalyticsModule,
     DepartmentsModule,
+    SettingsModule,
   ],
 })
 export class AppModule {}

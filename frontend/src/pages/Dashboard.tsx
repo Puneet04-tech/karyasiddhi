@@ -168,7 +168,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">Productivity Score</p>
-              <h3 className="text-5xl font-black gradient-text mt-3 mb-3">{stats.productivityScore}</h3>
+              <h3 className="text-5xl font-black gradient-text mt-3 mb-3 pl-2">{stats.productivityScore}</h3>
               <div className="flex items-center mt-2 text-green-400 text-sm font-semibold">
                 <TrendingUp size={18} className="mr-2" />
                 <span>+{stats.weeklyTrend}% this week</span>
@@ -188,7 +188,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">Total Goals</p>
-              <h3 className="text-5xl font-black text-white mt-3 mb-3">{stats.totalGoals}</h3>
+              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-2">{stats.totalGoals}</h3>
               <div className="flex items-center mt-2 text-green-400 text-sm font-semibold">
                 <CheckCircle size={18} className="mr-2" />
                 <span>{stats.completedGoals} completed</span>
@@ -208,7 +208,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">In Progress</p>
-              <h3 className="text-5xl font-black text-white mt-3 mb-3">{stats.inProgressGoals}</h3>
+              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-2">{stats.inProgressGoals}</h3>
               <div className="flex items-center mt-2 text-blue-400 text-sm font-semibold">
                 <Clock size={18} className="mr-2" />
                 <span>Active tracking</span>
@@ -228,7 +228,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">Delayed Goals</p>
-              <h3 className="text-5xl font-black text-white mt-3 mb-3">{stats.delayedGoals}</h3>
+              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-2">{stats.delayedGoals}</h3>
               <div className="flex items-center mt-2 text-amber-400 text-sm font-semibold">
                 <AlertTriangle size={18} className="mr-2" />
                 <span>Needs attention</span>

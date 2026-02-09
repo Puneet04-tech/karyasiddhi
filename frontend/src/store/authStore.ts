@@ -10,6 +10,15 @@ interface Achievement {
   earnedAt: string;
 }
 
+interface UserSettings {
+  notifications: boolean;
+  emailAlerts: boolean;
+  darkMode: boolean;
+  offlineMode: boolean;
+  twoFactor: boolean;
+  language: string;
+}
+
 interface User {
   id: string;
   name: string;
@@ -24,6 +33,7 @@ interface User {
   aadhaarVerified?: boolean;
   digilockerVerified?: boolean;
   achievements?: Achievement[];
+  settings?: UserSettings;
 }
 
 interface AuthState {
@@ -63,6 +73,14 @@ export const useAuthStore = create<AuthState>()(
               digilockerVerified: user.digilockerVerified || false,
               avatar: user.avatar,
               achievements: user.achievements || [],
+              settings: user.settings || {
+                notifications: true,
+                emailAlerts: true,
+                darkMode: true,
+                offlineMode: false,
+                twoFactor: false,
+                language: 'English',
+              },
             },
             token: access_token,
             isAuthenticated: true,

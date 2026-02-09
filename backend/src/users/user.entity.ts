@@ -49,6 +49,16 @@ export class User {
     earnedAt: string;
   }>;
 
+  @Column({ type: 'jsonb', nullable: true })
+  settings: {
+    notifications: boolean;
+    emailAlerts: boolean;
+    darkMode: boolean;
+    offlineMode: boolean;
+    twoFactor: boolean;
+    language: string;
+  };
+
   @ManyToOne(() => Department, department => department.users)
   @JoinColumn({ name: 'department_id' })
   department: Department;

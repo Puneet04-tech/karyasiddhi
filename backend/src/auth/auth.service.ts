@@ -53,6 +53,14 @@ export class AuthService {
         digilockerVerified: user.digilockerVerified,
         avatar: user.avatar,
         achievements: user.achievements,
+        settings: user.settings || {
+          notifications: true,
+          emailAlerts: true,
+          darkMode: true,
+          offlineMode: false,
+          twoFactor: false,
+          language: 'English',
+        },
       },
     };
   }
