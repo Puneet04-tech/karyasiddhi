@@ -31,7 +31,7 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'text', nullable: true })
   achievements: Array<{
     id: number;
     title: string;
@@ -40,7 +40,7 @@ export class User {
     earnedAt: string;
   }>;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'text', nullable: true })
   settings: {
     notifications: boolean;
     emailAlerts: boolean;
@@ -48,6 +48,8 @@ export class User {
     offlineMode: boolean;
     twoFactor: boolean;
     language: string;
+    accountDeleted?: boolean;
+    deletionDate?: Date;
   };
 
   @ManyToOne(() => Department, department => department.users)

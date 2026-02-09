@@ -39,21 +39,13 @@ export class Kpi {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   baseline: number;
 
-  @Column({
-    type: 'enum',
-    enum: KpiFrequency,
-    default: KpiFrequency.MONTHLY,
-  })
+  @Column({ default: KpiFrequency.MONTHLY })
   frequency: KpiFrequency;
 
   @Column()
   category: string;
 
-  @Column({
-    type: 'enum',
-    enum: KpiTrend,
-    default: KpiTrend.STABLE,
-  })
+  @Column({ default: KpiTrend.STABLE })
   trend: KpiTrend;
 
   @ManyToOne(() => Department)
@@ -64,7 +56,7 @@ export class Kpi {
   @JoinColumn({ name: 'goal_id' })
   goal: Goal;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   lastUpdated: Date;
 
   @CreateDateColumn()

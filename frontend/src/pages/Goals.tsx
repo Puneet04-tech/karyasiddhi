@@ -284,7 +284,7 @@ const Goals = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="card p-6 hover:border-primary-500/50 transition-all"
+            className="card p-6 border-2 border-slate-700/50 hover:border-primary-500/70 hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm"
           >
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
               <div className="flex-1">
@@ -296,7 +296,7 @@ const Goals = () => {
                         <h3 className="text-xl font-semibold text-white mb-2">{goal.title}</h3>
                         <p className="text-gray-400 text-sm mb-4">{goal.description}</p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(goal.priority)}`}>
+                      <span className={`px-4 py-2 rounded-full text-xs font-bold border-2 shadow-lg ${getPriorityColor(goal.priority)}`}>
                         {goal.priority.toUpperCase()}
                       </span>
                     </div>
@@ -318,20 +318,22 @@ const Goals = () => {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-400">Progress</span>
-                        <span className={`font-semibold ${getProgressColor(goal.progress)}`}>
+                        <span className="text-gray-300 font-medium">Progress</span>
+                        <span className={`font-bold text-lg ${getProgressColor(goal.progress)}`}>
                           {goal.progress}%
                         </span>
                       </div>
-                      <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+                      <div className="w-full bg-slate-700/50 rounded-full h-4 overflow-hidden border border-slate-600/30 shadow-inner">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${goal.progress}%` }}
                           transition={{ duration: 1, delay: 0.3 }}
-                          className={`h-full bg-gradient-to-r ${getProgressGradient(goal.progress)} rounded-full`}
-                        />
+                          className={`h-full bg-gradient-to-r ${getProgressGradient(goal.progress)} rounded-full shadow-lg relative`}
+                        >
+                          <div className="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
+                        </motion.div>
                       </div>
                     </div>
                   </div>

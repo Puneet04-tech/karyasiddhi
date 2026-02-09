@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { LineChart, Line, Area, AreaChart, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuthStore } from '../store/authStore';
 import { formatPercentage, getProgressColor } from '../lib/utils';
-import api from '../lib/api';
+import api, { aiApi } from '../lib/api';
 
 const Dashboard = () => {
   const { user } = useAuthStore();
@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [teamRankings, setTeamRankings] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [aiInsights, setAiInsights] = useState<any[]>([]);
   const [realTimeData, setRealTimeData] = useState({
     performanceData: [
       { month: 'Apr', score: 78 },
@@ -84,6 +85,38 @@ const Dashboard = () => {
           const usersRes = await api.get('/users');
           setAllUsers(usersRes.data || []);
         }
+
+        // Fetch AI insights
+        try {
+          const insightsRes = await aiApi.get('/insights');
+          setAiInsights(insightsRes.data || []);
+        } catch (aiError) {
+          console.error('Failed to fetch AI insights:', aiError);
+          // Fallback to default insights if AI service is unavailable
+          setAiInsights([
+            {
+              id: 1,
+              type: 'recommendation',
+              title: 'Performance Optimization',
+              description: 'Based on current trends, you are on track to exceed quarterly targets by 12%.',
+              confidence: 92,
+            },
+            {
+              id: 2,
+              type: 'warning',
+              title: 'Attention Required',
+              description: '3 goals are showing delayed progress. Consider reallocating resources.',
+              confidence: 87,
+            },
+            {
+              id: 3,
+              type: 'achievement',
+              title: 'Excellence Recognition',
+              description: 'Your productivity score ranks in the top 15% across all departments.',
+              confidence: 95,
+            },
+          ]);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
       } finally {
@@ -126,30 +159,6 @@ const Dashboard = () => {
     { id: 2, type: 'kpi_updated', title: 'Citizen Services KPI Updated', time: '5 hours ago', icon: Activity, color: 'text-blue-500' },
     { id: 3, type: 'milestone', title: 'Q3 Milestone Achieved', time: '1 day ago', icon: Award, color: 'text-yellow-500' },
     { id: 4, type: 'alert', title: 'Goal Deadline Approaching', time: '2 days ago', icon: AlertTriangle, color: 'text-orange-500' },
-  ];
-
-  const aiInsights = [
-    {
-      id: 1,
-      type: 'recommendation',
-      title: 'Performance Optimization',
-      description: 'Based on current trends, you are on track to exceed quarterly targets by 12%.',
-      confidence: 92,
-    },
-    {
-      id: 2,
-      type: 'warning',
-      title: 'Attention Required',
-      description: '3 goals are showing delayed progress. Consider reallocating resources.',
-      confidence: 87,
-    },
-    {
-      id: 3,
-      type: 'achievement',
-      title: 'Excellence Recognition',
-      description: 'Your productivity score ranks in the top 15% across all departments.',
-      confidence: 95,
-    },
   ];
 
   const container = {

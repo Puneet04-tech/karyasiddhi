@@ -36,25 +36,13 @@ export class Goal {
   @Column('text')
   description: string;
 
-  @Column({
-    type: 'enum',
-    enum: GoalType,
-    default: GoalType.SPECIFIC,
-  })
+  @Column({ default: GoalType.SPECIFIC })
   type: GoalType;
 
-  @Column({
-    type: 'enum',
-    enum: GoalStatus,
-    default: GoalStatus.NOT_STARTED,
-  })
+  @Column({ default: GoalStatus.NOT_STARTED })
   status: GoalStatus;
 
-  @Column({
-    type: 'enum',
-    enum: GoalPriority,
-    default: GoalPriority.MEDIUM,
-  })
+  @Column({ default: GoalPriority.MEDIUM })
   priority: GoalPriority;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })

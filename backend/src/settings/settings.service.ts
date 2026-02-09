@@ -88,7 +88,6 @@ export class SettingsService {
         updatedAt: user.updatedAt,
       },
       goals: user.goals || [],
-      kpis: user.kpis || [],
       exportDate: new Date().toISOString(),
     };
 
