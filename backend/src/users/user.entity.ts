@@ -19,12 +19,6 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
-  @Column({ nullable: true })
-  aadhaar: string;
-
-  @Column({ name: 'aadhaar_verified', default: false })
-  aadhaarVerified: boolean;
-
   @Column()
   role: string;
 
@@ -36,9 +30,6 @@ export class User {
 
   @Column({ nullable: true })
   avatar: string;
-
-  @Column({ name: 'digilocker_verified', default: false })
-  digilockerVerified: boolean;
 
   @Column({ type: 'jsonb', nullable: true })
   achievements: Array<{

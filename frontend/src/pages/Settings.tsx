@@ -17,7 +17,14 @@ const Settings = () => {
     twoFactor: false,
     language: 'English',
   });
-  const [loading, setLoading] = useState(false);
+  const [changePasswordData, setChangePasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Initialize settings from user store on component mount
   useEffect(() => {
@@ -83,24 +90,83 @@ const Settings = () => {
     }
   };
 
-  const handleChangePassword = () => {
-    alert('Change Password feature - Coming soon! This would open a modal to change your password.');
+  const handleChangePassword = async () => {
+    if (changePasswordData.newPassword !== changePasswordData.confirmPassword) {
+      alert('New passwords do not match!');
+      return;
+    }
+
+    if (changePasswordData.newPassword.length < 6) {
+      alert('Password must be at least 6 characters long!');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await api.post('/settings/change-password', {
+        currentPassword: changePasswordData.currentPassword,
+        newPassword: changePasswordData.newPassword,
+      });
+      
+      alert('Password changed successfully!');
+      setChangePasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setShowChangePasswordModal(false);
+    } catch (error: any) {
+      console.error('Failed to change password:', error);
+      alert(error.response?.data?.message || 'Failed to change password. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReverify = () => {
-    alert('Re-verify Aadhaar - This would initiate the Aadhaar re-verification process.');
+  const handleExportData = async () => {
+    try {
+      setExportLoading(true);
+      const response = await api.post('/settings/export-data');
+      
+      // Create and download JSON file
+      const dataStr = JSON.stringify(response.data.data, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileDefaultName = `karyasiddhi-data-${new Date().toISOString().split('T')[0]}.json`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
+      alert('Data exported successfully!');
+    } catch (error: any) {
+      console.error('Failed to export data:', error);
+      alert(error.response?.data?.message || 'Failed to export data. Please try again.');
+    } finally {
+      setExportLoading(false);
+    }
   };
 
-  const handleExportData = () => {
-    alert('Export Data - Your data export has started. You will receive a download link shortly.');
-    // In a real app, this would trigger an API call to export user data
-  };
+  const handleDeleteAccount = async () => {
+    const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone and your account will be permanently deleted within 30 days.');
+    
+    if (!confirmed) return;
+    
+    const finalConfirmation = confirm('This is your final warning. Your account and all associated data will be permanently deleted. Are you absolutely sure?');
+    
+    if (!finalConfirmation) return;
 
-  const handleDeleteAccount = () => {
-    const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone!');
-    if (confirmed) {
-      alert('Account deletion initiated. Your account will be permanently deleted within 30 days.');
-      // In a real app, this would trigger an API call to delete the account
+    try {
+      setDeleteLoading(true);
+      const response = await api.delete('/settings/account');
+      
+      alert(response.data.message || 'Account deletion initiated. You will be logged out.');
+      
+      // Log out the user
+      localStorage.removeItem('karyasiddhi-auth');
+      window.location.href = '/login';
+    } catch (error: any) {
+      console.error('Failed to delete account:', error);
+      alert(error.response?.data?.message || 'Failed to delete account. Please try again.');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -230,18 +296,7 @@ const Settings = () => {
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <h3 className="text-white font-semibold mb-2">Change Password</h3>
             <p className="text-sm text-gray-400 mb-4">Update your password regularly for security</p>
-            <button onClick={handleChangePassword} className="btn-secondary">Change Password</button>
-          </div>
-
-          <div className="p-4 bg-slate-800/50 rounded-lg">
-            <h3 className="text-white font-semibold mb-2">Aadhaar Verification</h3>
-            <p className="text-sm text-gray-400 mb-4">Verify your identity with Aadhaar</p>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm border border-green-500/50">
-                Verified
-              </span>
-              <button onClick={handleReverify} className="text-sm text-primary-400 hover:text-primary-300">Re-verify</button>
-            </div>
+            <button onClick={() => setShowChangePasswordModal(true)} className="btn-secondary">Change Password</button>
           </div>
         </div>
       </div>
@@ -275,14 +330,24 @@ const Settings = () => {
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <h3 className="text-white font-semibold mb-2">Data Export</h3>
             <p className="text-sm text-gray-400 mb-4">Download all your data in JSON format</p>
-            <button onClick={handleExportData} className="btn-secondary">Export Data</button>
+            <button 
+              onClick={handleExportData} 
+              disabled={exportLoading}
+              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {exportLoading ? 'Exporting...' : 'Export Data'}
+            </button>
           </div>
 
           <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-lg">
             <h3 className="text-red-400 font-semibold mb-2">Delete Account</h3>
             <p className="text-sm text-gray-400 mb-4">Permanently delete your account and all data</p>
-            <button onClick={handleDeleteAccount} className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all">
-              Delete Account
+            <button 
+              onClick={handleDeleteAccount} 
+              disabled={deleteLoading}
+              className="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed text-white rounded-lg transition-all"
+            >
+              {deleteLoading ? 'Deleting...' : 'Delete Account'}
             </button>
           </div>
         </div>
@@ -316,6 +381,66 @@ const Settings = () => {
           </div>
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-slate-800 p-6 rounded-lg w-full max-w-md mx-4">
+            <h3 className="text-xl font-semibold text-white mb-4">Change Password</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Current Password</label>
+                <input
+                  type="password"
+                  value={changePasswordData.currentPassword}
+                  onChange={(e) => setChangePasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  className="input-field"
+                  placeholder="Enter current password"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">New Password</label>
+                <input
+                  type="password"
+                  value={changePasswordData.newPassword}
+                  onChange={(e) => setChangePasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  className="input-field"
+                  placeholder="Enter new password"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={changePasswordData.confirmPassword}
+                  onChange={(e) => setChangePasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="input-field"
+                  placeholder="Confirm new password"
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowChangePasswordModal(false)}
+                className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleChangePassword}
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-800 disabled:cursor-not-allowed text-white rounded-lg transition-all"
+              >
+                {loading ? 'Changing...' : 'Change Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

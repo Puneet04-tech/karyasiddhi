@@ -77,35 +77,6 @@ const Profile = () => {
               <div className="w-32 h-32 mx-auto bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white text-5xl font-bold mb-4">
                 {user?.name?.charAt(0)}
               </div>
-              <div className="flex items-center gap-3 text-gray-300">
-                <Shield size={20} className="text-primary-400" />
-                <div className="flex items-center gap-3">
-                  <span className="text-sm">Digilocker</span>
-                  {user?.digilockerVerified ? (
-                    <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">Verified</span>
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        try {
-                          const start = await api.post('/users/verify/digilocker/start');
-                          if (start.data?.providerUrl) {
-                            window.open(start.data.providerUrl, '_blank');
-                          }
-                          const resp = await api.post('/users/verify/digilocker/complete');
-                          setUser({ ...user, digilockerVerified: resp.data.digilockerVerified });
-                          alert('Digilocker verified successfully');
-                        } catch (err) {
-                          console.error(err);
-                          alert('Digilocker verification failed');
-                        }
-                      }}
-                      className="text-xs bg-yellow-500 text-black px-2 py-1 rounded"
-                    >
-                      Verify
-                    </button>
-                  )}
-                </div>
-              </div>
               <h2 className="text-2xl font-bold text-white">{user?.name}</h2>
               <p className="text-gray-400 mt-1">{user?.role}</p>
             </div>
@@ -127,37 +98,6 @@ const Profile = () => {
               <div className="flex items-center gap-3 text-gray-300">
                 <MapPin size={20} className="text-primary-400" />
                 <span className="text-sm">New Delhi, India</span>
-              </div>
-              <div className="flex items-center gap-3 text-gray-300">
-                <Shield size={20} className="text-primary-400" />
-                <div className="flex items-center gap-3">
-                  <span className="text-sm">Aadhaar: {user?.aadhaar || '—'}</span>
-                  {user?.aadhaarVerified ? (
-                    <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">Verified</span>
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        try {
-                          // start flow (provider URL may be returned);
-                          const start = await api.post('/users/verify/aadhaar/start');
-                          if (start.data?.providerUrl) {
-                            window.open(start.data.providerUrl, '_blank');
-                          }
-                          // For now, support immediate complete (test flow)
-                          const resp = await api.post('/users/verify/aadhaar/complete');
-                          setUser({ ...user, aadhaarVerified: resp.data.aadhaarVerified });
-                          alert('Aadhaar verified successfully');
-                        } catch (err) {
-                          console.error(err);
-                          alert('Aadhaar verification failed');
-                        }
-                      }}
-                      className="text-xs bg-yellow-500 text-black px-2 py-1 rounded"
-                    >
-                      Verify
-                    </button>
-                  )}
-                </div>
               </div>
             </div>
 

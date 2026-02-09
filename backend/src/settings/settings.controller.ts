@@ -1,5 +1,5 @@
 import { 
-  Controller, Get, Put, Body, UseGuards, 
+  Controller, Get, Put, Post, Delete, Body, UseGuards, 
   Request, HttpStatus, HttpException 
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -47,6 +47,64 @@ export class SettingsController {
     } catch (error) {
       throw new HttpException(
         'Failed to update settings',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('change-password')
+  @ApiOperation({ summary: 'Change user password' })
+  async changePassword(@Request() req, @Body() body: { currentPassword: string; newPassword: string }) {
+    try {
+      const result = await this.settingsService.changePassword(
+        req.user.id,
+        body.currentPassword,
+        body.newPassword,
+      );
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Password changed successfully',
+        data: result,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to change password',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Post('export-data')
+  @ApiOperation({ summary: 'Export user data' })
+  async exportData(@Request() req) {
+    try {
+      const data = await this.settingsService.exportUserData(req.user.id);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Data export initiated successfully',
+        data: data,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to export data',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Delete('account')
+  @ApiOperation({ summary: 'Delete user account' })
+  async deleteAccount(@Request() req) {
+    try {
+      const result = await this.settingsService.deleteUserAccount(req.user.id);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Account deletion initiated successfully',
+        data: result,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to delete account',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

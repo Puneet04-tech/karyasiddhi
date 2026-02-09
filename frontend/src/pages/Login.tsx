@@ -29,25 +29,6 @@ const Login = () => {
     }
   };
 
-  const openExternalAuth = (provider: 'aadhaar' | 'digilocker') => {
-    const envKey = provider === 'aadhaar' ? (import.meta as any).env.VITE_AADHAAR_URL : (import.meta as any).env.VITE_DIGILOCKER_URL;
-    const providerName = provider === 'aadhaar' ? 'Aadhaar' : 'DigiLocker';
-
-    if (!envKey) {
-      // Friendly UX: tell developer/admin how to configure provider URL
-      alert(`${providerName} login is not configured. Set ${provider === 'aadhaar' ? 'VITE_AADHAAR_URL' : 'VITE_DIGILOCKER_URL'} in your environment.`);
-      return;
-    }
-
-    try {
-      // Redirect to configured provider URL. The backend or provider should handle callback/redirects.
-      window.location.href = String(envKey);
-    } catch (err) {
-      console.error(`Failed to open ${providerName} login:`, err);
-      alert(`Failed to open ${providerName} login.`);
-    }
-  };
-
   const features = [
     { icon: TrendingUp, title: 'Real-time Analytics', desc: 'Track performance metrics instantly' },
     { icon: Users, title: 'Team Collaboration', desc: 'Seamless cross-department coordination' },
@@ -290,38 +271,6 @@ const Login = () => {
                   )}
                 </motion.button>
               </form>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.4 }}
-                className="mt-8 pt-8 border-t border-slate-700"
-              >
-                <p className="text-center text-sm text-gray-400 mb-5">Or continue with</p>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => openExternalAuth('aadhaar')}
-                    className="flex items-center justify-center space-x-2 px-4 py-3.5 bg-slate-800/70 border border-slate-700 rounded-lg hover:border-primary-500 hover:bg-slate-800 transition-all group"
-                    aria-label="Sign in with Aadhaar authentication"
-                  >
-                    <Fingerprint size={22} className="text-primary-400 group-hover:scale-110 transition-transform" aria-hidden="true" />
-                    <span className="text-sm font-medium">Aadhaar</span>
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => openExternalAuth('digilocker')}
-                    className="flex items-center justify-center space-x-2 px-4 py-3.5 bg-slate-800/70 border border-slate-700 rounded-lg hover:border-secondary-500 hover:bg-slate-800 transition-all group"
-                    aria-label="Sign in with DigiLocker authentication"
-                  >
-                    <FileText size={22} className="text-secondary-400 group-hover:scale-110 transition-transform" aria-hidden="true" />
-                    <span className="text-sm font-medium">DigiLocker</span>
-                  </motion.button>
-                </div>
-              </motion.div>
 
               <motion.p
                 initial={{ opacity: 0 }}

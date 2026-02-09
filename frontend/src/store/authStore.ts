@@ -25,13 +25,10 @@ interface User {
   email: string;
   department: string;
   role: string;
-  aadhaar?: string;
   avatar?: string;
   designation?: string;
   phone?: string;
   goals?: any[];
-  aadhaarVerified?: boolean;
-  digilockerVerified?: boolean;
   achievements?: Achievement[];
   settings?: UserSettings;
 }
@@ -68,9 +65,6 @@ export const useAuthStore = create<AuthState>()(
               department: user.department?.name || 'N/A',
               role: user.role,
               designation: user.designation,
-              aadhaar: user.aadhaar,
-              aadhaarVerified: user.aadhaarVerified || false,
-              digilockerVerified: user.digilockerVerified || false,
               avatar: user.avatar,
               achievements: user.achievements || [],
               settings: user.settings || {
