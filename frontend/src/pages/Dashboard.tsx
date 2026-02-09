@@ -4,7 +4,7 @@ import {
   CheckCircle, Clock, Users, Activity, BarChart3
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { LineChart, Line, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuthStore } from '../store/authStore';
 import { formatPercentage, getProgressColor } from '../lib/utils';
 import api from '../lib/api';

@@ -122,6 +122,11 @@
     @apply backdrop-blur-xl rounded-2xl;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    @apply bg-gradient-to-br from-slate-800/90 via-slate-800/70 to-slate-900/90 border border-slate-700/50;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 80px rgba(249, 115, 22, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
   }
 
   body.dark .card {
@@ -151,6 +156,7 @@
     mask-composite: exclude;
     opacity: 0;
     transition: opacity 0.4s;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), transparent, rgba(249, 115, 22, 0.1));
   }
 
   body.dark .card::before {
@@ -163,6 +169,10 @@
 
   .card:hover {
     transform: translateY(-4px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6),
+                0 0 120px rgba(249, 115, 22, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border-color: rgba(249, 115, 22, 0.3);
   }
 
   body.dark .card:hover {

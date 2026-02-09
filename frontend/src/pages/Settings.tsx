@@ -23,6 +23,9 @@ const Settings = () => {
     confirmPassword: '',
   });
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [loading, setLoading] = useState(false);
