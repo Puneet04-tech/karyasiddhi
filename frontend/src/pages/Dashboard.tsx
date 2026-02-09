@@ -25,6 +25,36 @@ const Dashboard = () => {
   const [teamRankings, setTeamRankings] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [realTimeData, setRealTimeData] = useState({
+    performanceData: [
+      { month: 'Apr', score: 78 },
+      { month: 'May', score: 82 },
+      { month: 'Jun', score: 79 },
+      { month: 'Jul', score: 85 },
+      { month: 'Aug', score: 83 },
+      { month: 'Sep', score: 88 },
+      { month: 'Oct', score: 87 },
+    ],
+    goalsByCategory: [
+      { name: 'Strategic', value: 12, color: '#6366F1' },
+      { name: 'Operational', value: 18, color: '#14B8A6' },
+      { name: 'Development', value: 8, color: '#F59E0B' },
+      { name: 'Innovation', value: 7, color: '#EC4899' },
+    ],
+    completionData: [
+      { name: 'Completed', value: 45, color: '#10B981' },
+      { name: 'In Progress', value: 23, color: '#3B82F6' },
+      { name: 'Delayed', value: 8, color: '#EF4444' },
+    ],
+    trendData: [
+      { time: '00:00', productivity: 85, goals: 12 },
+      { time: '04:00', productivity: 87, goals: 13 },
+      { time: '08:00', productivity: 82, goals: 11 },
+      { time: '12:00', productivity: 89, goals: 15 },
+      { time: '16:00', productivity: 91, goals: 16 },
+      { time: '20:00', productivity: 88, goals: 14 },
+    ]
+  });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -66,23 +96,28 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  // Mock data for charts
-  const performanceData = useMemo(() => [
-    { month: 'Apr', score: 78 },
-    { month: 'May', score: 82 },
-    { month: 'Jun', score: 79 },
-    { month: 'Jul', score: 85 },
-    { month: 'Aug', score: 83 },
-    { month: 'Sep', score: 88 },
-    { month: 'Oct', score: 87 },
-  ], []);
+  // Real-time data updates
+  useEffect(() => {
+    const updateRealTimeData = () => {
+      setRealTimeData(prev => ({
+        ...prev,
+        performanceData: prev.performanceData.map(item => ({
+          ...item,
+          score: item.score + (Math.random() - 0.5) * 2 // Small random variation
+        })),
+        trendData: prev.trendData.map(item => ({
+          ...item,
+          productivity: Math.max(70, Math.min(100, item.productivity + (Math.random() - 0.5) * 4)),
+          goals: Math.max(8, Math.min(20, item.goals + Math.floor((Math.random() - 0.5) * 2)))
+        }))
+      }));
+    };
 
-  const goalsByCategory = useMemo(() => [
-    { name: 'Strategic', value: 12, color: '#6366F1' },
-    { name: 'Operational', value: 18, color: '#14B8A6' },
-    { name: 'Development', value: 8, color: '#F59E0B' },
-    { name: 'Innovation', value: 7, color: '#EC4899' },
-  ], []);
+    const interval = setInterval(updateRealTimeData, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  // Mock data for charts - now managed in state for real-time updates
 
   const chartRef = useRef<HTMLDivElement | null>(null);
 
@@ -168,7 +203,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">Productivity Score</p>
-              <h3 className="text-5xl font-black gradient-text mt-3 mb-3 pl-2">{stats.productivityScore}</h3>
+              <h3 className="text-5xl font-black gradient-text mt-3 mb-3 pl-4">{stats.productivityScore}</h3>
               <div className="flex items-center mt-2 text-green-400 text-sm font-semibold">
                 <TrendingUp size={18} className="mr-2" />
                 <span>+{stats.weeklyTrend}% this week</span>
@@ -188,7 +223,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">Total Goals</p>
-              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-2">{stats.totalGoals}</h3>
+              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-4">{stats.totalGoals}</h3>
               <div className="flex items-center mt-2 text-green-400 text-sm font-semibold">
                 <CheckCircle size={18} className="mr-2" />
                 <span>{stats.completedGoals} completed</span>
@@ -208,7 +243,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">In Progress</p>
-              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-2">{stats.inProgressGoals}</h3>
+              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-4">{stats.inProgressGoals}</h3>
               <div className="flex items-center mt-2 text-blue-400 text-sm font-semibold">
                 <Clock size={18} className="mr-2" />
                 <span>Active tracking</span>
@@ -228,7 +263,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">Delayed Goals</p>
-              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-2">{stats.delayedGoals}</h3>
+              <h3 className="text-5xl font-black text-white mt-3 mb-3 pl-4">{stats.delayedGoals}</h3>
               <div className="flex items-center mt-2 text-amber-400 text-sm font-semibold">
                 <AlertTriangle size={18} className="mr-2" />
                 <span>Needs attention</span>
@@ -242,13 +277,13 @@ const Dashboard = () => {
       </motion.div>
 
       {/* Charts Section */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Performance Trend */}
-        <div className="lg:col-span-2 card p-6">
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Performance Trend - Line Chart */}
+        <div className="card p-6">
           <h2 className="text-xl font-semibold text-white mb-6">Performance Trend</h2>
           <div ref={chartRef} className="relative">
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={performanceData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <LineChart data={realTimeData.performanceData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <defs>
                   <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stopColor="#7c3aed" stopOpacity="1" />
@@ -283,7 +318,93 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Goals by Category */}
+        {/* Goals Status - Bar Chart */}
+        <div className="card p-6">
+          <h2 className="text-xl font-semibold text-white mb-6">Goals Status</h2>
+          <div className="relative">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={realTimeData.completionData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="barGrad1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10B981" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#059669" stopOpacity="0.8" />
+                  </linearGradient>
+                  <linearGradient id="barGrad2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3B82F6" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#2563EB" stopOpacity="0.8" />
+                  </linearGradient>
+                  <linearGradient id="barGrad3" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#EF4444" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#DC2626" stopOpacity="0.8" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+                <XAxis dataKey="name" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <YAxis stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                  formatter={(v: any) => [v, 'Count']}
+                />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {realTimeData.completionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={
+                      index === 0 ? 'url(#barGrad1)' :
+                      index === 1 ? 'url(#barGrad2)' :
+                      'url(#barGrad3)'
+                    } />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Daily Productivity Trend - Area Chart */}
+        <div className="card p-6">
+          <h2 className="text-xl font-semibold text-white mb-6">Daily Productivity Trend</h2>
+          <div className="relative">
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={realTimeData.trendData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="areaGrad1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.05" />
+                  </linearGradient>
+                  <linearGradient id="areaGrad2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.05" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+                <XAxis dataKey="time" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <YAxis stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="productivity"
+                  stackId="1"
+                  stroke="#7c3aed"
+                  fill="url(#areaGrad1)"
+                  strokeWidth={2}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="goals"
+                  stackId="2"
+                  stroke="#06b6d4"
+                  fill="url(#areaGrad2)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Goals by Category - Pie Chart */}
         <div className="card p-6">
           <h2 className="text-xl font-semibold text-white mb-6">Goals by Category</h2>
           <div className="relative" style={{ minHeight: 300 }}>
@@ -309,7 +430,7 @@ const Dashboard = () => {
                 </defs>
 
                 <Pie
-                  data={goalsByCategory}
+                  data={realTimeData.goalsByCategory}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -319,7 +440,7 @@ const Dashboard = () => {
                   label={(entry) => `${entry.name} (${entry.value})`}
                   dataKey="value"
                 >
-                  {goalsByCategory.map((entry, index) => (
+                  {realTimeData.goalsByCategory.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={
                       index === 0 ? 'url(#sliceGrad1)'
                       : index === 1 ? 'url(#sliceGrad2)'
@@ -339,7 +460,7 @@ const Dashboard = () => {
             {/* Top label (moved to top to avoid overlap) */}
             <div className="absolute top-3 left-1/2 transform -translate-x-1/2 pointer-events-none z-10">
               <div className="text-center">
-                <div className="text-xl font-bold text-white">{goalsByCategory.reduce((s, g) => s + g.value, 0)}</div>
+                <div className="text-xl font-bold text-white">{realTimeData.goalsByCategory.reduce((s, g) => s + g.value, 0)}</div>
                 <div className="text-sm text-gray-400">Total Goals</div>
               </div>
             </div>
