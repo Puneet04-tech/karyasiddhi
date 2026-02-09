@@ -1,213 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Settings as SettingsIcon, Bell, Lock, Globe, 
   Moon, Sun, Shield, Database, Wifi, WifiOff
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAuthStore } from '../store/authStore';
-import { useTheme } from '../theme/ThemeContext';
-import api from '../lib/api';
 
 const Settings = () => {
-  const { user, setUser } = useAuthStore();
-  const { theme, toggleTheme } = useTheme();
-  const [localSettings, setLocalSettings] = useState({
-    notifications: true,
-    emailAlerts: true,
-    darkMode: true,
-    offlineMode: false,
-    twoFactor: false,
-    language: 'English',
-  });
-  const [changePasswordData, setChangePasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-  const [exportLoading, setExportLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState(true);
+  const [emailAlerts, setEmailAlerts] = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
+  const [offlineMode, setOfflineMode] = useState(false);
+  const [twoFactor, setTwoFactor] = useState(false);
 
-  // Initialize settings from user store on component mount
-  useEffect(() => {
-    if (user?.settings) {
-      setLocalSettings(user.settings);
-    }
-  }, [user]);
-
-  // Sync local settings with theme context
-  useEffect(() => {
-    setLocalSettings(prev => ({ ...prev, darkMode: theme === 'dark' }));
-  }, [theme]);
-
-  const toggleSwitch = async (key: keyof typeof localSettings) => {
-    if (key === 'darkMode') {
-      // Handle dark mode toggle using theme context
-      toggleTheme();
-      const newTheme = theme === 'dark' ? 'light' : 'dark';
-      const newSettings = { ...localSettings, [key]: newTheme === 'dark' };
-      
-      // Update local user immediately for responsive UI
-      if (user) {
-        setUser({ ...user, settings: newSettings });
-      }
-      
-      // Save to backend
-      try {
-        setLoading(true);
-        const response = await api.put('/settings', newSettings);
-        if (response.data) {
-          console.log('Settings saved successfully');
-        }
-      } catch (error) {
-        console.error('Failed to save settings:', error);
-        // Revert on error
-        setLocalSettings(user?.settings || localSettings);
-        if (user) {
-          setUser({ ...user, settings: user?.settings || localSettings });
-        }
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      // Handle other settings normally
-      const newSettings = { ...localSettings, [key]: !localSettings[key] };
-      setLocalSettings(newSettings);
-      
-      // Update local user immediately for responsive UI
-      if (user) {
-        setUser({ ...user, settings: newSettings });
-      }
-      
-      // Save to backend
-      try {
-        setLoading(true);
-        const response = await api.put('/settings', newSettings);
-        if (response.data) {
-          console.log('Settings saved successfully');
-        }
-      } catch (error) {
-        console.error('Failed to save settings:', error);
-        // Revert on error
-        setLocalSettings(user?.settings || localSettings);
-        if (user) {
-          setUser({ ...user, settings: user?.settings || localSettings });
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
+  const toggleSwitch = (current: boolean, setter: (value: boolean) => void) => {
+    setter(!current);
   };
 
-  const handleLanguageChange = async (language: string) => {
-    const newSettings = { ...localSettings, language };
-    setLocalSettings(newSettings);
-    
-    // Update local user immediately for responsive UI
-    if (user) {
-      setUser({ ...user, settings: newSettings });
-    }
-    
-    // Save to backend
-    try {
-      setLoading(true);
-      const response = await api.put('/settings', newSettings);
-      if (response.data) {
-        console.log('Language saved successfully');
-        // Show success message
-        alert(`Language changed to ${language}. Note: Full language support will be available in a future update.`);
-      }
-    } catch (error) {
-      console.error('Failed to save language:', error);
-      // Revert on error
-      setLocalSettings(user?.settings || localSettings);
-      if (user) {
-        setUser({ ...user, settings: user?.settings || localSettings });
-      }
-      alert('Failed to save language preference. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleChangePassword = () => {
+    alert('Change Password feature - Coming soon! This would open a modal to change your password.');
   };
 
-  const handleChangePassword = async () => {
-    if (changePasswordData.newPassword !== changePasswordData.confirmPassword) {
-      alert('New passwords do not match!');
-      return;
-    }
-
-    if (changePasswordData.newPassword.length < 6) {
-      alert('Password must be at least 6 characters long!');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await api.post('/settings/change-password', {
-        currentPassword: changePasswordData.currentPassword,
-        newPassword: changePasswordData.newPassword,
-      });
-      
-      alert('Password changed successfully!');
-      setChangePasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setShowChangePasswordModal(false);
-    } catch (error: any) {
-      console.error('Failed to change password:', error);
-      alert(error.response?.data?.message || 'Failed to change password. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleReverify = () => {
+    alert('Re-verify Aadhaar - This would initiate the Aadhaar re-verification process.');
   };
 
-  const handleExportData = async () => {
-    try {
-      setExportLoading(true);
-      const response = await api.post('/settings/export-data');
-      
-      // Create and download JSON file
-      const dataStr = JSON.stringify(response.data.data, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      
-      const exportFileDefaultName = `karyasiddhi-data-${new Date().toISOString().split('T')[0]}.json`;
-      
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
-      linkElement.click();
-      
-      alert('Data exported successfully!');
-    } catch (error: any) {
-      console.error('Failed to export data:', error);
-      alert(error.response?.data?.message || 'Failed to export data. Please try again.');
-    } finally {
-      setExportLoading(false);
-    }
+  const handleExportData = () => {
+    alert('Export Data - Your data export has started. You will receive a download link shortly.');
+    // In a real app, this would trigger an API call to export user data
   };
 
-  const handleDeleteAccount = async () => {
-    const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone and your account will be permanently deleted within 30 days.');
-    
-    if (!confirmed) return;
-    
-    const finalConfirmation = confirm('This is your final warning. Your account and all associated data will be permanently deleted. Are you absolutely sure?');
-    
-    if (!finalConfirmation) return;
-
-    try {
-      setDeleteLoading(true);
-      const response = await api.delete('/settings/account');
-      
-      alert(response.data.message || 'Account deletion initiated. You will be logged out.');
-      
-      // Log out the user
-      localStorage.removeItem('karyasiddhi-auth');
-      window.location.href = '/login';
-    } catch (error: any) {
-      console.error('Failed to delete account:', error);
-      alert(error.response?.data?.message || 'Failed to delete account. Please try again.');
-    } finally {
-      setDeleteLoading(false);
+  const handleDeleteAccount = () => {
+    const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone!');
+    if (confirmed) {
+      alert('Account deletion initiated. Your account will be permanently deleted within 30 days.');
+      // In a real app, this would trigger an API call to delete the account
     }
   };
 
@@ -235,14 +61,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Receive notifications about goal updates</p>
             </div>
             <button
-              onClick={() => toggleSwitch('notifications')}
+              onClick={() => toggleSwitch(notifications, setNotifications)}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                localSettings.notifications ? 'bg-primary-600' : 'bg-slate-700'
+                notifications ? 'bg-primary-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: localSettings.notifications ? '30px' : '4px' }}
+                animate={{ left: notifications ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -254,14 +80,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Get email notifications for important updates</p>
             </div>
             <button
-              onClick={() => toggleSwitch('emailAlerts')}
+              onClick={() => toggleSwitch(emailAlerts, setEmailAlerts)}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                localSettings.emailAlerts ? 'bg-primary-600' : 'bg-slate-700'
+                emailAlerts ? 'bg-primary-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: localSettings.emailAlerts ? '30px' : '4px' }}
+                animate={{ left: emailAlerts ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -272,7 +98,7 @@ const Settings = () => {
       {/* Appearance */}
       <div className="card p-6">
         <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
-          {theme === 'dark' ? <Moon className="mr-2 text-purple-500" /> : <Sun className="mr-2 text-yellow-500" />}
+          {darkMode ? <Moon className="mr-2 text-purple-500" /> : <Sun className="mr-2 text-yellow-500" />}
           Appearance
         </h2>
         <div className="space-y-4">
@@ -282,14 +108,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Use dark theme for better viewing</p>
             </div>
             <button
-              onClick={() => toggleSwitch('darkMode')}
+              onClick={() => toggleSwitch(darkMode, setDarkMode)}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                theme === 'dark' ? 'bg-primary-600' : 'bg-slate-700'
+                darkMode ? 'bg-primary-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: theme === 'dark' ? '30px' : '4px' }}
+                animate={{ left: darkMode ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -297,13 +123,12 @@ const Settings = () => {
 
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <h3 className="text-white font-semibold mb-3">Language</h3>
-            <p className="text-sm text-gray-400 mb-3">Current: {localSettings.language === 'en' ? 'English' : localSettings.language === 'hi' ? 'Hindi' : localSettings.language === 'ta' ? 'Tamil' : localSettings.language === 'te' ? 'Telugu' : localSettings.language === 'bn' ? 'Bengali' : 'Unknown'}</p>
-            <select className="input-field" value={localSettings.language} onChange={(e) => handleLanguageChange(e.target.value)}>
-              <option value="en">English</option>
-              <option value="hi">हिंदी (Hindi)</option>
-              <option value="ta">தமிழ் (Tamil)</option>
-              <option value="te">తెలుగు (Telugu)</option>
-              <option value="bn">বাংলা (Bengali)</option>
+            <select className="input-field">
+              <option>English</option>
+              <option>हिंदी (Hindi)</option>
+              <option>தமிழ் (Tamil)</option>
+              <option>తెలుగు (Telugu)</option>
+              <option>বাংলা (Bengali)</option>
             </select>
           </div>
         </div>
@@ -322,14 +147,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Add extra security to your account</p>
             </div>
             <button
-              onClick={() => toggleSwitch('twoFactor')}
+              onClick={() => toggleSwitch(twoFactor, setTwoFactor)}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                localSettings.twoFactor ? 'bg-green-600' : 'bg-slate-700'
+                twoFactor ? 'bg-green-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: localSettings.twoFactor ? '30px' : '4px' }}
+                animate={{ left: twoFactor ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -338,7 +163,18 @@ const Settings = () => {
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <h3 className="text-white font-semibold mb-2">Change Password</h3>
             <p className="text-sm text-gray-400 mb-4">Update your password regularly for security</p>
-            <button onClick={() => setShowChangePasswordModal(true)} className="btn-secondary">Change Password</button>
+            <button onClick={handleChangePassword} className="btn-secondary">Change Password</button>
+          </div>
+
+          <div className="p-4 bg-slate-800/50 rounded-lg">
+            <h3 className="text-white font-semibold mb-2">Aadhaar Verification</h3>
+            <p className="text-sm text-gray-400 mb-4">Verify your identity with Aadhaar</p>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm border border-green-500/50">
+                Verified
+              </span>
+              <button onClick={handleReverify} className="text-sm text-primary-400 hover:text-primary-300">Re-verify</button>
+            </div>
           </div>
         </div>
       </div>
@@ -356,14 +192,14 @@ const Settings = () => {
               <p className="text-sm text-gray-400">Work offline and sync when connected</p>
             </div>
             <button
-              onClick={() => toggleSwitch('offlineMode')}
+              onClick={() => toggleSwitch(offlineMode, setOfflineMode)}
               className={`relative w-14 h-7 rounded-full transition-colors ${
-                localSettings.offlineMode ? 'bg-primary-600' : 'bg-slate-700'
+                offlineMode ? 'bg-primary-600' : 'bg-slate-700'
               }`}
             >
               <motion.div
                 className="absolute top-1 w-5 h-5 bg-white rounded-full"
-                animate={{ left: localSettings.offlineMode ? '30px' : '4px' }}
+                animate={{ left: offlineMode ? '30px' : '4px' }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             </button>
@@ -372,24 +208,14 @@ const Settings = () => {
           <div className="p-4 bg-slate-800/50 rounded-lg">
             <h3 className="text-white font-semibold mb-2">Data Export</h3>
             <p className="text-sm text-gray-400 mb-4">Download all your data in JSON format</p>
-            <button 
-              onClick={handleExportData} 
-              disabled={exportLoading}
-              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {exportLoading ? 'Exporting...' : 'Export Data'}
-            </button>
+            <button onClick={handleExportData} className="btn-secondary">Export Data</button>
           </div>
 
           <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-lg">
             <h3 className="text-red-400 font-semibold mb-2">Delete Account</h3>
             <p className="text-sm text-gray-400 mb-4">Permanently delete your account and all data</p>
-            <button 
-              onClick={handleDeleteAccount} 
-              disabled={deleteLoading}
-              className="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed text-white rounded-lg transition-all"
-            >
-              {deleteLoading ? 'Deleting...' : 'Delete Account'}
+            <button onClick={handleDeleteAccount} className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all">
+              Delete Account
             </button>
           </div>
         </div>
@@ -423,66 +249,6 @@ const Settings = () => {
           </div>
         </div>
       </div>
-
-      {/* Change Password Modal */}
-      {showChangePasswordModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 p-6 rounded-lg w-full max-w-md mx-4">
-            <h3 className="text-xl font-semibold text-white mb-4">Change Password</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Current Password</label>
-                <input
-                  type="password"
-                  value={changePasswordData.currentPassword}
-                  onChange={(e) => setChangePasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                  className="input-field"
-                  placeholder="Enter current password"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">New Password</label>
-                <input
-                  type="password"
-                  value={changePasswordData.newPassword}
-                  onChange={(e) => setChangePasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                  className="input-field"
-                  placeholder="Enter new password"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Confirm New Password</label>
-                <input
-                  type="password"
-                  value={changePasswordData.confirmPassword}
-                  onChange={(e) => setChangePasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                  className="input-field"
-                  placeholder="Confirm new password"
-                />
-              </div>
-            </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowChangePasswordModal(false)}
-                className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleChangePassword}
-                disabled={loading}
-                className="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-800 disabled:cursor-not-allowed text-white rounded-lg transition-all"
-              >
-                {loading ? 'Changing...' : 'Change Password'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -19,6 +19,12 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
+  @Column({ nullable: true })
+  aadhaar: string;
+
+  @Column({ default: false })
+  aadhaarVerified: boolean;
+
   @Column()
   role: string;
 
@@ -31,7 +37,10 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ default: false })
+  digilockerVerified: boolean;
+
+  @Column({ type: 'jsonb', nullable: true })
   achievements: Array<{
     id: number;
     title: string;
@@ -39,18 +48,6 @@ export class User {
     color: string;
     earnedAt: string;
   }>;
-
-  @Column({ type: 'text', nullable: true })
-  settings: {
-    notifications: boolean;
-    emailAlerts: boolean;
-    darkMode: boolean;
-    offlineMode: boolean;
-    twoFactor: boolean;
-    language: string;
-    accountDeleted?: boolean;
-    deletionDate?: Date;
-  };
 
   @ManyToOne(() => Department, department => department.users)
   @JoinColumn({ name: 'department_id' })

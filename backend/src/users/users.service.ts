@@ -29,12 +29,37 @@ export class UsersService {
   async findByEmail(email: string): Promise<User> {
     return this.usersRepository.findOne({ 
       where: { email },
+      relations: ['department'],
     });
   }
 
   async update(id: string, userData: Partial<User>): Promise<User> {
     await this.usersRepository.update(id, userData);
     return this.findById(id);
+  }
+
+  async setAadhaarVerified(id: string, verified = true): Promise<User> {
+    await this.usersRepository.update(id, { aadhaarVerified: verified });
+    return this.findById(id);
+  }
+
+  async setDigilockerVerified(id: string, verified = true): Promise<User> {
+    await this.usersRepository.update(id, { digilockerVerified: verified });
+    return this.findById(id);
+  }
+
+  async verifyAllAadhaar(): Promise<void> {
+    await this.usersRepository.createQueryBuilder()
+      .update(User)
+      .set({ aadhaarVerified: true })
+      .execute();
+  }
+
+  async verifyAllDigilocker(): Promise<void> {
+    await this.usersRepository.createQueryBuilder()
+      .update(User)
+      .set({ digilockerVerified: true })
+      .execute();
   }
 
   async remove(id: string): Promise<void> {

@@ -46,20 +46,7 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
-        designation: user.designation,
-        aadhaar: user.aadhaar,
-        aadhaarVerified: user.aadhaarVerified,
-        digilockerVerified: user.digilockerVerified,
-        avatar: user.avatar,
-        achievements: user.achievements,
-        settings: user.settings || {
-          notifications: true,
-          emailAlerts: true,
-          darkMode: true,
-          offlineMode: false,
-          twoFactor: false,
-          language: 'English',
-        },
+        department: user.department,
       },
     };
   }

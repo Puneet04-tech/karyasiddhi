@@ -7,7 +7,6 @@ import { GoalsModule } from './goals/goals.module';
 import { KpisModule } from './kpis/kpis.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { DepartmentsModule } from './departments/departments.module';
-import { SettingsModule } from './settings/settings.module';
 import { SnakeNamingStrategy } from './common/snake-naming.strategy';
 
 @Module({
@@ -15,36 +14,26 @@ import { SnakeNamingStrategy } from './common/snake-naming.strategy';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot(
-      process.env.NODE_ENV === 'production'
-        ? {
-            type: 'postgres',
-            url: process.env.DATABASE_URL,
-            entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: false,
-            logging: false,
-            ssl: { rejectUnauthorized: false },
-            extra: {
-              ssl: {
-                rejectUnauthorized: false,
-              },
-            },
-          }
-        : {
-            type: 'sqlite',
-            database: 'karyasiddhi.db',
-            entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: true,
-            logging: true,
-          }
-    ),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: false, // Disabled - schema managed by SQL files
+      logging: process.env.NODE_ENV === 'development',
+      namingStrategy: new SnakeNamingStrategy(), // Convert camelCase to snake_case
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      extra: process.env.NODE_ENV === 'production' ? {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      } : {},
+    }),
     AuthModule,
     UsersModule,
     GoalsModule,
     KpisModule,
     AnalyticsModule,
     DepartmentsModule,
-    SettingsModule,
   ],
 })
 export class AppModule {}
