@@ -29,7 +29,6 @@ export class UsersService {
   async findByEmail(email: string): Promise<User> {
     return this.usersRepository.findOne({ 
       where: { email },
-      relations: ['department'],
     });
   }
 

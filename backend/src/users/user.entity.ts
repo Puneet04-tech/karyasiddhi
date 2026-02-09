@@ -22,7 +22,7 @@ export class User {
   @Column({ nullable: true })
   aadhaar: string;
 
-  @Column({ default: false })
+  @Column({ name: 'aadhaar_verified', default: false })
   aadhaarVerified: boolean;
 
   @Column()
@@ -37,7 +37,7 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column({ default: false })
+  @Column({ name: 'digilocker_verified', default: false })
   digilockerVerified: boolean;
 
   @Column({ type: 'jsonb', nullable: true })

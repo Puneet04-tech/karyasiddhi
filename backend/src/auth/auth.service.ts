@@ -46,7 +46,6 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
-        department: user.department,
         designation: user.designation,
         aadhaar: user.aadhaar,
         aadhaarVerified: user.aadhaarVerified,
