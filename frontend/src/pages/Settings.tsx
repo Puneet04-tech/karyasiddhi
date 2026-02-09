@@ -26,9 +26,6 @@ const Settings = () => {
   const [loading, setLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [exportLoading, setExportLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   // Initialize settings from user store on component mount
   useEffect(() => {
