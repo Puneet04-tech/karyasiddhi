@@ -456,9 +456,8 @@ const Dashboard = () => {
       )}
 
       {/* Employee Uploads Section - Manager Only */}
-      {user?.role === 'manager' && (
-        <EmployeeUploadsSection />
-      )}
+      {/* Temporarily always show for testing */}
+      <EmployeeUploadsSection />
 
       {/* AI Insights and Recent Activity */}
       <div className="grid lg:grid-cols-2 gap-6">
@@ -518,10 +517,35 @@ const EmployeeUploadsSection = () => {
   useEffect(() => {
     const fetchUploads = async () => {
       try {
-        const response = await api.get('/goal-uploads/manager');
-        setUploads(response.data);
+        console.log('Fetching uploads...');
+        // For testing: Use mock data
+        const mockUploads = [
+          {
+            id: '1',
+            fileName: 'project_report.pdf',
+            fileSize: 2457600, // 2.4 MB in bytes
+            uploadedAt: new Date().toISOString(),
+            description: 'Monthly progress report for Q1',
+            user: { name: 'John Doe', email: 'john@example.com' },
+            goal: { title: 'Complete Project Documentation' },
+          },
+          {
+            id: '2',
+            fileName: 'code_review.docx',
+            fileSize: 512000, // 512 KB in bytes
+            uploadedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+            description: 'Code review feedback and suggestions',
+            user: { name: 'Jane Smith', email: 'jane@example.com' },
+            goal: { title: 'Implement User Authentication' },
+          },
+        ];
+        
+        console.log('Using mock uploads data:', mockUploads);
+        setUploads(mockUploads);
       } catch (error) {
         console.error('Failed to fetch uploads:', error);
+        // Fallback mock data
+        setUploads([]);
       } finally {
         setLoading(false);
       }
@@ -578,7 +602,7 @@ const EmployeeUploadsSection = () => {
                     {(upload.fileSize / 1024).toFixed(1)} KB
                   </span>
                   <button
-                    onClick={() => window.open(upload.fileUrl, '_blank')}
+                    onClick={() => alert(`Viewing file: ${upload.fileName}\n\nIn production, this would open the file in a new tab.`)}
                     className="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700 transition-colors"
                   >
                     View
