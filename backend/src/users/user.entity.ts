@@ -41,10 +41,7 @@ export class User {
   @Column({ default: false })
   digilockerVerified: boolean;
 
-  @Column({ type: 'text', nullable: true, transformer: {
-    to: (value: any) => value ? JSON.stringify(value) : null,
-    from: (value: string) => value ? JSON.parse(value) : null,
-  }})
+  @Column({ type: 'jsonb', nullable: true })
   achievements: Array<{
     id: number;
     title: string;

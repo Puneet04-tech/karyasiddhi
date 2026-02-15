@@ -15,23 +15,18 @@ import { SnakeNamingStrategy } from './common/snake-naming.strategy';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      ...(process.env.NODE_ENV === 'production' ? {
-        type: 'postgres' as const,
-        url: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false },
-        extra: {
-          ssl: {
-            rejectUnauthorized: false,
-          },
-        },
-      } : {
-        type: 'sqlite' as const,
-        database: 'karyasiddhi.db',
-      }),
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: process.env.NODE_ENV !== 'production', // Enable sync for development
+      synchronize: process.env.NODE_ENV === 'development', // Enable sync for development only
       logging: process.env.NODE_ENV === 'development',
       namingStrategy: new SnakeNamingStrategy(), // Convert camelCase to snake_case
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      extra: process.env.NODE_ENV === 'production' ? {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      } : {},
     }),
     AuthModule,
     UsersModule,
