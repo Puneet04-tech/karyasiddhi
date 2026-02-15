@@ -51,6 +51,11 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
 
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
   // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('KaryaSiddhi API')
