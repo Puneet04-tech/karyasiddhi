@@ -51,8 +51,9 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
 
-  // Health check endpoint
-  app.get('/health', (req, res) => {
+  // Health check endpoint (access underlying Express instance)
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.get('/health', (req: any, res: any) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
