@@ -35,6 +35,8 @@ async function bootstrap() {
       return callback(new Error('Not allowed by CORS'), false);
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
   });
 
   // Global validation pipe

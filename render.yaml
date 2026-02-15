@@ -16,4 +16,4 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: CORS_ORIGIN
-        value: http://localhost:5173,https://karyasiddhi.netlify.app
+        value: https://karyasiddhi.netlify.app,https://karyasiddhi-3.onrender.com
