@@ -36,7 +36,7 @@ export class GoalsService {
   async findByUserId(userId: string): Promise<Goal[]> {
     return this.goalsRepository.find({
       where: { assignedUser: { id: userId } },
-      relations: ['department', 'kpis'],
+      relations: ['department', 'assignedUser', 'kpis'],
     });
   }
 

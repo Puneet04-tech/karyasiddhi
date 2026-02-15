@@ -52,9 +52,6 @@ const Goals = () => {
         // For testing: Use mock data if API fails
         try {
           const response = await api.get('/goals');
-          console.log('Goals API Response:', response.data);
-          console.log('Current user:', user);
-          console.log('User role:', user?.role);
           setGoals(response.data as Goal[]);
         } catch (apiError) {
           console.log('API failed, using mock data for testing');
@@ -488,6 +485,27 @@ const Goals = () => {
                   >
                     <Upload size={18} />
                     <span>Upload</span>
+                  </button>
+                </div>
+              ))}
+
+              {/* Debug: Always show upload button for testing */}
+              {!user && (
+                <div className="flex flex-row lg:flex-col gap-3 shrink-0 ml-4">
+                  <button 
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Debug Upload button clicked - user not logged in');
+                      alert('Please log in to upload files');
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 active:scale-95 transition-all cursor-pointer font-medium shadow-lg z-10"
+                    title="Login Required"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    <Upload size={18} />
+                    <span>Login to Upload</span>
                   </button>
                 </div>
               )}
