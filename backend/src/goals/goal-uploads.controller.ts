@@ -1,5 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { GoalUploadsService } from './goal-uploads.service';
 import { CreateGoalUploadDto, UpdateGoalUploadDto } from './dto/goal-upload.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -12,8 +15,53 @@ export class GoalUploadsController {
   constructor(private readonly goalUploadsService: GoalUploadsService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, callback) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        callback(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
+      },
+    }),
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+  }))
   @ApiOperation({ summary: 'Upload a file for a goal' })
-  async create(@Body() createGoalUploadDto: CreateGoalUploadDto, @Request() req) {
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'File to upload',
+        },
+        goalId: {
+          type: 'string',
+          description: 'Goal ID',
+        },
+        description: {
+          type: 'string',
+          description: 'Optional description',
+        },
+      },
+    },
+  })
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { goalId: string; description?: string },
+    @Request() req
+  ) {
+    const createGoalUploadDto: CreateGoalUploadDto = {
+      goalId: body.goalId,
+      fileName: file.originalname,
+      fileUrl: `/uploads/${file.filename}`,
+      fileSize: file.size,
+      fileType: file.mimetype,
+      description: body.description,
+    };
     return this.goalUploadsService.create(createGoalUploadDto, req.user.id);
   }
 

@@ -250,22 +250,28 @@ const Goals = () => {
 
     setUploading(true);
     try {
-      // For testing: Just show success message
-      console.log('Upload data:', {
-        goal: uploadingGoal.title,
-        fileName: uploadData.file.name,
-        fileSize: uploadData.file.size,
-        description: uploadData.description,
+      const formData = new FormData();
+      formData.append('file', uploadData.file);
+      formData.append('goalId', uploadingGoal.id);
+      if (uploadData.description) {
+        formData.append('description', uploadData.description);
+      }
+
+      const response = await api.post('/goal-uploads', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-      
+
+      console.log('Upload successful:', response.data);
       alert(`Upload successful!\n\nGoal: ${uploadingGoal.title}\nFile: ${uploadData.file.name}\nSize: ${(uploadData.file.size / 1024).toFixed(1)} KB\nDescription: ${uploadData.description || 'None'}`);
-      
+
       setShowUploadModal(false);
       setUploadingGoal(null);
       setUploadData({ file: null, description: '' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to upload file:', error);
-      alert('Upload failed: ' + error);
+      alert('Upload failed: ' + (error.response?.data?.message || error.message));
     } finally {
       setUploading(false);
     }
@@ -485,25 +491,6 @@ const Goals = () => {
                   </button>
                 </div>
               )}
-
-              {/* Temporary: Always show upload button for testing */}
-              <div className="flex flex-row lg:flex-col gap-3 shrink-0 ml-4">
-                <button 
-                  type="button"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Test Upload button clicked for goal:', goal.title, 'User:', user, 'Goal assigned to:', goal.assignedUser);
-                    handleUploadFile(goal);
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 active:scale-95 transition-all cursor-pointer font-medium shadow-lg z-10"
-                  title="Test Upload"
-                  style={{ pointerEvents: 'auto' }}
-                >
-                  <Upload size={18} />
-                  <span>Test Upload</span>
-                </button>
-              </div>
             </div>
           </motion.div>
         )})}
