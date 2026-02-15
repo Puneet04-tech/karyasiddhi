@@ -455,6 +455,11 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Employee Uploads Section - Manager Only */}
+      {user?.role === 'manager' && (
+        <EmployeeUploadsSection />
+      )}
+
       {/* AI Insights and Recent Activity */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* AI Insights */}
@@ -501,6 +506,88 @@ const Dashboard = () => {
             })}
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const EmployeeUploadsSection = () => {
+  const [uploads, setUploads] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUploads = async () => {
+      try {
+        const response = await api.get('/goal-uploads/manager');
+        setUploads(response.data);
+      } catch (error) {
+        console.error('Failed to fetch uploads:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUploads();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="mt-8">
+        <div className="card p-6">
+          <div className="text-center text-gray-400">Loading uploads...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-8">
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-white flex items-center">
+          <BarChart3 className="mr-3 text-green-500" size={32} />
+          Employee Work Uploads
+        </h2>
+        <p className="text-gray-400 mt-1">Recent work submissions from team members</p>
+      </div>
+      <div className="card p-6">
+        {uploads.length === 0 ? (
+          <div className="text-center text-gray-400 py-8">
+            <BarChart3 size={48} className="mx-auto text-gray-600 mb-4" />
+            <p>No uploads yet</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {uploads.slice(0, 10).map((upload: any) => (
+              <div key={upload.id} className="flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-primary-500 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center text-white font-bold">
+                    {upload.user?.name?.charAt(0) || 'U'}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">{upload.fileName}</h3>
+                    <p className="text-sm text-gray-400">
+                      {upload.user?.name} • {upload.goal?.title} • {new Date(upload.uploadedAt).toLocaleDateString()}
+                    </p>
+                    {upload.description && (
+                      <p className="text-xs text-gray-500 mt-1">{upload.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">
+                    {(upload.fileSize / 1024).toFixed(1)} KB
+                  </span>
+                  <button
+                    onClick={() => window.open(upload.fileUrl, '_blank')}
+                    className="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700 transition-colors"
+                  >
+                    View
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Goal } from '../goals/goal.entity';
 import { Department } from '../departments/department.entity';
+import { GoalUpload } from '../goals/goal-upload.entity';
 
 @Entity('users')
 export class User {
@@ -55,6 +56,9 @@ export class User {
 
   @OneToMany(() => Goal, goal => goal.assignedUser)
   goals: Goal[];
+
+  @OneToMany(() => GoalUpload, upload => upload.user)
+  uploads: GoalUpload[];
 
   @Column({ default: true })
   isActive: boolean;

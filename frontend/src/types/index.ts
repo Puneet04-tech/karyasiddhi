@@ -21,6 +21,30 @@ export interface Goal {
   kpis: string[];
   priority: 'low' | 'medium' | 'high' | 'critical';
   parentGoalId?: string;
+  uploads?: GoalUpload[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GoalUpload {
+  id: string;
+  goalId: string;
+  userId: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize?: number;
+  fileType?: string;
+  description?: string;
+  uploadedAt: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  goal?: {
+    id: string;
+    title: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

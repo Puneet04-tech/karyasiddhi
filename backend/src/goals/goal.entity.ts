@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateCol
 import { User } from '../users/user.entity';
 import { Department } from '../departments/department.entity';
 import { Kpi } from '../kpis/kpi.entity';
+import { GoalUpload } from './goal-upload.entity';
 
 export enum GoalType {
   SPECIFIC = 'specific',
@@ -71,6 +72,9 @@ export class Goal {
 
   @OneToMany(() => Kpi, kpi => kpi.goal)
   kpis: Kpi[];
+
+  @OneToMany(() => GoalUpload, upload => upload.goal)
+  uploads: GoalUpload[];
 
   @CreateDateColumn()
   createdAt: Date;

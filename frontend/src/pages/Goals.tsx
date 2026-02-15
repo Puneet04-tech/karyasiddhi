@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { 
   Target, Plus, Search, Calendar, 
-  AlertCircle, CheckCircle2, Clock, Edit, Trash2
+  AlertCircle, CheckCircle2, Clock, Edit, Trash2, Upload
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDate, getProgressColor, getProgressGradient } from '../lib/utils';
@@ -21,6 +21,15 @@ const Goals = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [creating, setCreating] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadingGoal, setUploadingGoal] = useState<Goal | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  // Form state for upload
+  const [uploadData, setUploadData] = useState({
+    file: null as File | null,
+    description: '',
+  });
 
   // Form state for new goal
   const [newGoal, setNewGoal] = useState({
@@ -177,6 +186,49 @@ const Goals = () => {
     } catch (error: any) {
       console.error('Failed to delete goal:', error);
       alert('Failed to delete goal: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleUploadFile = (goal: Goal) => {
+    setUploadingGoal(goal);
+    setShowUploadModal(true);
+  };
+
+  const handleFileUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadingGoal || !uploadData.file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadData.file);
+
+      // First upload file to get URL (assuming we have a file upload endpoint)
+      // For now, we'll simulate this by creating a blob URL
+      const fileUrl = URL.createObjectURL(uploadData.file);
+
+      const uploadPayload = {
+        goalId: uploadingGoal.id,
+        fileName: uploadData.file.name,
+        fileUrl: fileUrl,
+        fileSize: uploadData.file.size,
+        fileType: uploadData.file.type,
+        description: uploadData.description,
+      };
+
+      await api.post('/goal-uploads', uploadPayload);
+
+      setShowUploadModal(false);
+      setUploadingGoal(null);
+      setUploadData({ file: null, description: '' });
+      
+      // Refresh goals to show updated uploads
+      const response = await api.get('/goals');
+      setGoals(response.data);
+    } catch (error) {
+      console.error('Failed to upload file:', error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -374,6 +426,25 @@ const Goals = () => {
                   </button>
                 </div>
               )}
+
+              {goal.assignedUser?.id === user?.id && (
+                <div className="flex flex-row lg:flex-col gap-3 shrink-0 ml-4">
+                  <button 
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleUploadFile(goal);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 active:scale-95 transition-all cursor-pointer font-medium shadow-lg z-10"
+                    title="Upload Work"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    <Upload size={18} />
+                    <span>Upload</span>
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         )})}
@@ -414,6 +485,66 @@ const Goals = () => {
         creating={creating}
         isEdit={true}
       />
+
+      {/* Upload Modal */}
+      {showUploadModal && uploadingGoal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 w-full max-w-md">
+            <h3 className="text-xl font-semibold text-white mb-4">Upload Work for Goal</h3>
+            <p className="text-gray-400 mb-4">{uploadingGoal.title}</p>
+            
+            <form onSubmit={handleFileUpload}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Select File
+                  </label>
+                  <input
+                    type="file"
+                    onChange={(e) => setUploadData(prev => ({ ...prev, file: e.target.files?.[0] || null }))}
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-primary-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    value={uploadData.description}
+                    onChange={(e) => setUploadData(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-primary-500 resize-none"
+                    rows={3}
+                    placeholder="Describe your work..."
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setUploadingGoal(null);
+                    setUploadData({ file: null, description: '' });
+                  }}
+                  className="flex-1 px-4 py-2 bg-slate-700 text-gray-300 rounded-lg hover:bg-slate-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={uploading || !uploadData.file}
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {uploading ? 'Uploading...' : 'Upload'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
