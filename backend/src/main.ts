@@ -51,12 +51,6 @@ async function bootstrap() {
   // API prefix
   app.setGlobalPrefix('api');
 
-  // Health check endpoint (access underlying Express instance)
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.get('/health', (req: any, res: any) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-  });
-
   // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('KaryaSiddhi API')

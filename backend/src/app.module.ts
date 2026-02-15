@@ -8,6 +8,7 @@ import { KpisModule } from './kpis/kpis.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { SnakeNamingStrategy } from './common/snake-naming.strategy';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -35,5 +36,6 @@ import { SnakeNamingStrategy } from './common/snake-naming.strategy';
     AnalyticsModule,
     DepartmentsModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}
