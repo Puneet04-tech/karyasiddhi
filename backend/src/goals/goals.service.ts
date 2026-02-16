@@ -17,7 +17,11 @@ export class GoalsService {
 
   async create(createGoalDto: CreateGoalDto): Promise<Goal> {
     const goal = this.goalsRepository.create(createGoalDto);
-    return this.goalsRepository.save(goal);
+    const savedGoal = await this.goalsRepository.save(goal);
+    return this.goalsRepository.findOne({
+      where: { id: savedGoal.id },
+      relations: ['department', 'assignedUser', 'kpis', 'parentGoal', 'childGoals'],
+    });
   }
 
   async findAll(): Promise<Goal[]> {
