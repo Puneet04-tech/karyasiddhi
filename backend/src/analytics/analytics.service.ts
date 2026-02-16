@@ -44,8 +44,8 @@ export class AnalyticsService {
     // Calculate performance score for each user
     const rankings = await Promise.all(
       users.map(async (user) => {
-        const stats = await this.goalsService.getStatisticsByUser(user.id);
-        const kpiPerf = await this.kpisService.getAveragePerformanceByUser(user.id);
+        const stats = await this.goalsService.getStatisticsByUser(user.id.toString());
+        const kpiPerf = await this.kpisService.getAveragePerformanceByUser(user.id.toString());
         
         // Calculate overall score (weighted average)
         const performanceScore = (

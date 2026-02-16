@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import { ObjectId } from 'mongodb';
 import { Goal } from '../goals/goal.entity';
 import { Department } from '../departments/department.entity';
 
@@ -18,25 +19,25 @@ export enum KpiTrend {
 
 @Entity('kpis')
 export class Kpi {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @ObjectIdColumn()
+  id: ObjectId;
 
   @Column()
   name: string;
 
-  @Column('text')
+  @Column()
   description: string;
 
   @Column()
   unit: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal' })
   target: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal' })
   current: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal' })
   baseline: number;
 
   @Column({ default: KpiFrequency.MONTHLY })
@@ -49,14 +50,12 @@ export class Kpi {
   trend: KpiTrend;
 
   @ManyToOne(() => Department)
-  @JoinColumn({ name: 'department_id' })
   department: Department;
 
   @ManyToOne(() => Goal, goal => goal.kpis, { nullable: true })
-  @JoinColumn({ name: 'goal_id' })
   goal: Goal;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column()
   lastUpdated: Date;
 
   @CreateDateColumn()

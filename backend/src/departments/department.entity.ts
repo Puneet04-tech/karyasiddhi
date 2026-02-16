@@ -1,11 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { ObjectId } from 'mongodb';
 import { User } from '../users/user.entity';
 import { Goal } from '../goals/goal.entity';
 
 @Entity('departments')
 export class Department {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @ObjectIdColumn()
+  id: ObjectId;
 
   @Column()
   name: string;

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ObjectId } from 'mongodb';
 import { GoalUpload } from './goal-upload.entity';
 import { Goal } from './goal.entity';
 import { User } from '../users/user.entity';
@@ -19,7 +20,7 @@ export class GoalUploadsService {
 
   async create(createGoalUploadDto: CreateGoalUploadDto, userId: string): Promise<GoalUpload> {
     const goal = await this.goalsRepository.findOne({
-      where: { id: createGoalUploadDto.goalId },
+      where: { id: new ObjectId(createGoalUploadDto.goalId) },
       relations: ['assignedUser'],
     });
 
@@ -28,12 +29,12 @@ export class GoalUploadsService {
     }
 
     // Check if user is assigned to this goal or is a manager
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: new ObjectId(userId) } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    if (goal.assignedUser.id !== userId && user.role !== 'manager') {
+    if (goal.assignedUser.id.toString() !== userId && user.role !== 'manager') {
       throw new ForbiddenException('You can only upload files for your own goals');
     }
 
@@ -48,13 +49,13 @@ export class GoalUploadsService {
   }
 
   async findAllByGoal(goalId: string, userId: string): Promise<GoalUpload[]> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: new ObjectId(userId) } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     const goal = await this.goalsRepository.findOne({
-      where: { id: goalId },
+      where: { id: new ObjectId(goalId) },
       relations: ['assignedUser', 'department'],
     });
 
@@ -63,12 +64,12 @@ export class GoalUploadsService {
     }
 
     // Managers can see all uploads, employees can only see uploads for their goals
-    if (user.role !== 'manager' && goal.assignedUser.id !== userId) {
+    if (user.role !== 'manager' && goal.assignedUser.id.toString() !== userId) {
       throw new ForbiddenException('You can only view uploads for your own goals');
     }
 
     return this.goalUploadsRepository.find({
-      where: { goal: { id: goalId } },
+      where: { goal: { id: new ObjectId(goalId) } },
       relations: ['user', 'goal'],
       order: { uploadedAt: 'DESC' },
     });
@@ -76,7 +77,7 @@ export class GoalUploadsService {
 
   async findAllByUser(userId: string): Promise<GoalUpload[]> {
     return this.goalUploadsRepository.find({
-      where: { user: { id: userId } },
+      where: { user: { id: new ObjectId(userId) } },
       relations: ['goal', 'user'],
       order: { uploadedAt: 'DESC' },
     });
@@ -84,7 +85,7 @@ export class GoalUploadsService {
 
   async findAllForManager(managerId: string): Promise<GoalUpload[]> {
     const manager = await this.usersRepository.findOne({
-      where: { id: managerId },
+      where: { id: new ObjectId(managerId) },
       relations: ['department'],
     });
 
@@ -102,7 +103,7 @@ export class GoalUploadsService {
 
   async findOne(id: string, userId: string): Promise<GoalUpload> {
     const upload = await this.goalUploadsRepository.findOne({
-      where: { id },
+      where: { id: new ObjectId(id) },
       relations: ['goal', 'user'],
     });
 
@@ -110,13 +111,13 @@ export class GoalUploadsService {
       throw new NotFoundException('Upload not found');
     }
 
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: new ObjectId(userId) } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     // Check permissions
-    if (upload.user.id !== userId && user.role !== 'manager') {
+    if (upload.user.id.toString() !== userId && user.role !== 'manager') {
       throw new ForbiddenException('You can only view your own uploads');
     }
 
@@ -127,8 +128,8 @@ export class GoalUploadsService {
     const upload = await this.findOne(id, userId);
 
     // Only the uploader or manager can update
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (upload.user.id !== userId && user.role !== 'manager') {
+    const user = await this.usersRepository.findOne({ where: { id: new ObjectId(userId) } });
+    if (upload.user.id.toString() !== userId && user.role !== 'manager') {
       throw new ForbiddenException('You can only update your own uploads');
     }
 
@@ -140,8 +141,8 @@ export class GoalUploadsService {
     const upload = await this.findOne(id, userId);
 
     // Only the uploader or manager can delete
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (upload.user.id !== userId && user.role !== 'manager') {
+    const user = await this.usersRepository.findOne({ where: { id: new ObjectId(userId) } });
+    if (upload.user.id.toString() !== userId && user.role !== 'manager') {
       throw new ForbiddenException('You can only delete your own uploads');
     }
 

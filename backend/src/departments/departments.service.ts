@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ObjectId } from 'mongodb';
 import { Department } from './department.entity';
 
 @Injectable()
@@ -23,7 +24,7 @@ export class DepartmentsService {
 
   async findById(id: string): Promise<Department> {
     return this.departmentsRepository.findOne({
-      where: { id },
+      where: { id: new ObjectId(id) },
       relations: ['users', 'goals'],
     });
   }

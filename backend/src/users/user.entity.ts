@@ -1,12 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ObjectIdColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
+import { ObjectId } from 'mongodb';
 import { Goal } from '../goals/goal.entity';
 import { Department } from '../departments/department.entity';
 import { GoalUpload } from '../goals/goal-upload.entity';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @ObjectIdColumn()
+  id: ObjectId;
 
   @Column()
   name: string;
@@ -41,7 +42,7 @@ export class User {
   @Column({ default: false })
   digilockerVerified: boolean;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ nullable: true })
   achievements: Array<{
     id: number;
     title: string;
@@ -51,7 +52,6 @@ export class User {
   }>;
 
   @ManyToOne(() => Department, department => department.users)
-  @JoinColumn({ name: 'department_id' })
   department: Department;
 
   @OneToMany(() => Goal, goal => goal.assignedUser)
