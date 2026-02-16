@@ -3,16 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { IssuesService } from './issues.service';
 import { IssuesController } from './issues.controller';
 import { Issue } from './issue.entity';
-import { UsersModule } from '../users/users.module';
-import { GoalsModule } from '../goals/goals.module';
-import { KpisModule } from '../kpis/kpis.module';
+import { User } from '../users/user.entity';
+import { Goal } from '../goals/goal.entity';
+import { Kpi } from '../kpis/kpi.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Issue]),
-    UsersModule,
-    GoalsModule,
-    KpisModule,
+    TypeOrmModule.forFeature([Issue, User, Goal, Kpi]),
   ],
   controllers: [IssuesController],
   providers: [IssuesService],
