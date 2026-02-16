@@ -106,7 +106,16 @@ const Issues = () => {
 
     setCreating(true);
     try {
-      await api.post('/issues', createData);
+      // Filter out empty strings for optional fields
+      const dataToSend = {
+        title: createData.title,
+        description: createData.description,
+        priority: createData.priority,
+        ...(createData.goalId && { goalId: createData.goalId }),
+        ...(createData.kpiId && { kpiId: createData.kpiId }),
+      };
+
+      await api.post('/issues', dataToSend);
       setShowCreateModal(false);
       setCreateData({
         title: '',
