@@ -18,10 +18,23 @@ async function bootstrap() {
   const origins = rawOrigins.split(',').map((s) => s.trim()).filter(Boolean);
 
   app.enableCors({
-    origin: origins,
+    origin: (incomingOrigin, callback) => {
+      // Allow if no origin (same-origin requests) or origin is in configured list
+      if (!incomingOrigin) return callback(null, true);
+      
+      // Check if origin matches configured origins or Render/Netlify domains
+      const isAllowed = origins.includes(incomingOrigin) || 
+                       origins.includes('*') ||
+                       /\.render\.com$/.test(incomingOrigin) ||
+                       /\.netlify\.app$/.test(incomingOrigin) ||
+                       /\.onrender\.com$/.test(incomingOrigin);
+      
+      if (isAllowed) return callback(null, true);
+      
+      // Not allowed
+      return callback(new Error('Not allowed by CORS'), false);
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
   });
 
   // Global validation pipe
