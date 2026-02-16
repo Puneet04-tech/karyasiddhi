@@ -29,14 +29,14 @@ export class Issue {
   description: string;
 
   @Column({
-    type: 'enum',
+    type: process.env.NODE_ENV === 'production' ? 'enum' : 'simple-enum',
     enum: IssueStatus,
     default: IssueStatus.OPEN,
   })
   status: IssueStatus;
 
   @Column({
-    type: 'enum',
+    type: process.env.NODE_ENV === 'production' ? 'enum' : 'simple-enum',
     enum: IssuePriority,
     default: IssuePriority.MEDIUM,
   })
