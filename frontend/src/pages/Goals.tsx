@@ -373,13 +373,13 @@ const Goals = () => {
             showButtons: isManager ? 'YES - BUTTONS SHOULD SHOW' : 'NO - BUTTONS HIDDEN'
           });
           return (
-          <motion.div
-            key={goal.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="card p-6 border-2 border-slate-700/50 hover:border-primary-500/70 hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm"
-          >
+            <motion.div
+              key={goal.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="card p-6 border-2 border-slate-700/50 hover:border-primary-500/70 hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm"
+            >
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-start gap-3">
@@ -471,7 +471,7 @@ const Goals = () => {
 
               {goal.assignedUser?.id === user?.id && (
                 <div className="flex flex-row lg:flex-col gap-3 shrink-0 ml-4">
-                  <button 
+                  <button
                     type="button"
                     onMouseDown={(e) => {
                       e.preventDefault();
@@ -487,31 +487,11 @@ const Goals = () => {
                     <span>Upload</span>
                   </button>
                 </div>
-              ))}
-
-              {/* Debug: Always show upload button for testing */}
-              {!user && (
-                <div className="flex flex-row lg:flex-col gap-3 shrink-0 ml-4">
-                  <button 
-                    type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('Debug Upload button clicked - user not logged in');
-                      alert('Please log in to upload files');
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 active:scale-95 transition-all cursor-pointer font-medium shadow-lg z-10"
-                    title="Login Required"
-                    style={{ pointerEvents: 'auto' }}
-                  >
-                    <Upload size={18} />
-                    <span>Login to Upload</span>
-                  </button>
-                </div>
               )}
             </div>
-          </motion.div>
-        )})}
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Empty State */}

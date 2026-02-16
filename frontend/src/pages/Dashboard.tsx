@@ -456,9 +456,9 @@ const Dashboard = () => {
       )}
 
       {/* Employee Uploads Section - Manager Only */}
-      {console.log('Rendering EmployeeUploadsSection? user.role:', user?.role, 'condition:', user?.role === 'manager') || (user?.role === 'manager' && (
+      {user?.role === 'manager' && (
         <EmployeeUploadsSection />
-      ))}
+      )}
 
       {/* AI Insights and Recent Activity */}
       <div className="grid lg:grid-cols-2 gap-6">
