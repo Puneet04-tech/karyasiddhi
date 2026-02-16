@@ -41,14 +41,14 @@ export class User {
   @Column({ default: false })
   digilockerVerified: boolean;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'jsonb' : 'simple-json', nullable: true })
   achievements: Array<{
     id: number;
     title: string;
     icon: string;
     color: string;
     earnedAt: string;
-  }>;
+  }> | null;
 
   @ManyToOne(() => Department, department => department.users)
   @JoinColumn({ name: 'department_id' })
