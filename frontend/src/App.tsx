@@ -24,7 +24,7 @@ const PageLoader = () => (
 );
 
 function App() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   return (
     <Router>
@@ -39,8 +39,8 @@ function App() {
             <Route path="/kpis" element={isAuthenticated ? <KPIs /> : <Navigate to="/login" />} />
             <Route path="/analytics" element={isAuthenticated ? <Analytics /> : <Navigate to="/login" />} />
             <Route path="/team-rankings" element={isAuthenticated ? <TeamRankings /> : <Navigate to="/login" />} />
-            <Route path="/all-accounts" element={isAuthenticated ? <AllAccounts /> : <Navigate to="/login" />} />
-            <Route path="/manage-employee/:employeeId" element={isAuthenticated ? <ManageEmployee /> : <Navigate to="/login" />} />
+            <Route path="/all-accounts" element={isAuthenticated && user?.role === 'manager' ? <AllAccounts /> : <Navigate to="/" />} />
+            <Route path="/manage-employee/:employeeId" element={isAuthenticated && user?.role === 'manager' ? <ManageEmployee /> : <Navigate to="/" />} />
             <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
             <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
           </Route>

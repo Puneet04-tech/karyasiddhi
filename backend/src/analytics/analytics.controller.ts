@@ -14,7 +14,7 @@ export class AnalyticsController {
   @ApiOperation({ summary: 'Get analytics overview' })
   async getOverview(@Request() req, @Query('userId') userId?: string) {
     // Managers can view any user's data, regular users see only their own
-    const targetUserId = req.user.role === 'manager' ? userId : req.user.id;
+    const targetUserId = req.user.role === 'Department Head' ? userId : req.user.id;
     return this.analyticsService.getOverview(targetUserId);
   }
 
@@ -27,21 +27,21 @@ export class AnalyticsController {
   @Get('predictions')
   @ApiOperation({ summary: 'Get AI predictions' })
   async getPredictions(@Request() req, @Query('userId') userId?: string) {
-    const targetUserId = req.user.role === 'manager' ? userId : req.user.id;
+    const targetUserId = req.user.role === 'Department Head' ? userId : req.user.id;
     return this.analyticsService.getPredictions(targetUserId);
   }
 
   @Get('anomalies')
   @ApiOperation({ summary: 'Get detected anomalies' })
   async getAnomalies(@Request() req, @Query('userId') userId?: string) {
-    const targetUserId = req.user.role === 'manager' ? userId : req.user.id;
+    const targetUserId = req.user.role === 'Department Head' ? userId : req.user.id;
     return this.analyticsService.getAnomalies(targetUserId);
   }
 
   @Get('insights')
   @ApiOperation({ summary: 'Get AI insights' })
   async getInsights(@Request() req, @Query('userId') userId?: string) {
-    const targetUserId = req.user.role === 'manager' ? userId : req.user.id;
+    const targetUserId = req.user.role === 'Department Head' ? userId : req.user.id;
     return this.analyticsService.getInsights(targetUserId);
   }
 }

@@ -33,7 +33,7 @@ export class GoalUploadsService {
       throw new NotFoundException('User not found');
     }
 
-    if (goal.assignedUser.id !== userId && user.role !== 'manager') {
+    if (goal.assignedUser.id !== userId && user.role !== 'Department Head') {
       throw new ForbiddenException('You can only upload files for your own goals');
     }
 
@@ -63,7 +63,7 @@ export class GoalUploadsService {
     }
 
     // Managers can see all uploads, employees can only see uploads for their goals
-    if (user.role !== 'manager' && goal.assignedUser.id !== userId) {
+    if (user.role !== 'Department Head' && goal.assignedUser.id !== userId) {
       throw new ForbiddenException('You can only view uploads for your own goals');
     }
 
@@ -88,7 +88,7 @@ export class GoalUploadsService {
       relations: ['department'],
     });
 
-    if (!manager || manager.role !== 'manager') {
+    if (!manager || manager.role !== 'Department Head') {
       throw new ForbiddenException('Only managers can access this endpoint');
     }
 
@@ -116,7 +116,7 @@ export class GoalUploadsService {
     }
 
     // Check permissions
-    if (upload.user.id !== userId && user.role !== 'manager') {
+    if (upload.user.id !== userId && user.role !== 'Department Head') {
       throw new ForbiddenException('You can only view your own uploads');
     }
 
@@ -128,7 +128,7 @@ export class GoalUploadsService {
 
     // Only the uploader or manager can update
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (upload.user.id !== userId && user.role !== 'manager') {
+    if (upload.user.id !== userId && user.role !== 'Department Head') {
       throw new ForbiddenException('You can only update your own uploads');
     }
 
@@ -141,7 +141,7 @@ export class GoalUploadsService {
 
     // Only the uploader or manager can delete
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (upload.user.id !== userId && user.role !== 'manager') {
+    if (upload.user.id !== userId && user.role !== 'Department Head') {
       throw new ForbiddenException('You can only delete your own uploads');
     }
 
