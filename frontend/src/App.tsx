@@ -13,6 +13,7 @@ const TeamRankings = lazy(() => import('./pages/TeamRankings'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const AllAccounts = lazy(() => import('./pages/AllAccounts'));
+const Issues = lazy(() => import('./pages/Issues'));
 const ManageEmployee = lazy(() => import('./pages/ManageEmployee'));
 
 // Loading fallback component
@@ -33,7 +34,7 @@ function App() {
           
           <Route element={<Layout />}>
             <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
-            <Route path="/goals" element={isAuthenticated ? <Goals /> : <Navigate to="/login" />} />
+            <Route path="/issues" element={isAuthenticated ? <Issues /> : <Navigate to="/login" />} />
             <Route path="/kpis" element={isAuthenticated ? <KPIs /> : <Navigate to="/login" />} />
             <Route path="/analytics" element={isAuthenticated ? <Analytics /> : <Navigate to="/login" />} />
             <Route path="/team-rankings" element={isAuthenticated ? <TeamRankings /> : <Navigate to="/login" />} />

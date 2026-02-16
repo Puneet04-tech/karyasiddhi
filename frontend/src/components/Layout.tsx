@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, Target, BarChart3, TrendingUp, Users, User, Settings, 
-  Menu, X, Bell, LogOut, Shield, FileText
+  Menu, X, Bell, LogOut, Shield, FileText, AlertCircle
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,6 +27,7 @@ const Layout = () => {
     { name: 'Goals', href: '/goals', icon: Target },
     { name: 'KPIs', href: '/kpis', icon: BarChart3 },
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+    { name: 'Issues', href: '/issues', icon: AlertCircle },
   ];
 
   const managerNavigation = [
