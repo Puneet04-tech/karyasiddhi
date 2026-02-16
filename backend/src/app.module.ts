@@ -7,6 +7,7 @@ import { GoalsModule } from './goals/goals.module';
 import { KpisModule } from './kpis/kpis.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { DepartmentsModule } from './departments/departments.module';
+import { SnakeNamingStrategy } from './common/snake-naming.strategy';
 
 @Module({
   imports: [
@@ -14,13 +15,18 @@ import { DepartmentsModule } from './departments/departments.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'mongodb',
-      url: process.env.MONGODB_URI || process.env.DATABASE_URL,
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: process.env.NODE_ENV === 'development', // Enable sync for development only
       logging: process.env.NODE_ENV === 'development',
-      ssl: process.env.NODE_ENV === 'production',
-      authSource: 'admin',
+      namingStrategy: new SnakeNamingStrategy(), // Convert camelCase to snake_case
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      extra: process.env.NODE_ENV === 'production' ? {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      } : {},
     }),
     AuthModule,
     UsersModule,

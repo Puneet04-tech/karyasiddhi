@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ObjectId } from 'mongodb';
 import { Goal, GoalStatus } from './goal.entity';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
@@ -29,21 +28,21 @@ export class GoalsService {
 
   async findById(id: string): Promise<Goal> {
     return this.goalsRepository.findOne({
-      where: { id: new ObjectId(id) },
+      where: { id },
       relations: ['department', 'assignedUser', 'kpis', 'parentGoal', 'childGoals'],
     });
   }
 
   async findByUserId(userId: string): Promise<Goal[]> {
     return this.goalsRepository.find({
-      where: { assignedUser: { id: new ObjectId(userId) } },
+      where: { assignedUser: { id: userId } },
       relations: ['department', 'assignedUser', 'kpis'],
     });
   }
 
   async findByDepartmentId(departmentId: string): Promise<Goal[]> {
     return this.goalsRepository.find({
-      where: { department: { id: new ObjectId(departmentId) } },
+      where: { department: { id: departmentId } },
       relations: ['assignedUser', 'kpis'],
     });
   }
@@ -74,7 +73,7 @@ export class GoalsService {
 
   async getStatisticsByUser(userId: string): Promise<any> {
     const goals = await this.goalsRepository.find({
-      where: { assignedUser: { id: new ObjectId(userId) } },
+      where: { assignedUser: { id: userId } },
     });
 
     const total = goals.length;

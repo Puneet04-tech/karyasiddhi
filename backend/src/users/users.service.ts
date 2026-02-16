@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ObjectId } from 'mongodb';
 import { User } from './user.entity';
 
 @Injectable()
@@ -21,8 +20,8 @@ export class UsersService {
   }
 
   async findById(id: string): Promise<User> {
-    return this.usersRepository.findOne({
-      where: { id: new ObjectId(id) },
+    return this.usersRepository.findOne({ 
+      where: { id },
       relations: ['department', 'goals'],
     });
   }

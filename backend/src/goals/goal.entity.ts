@@ -1,5 +1,4 @@
-import { Entity, Column, ObjectIdColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
-import { ObjectId } from 'mongodb';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Department } from '../departments/department.entity';
 import { Kpi } from '../kpis/kpi.entity';
@@ -29,13 +28,13 @@ export enum GoalPriority {
 
 @Entity('goals')
 export class Goal {
-  @ObjectIdColumn()
-  id: ObjectId;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   title: string;
 
-  @Column()
+  @Column('text')
   description: string;
 
   @Column({ default: GoalType.SPECIFIC })
@@ -47,22 +46,25 @@ export class Goal {
   @Column({ default: GoalPriority.MEDIUM })
   priority: GoalPriority;
 
-  @Column({ type: 'decimal', default: 0 })
+  @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
   progress: number;
 
-  @Column()
+  @Column({ type: 'date' })
   startDate: Date;
 
-  @Column()
+  @Column({ type: 'date' })
   endDate: Date;
 
   @ManyToOne(() => Department, department => department.goals)
+  @JoinColumn({ name: 'department_id' })
   department: Department;
 
   @ManyToOne(() => User, user => user.goals)
+  @JoinColumn({ name: 'assigned_user_id' })
   assignedUser: User;
 
   @ManyToOne(() => Goal, goal => goal.childGoals, { nullable: true })
+  @JoinColumn({ name: 'parent_goal_id' })
   parentGoal: Goal;
 
   @OneToMany(() => Goal, goal => goal.parentGoal)

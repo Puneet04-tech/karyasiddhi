@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ObjectId } from 'mongodb';
 import { Kpi } from './kpi.entity';
 import { CreateKpiDto } from './dto/create-kpi.dto';
 import { UpdateKpiDto } from './dto/update-kpi.dto';
@@ -26,28 +25,28 @@ export class KpisService {
 
   async findById(id: string): Promise<Kpi> {
     return this.kpisRepository.findOne({
-      where: { id: new ObjectId(id) },
+      where: { id },
       relations: ['department', 'goal', 'goal.assignedUser'],
     });
   }
 
   async findByGoalId(goalId: string): Promise<Kpi[]> {
     return this.kpisRepository.find({
-      where: { goal: { id: new ObjectId(goalId) } },
+      where: { goal: { id: goalId } },
       relations: ['department', 'goal', 'goal.assignedUser'],
     });
   }
 
   async findByUserId(userId: string): Promise<Kpi[]> {
     return this.kpisRepository.find({
-      where: { goal: { assignedUser: { id: new ObjectId(userId) } } },
+      where: { goal: { assignedUser: { id: userId } } },
       relations: ['goal', 'department', 'goal.assignedUser'],
     });
   }
 
   async findByDepartmentId(departmentId: string): Promise<Kpi[]> {
     return this.kpisRepository.find({
-      where: { department: { id: new ObjectId(departmentId) } },
+      where: { department: { id: departmentId } },
       relations: ['goal', 'goal.assignedUser'],
     });
   }
@@ -75,7 +74,7 @@ export class KpisService {
 
   async getAveragePerformanceByUser(userId: string): Promise<number> {
     const kpis = await this.kpisRepository.find({
-      where: { goal: { assignedUser: { id: new ObjectId(userId) } } },
+      where: { goal: { assignedUser: { id: userId } } },
       relations: ['goal', 'goal.assignedUser'],
     });
     

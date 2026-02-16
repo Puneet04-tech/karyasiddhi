@@ -1,17 +1,16 @@
-import { Entity, Column, ObjectIdColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
-import { ObjectId } from 'mongodb';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Goal } from '../goals/goal.entity';
 import { User } from '../users/user.entity';
 
 @Entity('goal_uploads')
 export class GoalUpload {
-  @ObjectIdColumn()
-  id: ObjectId;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   fileName: string;
 
-  @Column()
+  @Column('text')
   fileUrl: string;
 
   @Column({ nullable: true })
@@ -20,16 +19,18 @@ export class GoalUpload {
   @Column({ nullable: true })
   fileType: string;
 
-  @Column({ nullable: true })
+  @Column('text', { nullable: true })
   description: string;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   uploadedAt: Date;
 
   @ManyToOne(() => Goal, goal => goal.uploads, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'goal_id' })
   goal: Goal;
 
   @ManyToOne(() => User, user => user.uploads, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @CreateDateColumn()
