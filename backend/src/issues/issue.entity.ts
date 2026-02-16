@@ -45,7 +45,7 @@ export class Issue {
   @Column({ nullable: true })
   solution: string;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'timestamp' : 'datetime', nullable: true })
   resolvedAt: Date;
 
   @ManyToOne(() => User)
