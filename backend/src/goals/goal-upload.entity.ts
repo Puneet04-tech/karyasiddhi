@@ -22,7 +22,7 @@ export class GoalUpload {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'timestamp' : 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   uploadedAt: Date;
 
   @ManyToOne(() => Goal, goal => goal.uploads, { onDelete: 'CASCADE' })

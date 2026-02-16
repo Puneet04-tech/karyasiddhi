@@ -56,7 +56,7 @@ export class Kpi {
   @JoinColumn({ name: 'goal_id' })
   goal: Goal;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: process.env.NODE_ENV === 'production' ? 'timestamp' : 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   lastUpdated: Date;
 
   @CreateDateColumn()
