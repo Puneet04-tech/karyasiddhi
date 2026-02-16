@@ -13,7 +13,7 @@ CREATE TABLE issues (
     status issue_status DEFAULT 'open',
     priority issue_priority DEFAULT 'medium',
     solution TEXT,
-    "resolvedAt" TIMESTAMP,
+    resolved_at TIMESTAMP,
     "created_by" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     "assigned_to" UUID REFERENCES users(id) ON DELETE SET NULL,
     "goal_id" UUID REFERENCES goals(id) ON DELETE SET NULL,
