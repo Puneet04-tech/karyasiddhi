@@ -34,6 +34,7 @@ function App() {
           
           <Route element={<Layout />}>
             <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+            <Route path="/goals" element={isAuthenticated ? <Goals /> : <Navigate to="/login" />} />
             <Route path="/issues" element={isAuthenticated ? <Issues /> : <Navigate to="/login" />} />
             <Route path="/kpis" element={isAuthenticated ? <KPIs /> : <Navigate to="/login" />} />
             <Route path="/analytics" element={isAuthenticated ? <Analytics /> : <Navigate to="/login" />} />
