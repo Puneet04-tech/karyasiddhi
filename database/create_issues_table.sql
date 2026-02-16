@@ -18,8 +18,8 @@ CREATE TABLE issues (
     "assigned_to" UUID REFERENCES users(id) ON DELETE SET NULL,
     "goal_id" UUID REFERENCES goals(id) ON DELETE SET NULL,
     "kpi_id" UUID REFERENCES kpis(id) ON DELETE SET NULL,
-    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create indexes for better performance
@@ -35,7 +35,7 @@ CREATE INDEX idx_issues_created_at ON issues("createdAt");
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW."updatedAt" = CURRENT_TIMESTAMP;
+    NEW.updated_at = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
 $$ language 'plpgsql';
