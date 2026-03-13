@@ -4,7 +4,7 @@ import {
   BarChart3, Target, Users, Settings, Bell, Search, Menu,
   Crown, Sparkles, Rocket, Dna, Brain as BrainIcon, Shield,
   Network, Trophy as TrophyIcon, Monitor, FlaskConical,
-  BarChart3 as BarChartIcon, Shield as ShieldIcon, Atom
+  BarChart3 as BarChartIcon, Shield as ShieldIcon, Atom, Camera
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
@@ -162,7 +162,7 @@ const RevolutionaryFeatures = () => {
       id: 'digital-mirror',
       title: 'Digital Mirror',
       description: 'Real-time Self-Awareness',
-      icon: Mirror,
+      icon: Camera,
       color: 'from-blue-500/30 to-purple-500/30',
       iconColor: 'text-blue-400',
       badge: 'NEW',

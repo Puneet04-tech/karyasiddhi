@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Mirror, Eye, Brain, Heart, Zap, TrendingUp, BarChart3,
+  Camera, Eye, Brain, Heart, Zap, TrendingUp, BarChart3,
   Target, Users, Activity, Clock, Settings, RefreshCw,
   AlertTriangle, CheckCircle, Star, Award
 } from 'lucide-react';
@@ -448,7 +448,7 @@ const DigitalMirror = () => {
           <div className="p-3 rounded-2xl box-shadow-glow" style={{
             background: 'linear-gradient(135deg, #3b82f630, #8b5cf630)'
           }}>
-            <Mirror className="w-8 h-8 text-blue-400" />
+            <Camera className="w-8 h-8 text-blue-400" />
           </div>
           <div>
             <h1 className="text-3xl font-bold gradient-text">Digital Mirror</h1>
@@ -525,7 +525,7 @@ const DigitalMirror = () => {
                   <PolarGrid stroke="#374151" />
                   <PolarAngleAxis dataKey="skill" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
                   <PolarRadiusAxis angle={90} domain={[0, 100]} stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
-                  <Radar name="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
+                  <Radar name="value" dataKey="skill" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>

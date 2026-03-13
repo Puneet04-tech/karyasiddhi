@@ -3,7 +3,7 @@ import {
   Atom, Zap, Brain, Eye, Activity, TrendingUp, BarChart3,
   Target, Users, Settings, RefreshCw, Clock, AlertTriangle,
   CheckCircle, XCircle, ArrowUp, ArrowDown, Layers,
-  Quantum, Sparkles, Cpu, Database, Network
+  Sparkles, Cpu, Database, Network
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ScatterChart, Scatter } from 'recharts';

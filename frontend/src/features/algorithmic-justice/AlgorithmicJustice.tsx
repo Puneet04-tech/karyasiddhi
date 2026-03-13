@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Scale, Balance, AlertTriangle, CheckCircle, TrendingUp, BarChart3,
+  Scale, AlertTriangle, CheckCircle, TrendingUp, BarChart3,
   Activity, Target, Users, Shield, Eye, Brain, Settings,
   RefreshCw, FileText, Clock, Zap, Award, Gavel,
   AlertCircle, TrendingDown, ArrowUp, ArrowDown
@@ -550,7 +550,7 @@ const AlgorithmicJustice = () => {
       {/* Fairness Metrics */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-white flex items-center">
-          <Balance className="w-5 h-5 mr-2 text-blue-400" />
+          <Scale className="w-5 h-5 mr-2 text-blue-400" />
           Fairness Metrics
         </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
