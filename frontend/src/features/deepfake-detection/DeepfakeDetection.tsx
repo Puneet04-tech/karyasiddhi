@@ -135,7 +135,8 @@ const DeepfakeDetection = () => {
         metadata: {
           created_at: new Date(Date.now() - 1 * 60 * 60 * 1000),
           file_size: 5242880,
-          duration: 180
+          duration: 180,
+          resolution: '1920x1080'
         }
       },
       {

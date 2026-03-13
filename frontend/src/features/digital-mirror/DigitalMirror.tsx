@@ -472,7 +472,7 @@ const DigitalMirror = () => {
       <div className="card p-6 border border-blue-500/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Mirror className="w-6 h-6 text-blue-400" />
+            <Eye className="w-6 h-6 text-blue-400" />
             <div>
               <h2 className="text-xl font-semibold text-white">Self-Awareness Score</h2>
               <p className="text-sm text-gray-400">Overall self-reflection accuracy</p>
@@ -600,7 +600,7 @@ const DigitalMirror = () => {
                   Details
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -659,7 +659,7 @@ const DigitalMirror = () => {
                   </button>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
