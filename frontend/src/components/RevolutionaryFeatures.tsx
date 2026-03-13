@@ -3,8 +3,8 @@ import {
   Brain, Heart, Coins, Globe, Gamepad2, Eye, Zap, Trophy, 
   BarChart3, Target, Users, Settings, Bell, Search, Menu,
   Crown, Sparkles, Rocket, Dna, Brain as BrainIcon, Shield,
-  Network, Trophy as TrophyIcon, Mirror, FlaskConical,
-  BarChart3 as BarChartIcon
+  Network, Trophy as TrophyIcon, Monitor, FlaskConical,
+  BarChart3 as BarChartIcon, Shield as ShieldIcon, Atom
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
@@ -27,6 +27,9 @@ import EnhancedGamification from '../features/enhanced-gamification/EnhancedGami
 import DigitalMirror from '../features/digital-mirror/DigitalMirror';
 import LaboratoryOfGovernance from '../features/laboratory-governance/LaboratoryOfGovernance';
 import TidalWaveAnalytics from '../features/tidal-wave-analytics/TidalWaveAnalytics';
+import DeepfakeDetection from '../features/deepfake-detection/DeepfakeDetection';
+import AlgorithmicJustice from '../features/algorithmic-justice/AlgorithmicJustice';
+import QuantumManagement from '../features/quantum-management/QuantumManagement';
 
 const RevolutionaryFeatures = () => {
   const { user } = useAuthStore();
@@ -176,10 +179,30 @@ const RevolutionaryFeatures = () => {
       status: 'active'
     },
     {
-      id: 'tidal-wave-analytics',
-      title: 'Tidal Wave Analytics',
-      description: 'Social Network Mapping',
-      icon: Network,
+      id: 'deepfake-detection',
+      title: 'Deepfake Detection',
+      description: 'Authenticity Verification',
+      icon: ShieldIcon,
+      color: 'from-red-500/30 to-orange-500/30',
+      iconColor: 'text-red-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'algorithmic-justice',
+      title: 'Algorithmic Justice',
+      description: 'Fairness Auditing',
+      icon: Monitor,
+      color: 'from-blue-500/30 to-green-500/30',
+      iconColor: 'text-blue-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'quantum-management',
+      title: 'Quantum Management',
+      description: 'Superposition Decisions',
+      icon: Atom,
       color: 'from-purple-500/30 to-indigo-500/30',
       iconColor: 'text-purple-400',
       badge: 'NEW',
@@ -223,6 +246,12 @@ const RevolutionaryFeatures = () => {
         return <LaboratoryOfGovernance />;
       case 'tidal-wave-analytics':
         return <TidalWaveAnalytics />;
+      case 'deepfake-detection':
+        return <DeepfakeDetection />;
+      case 'algorithmic-justice':
+        return <AlgorithmicJustice />;
+      case 'quantum-management':
+        return <QuantumManagement />;
       default:
         return (
           <div className="flex items-center justify-center h-96">
