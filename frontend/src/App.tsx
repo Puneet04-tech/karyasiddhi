@@ -15,6 +15,7 @@ const Settings = lazy(() => import('./pages/Settings'));
 const AllAccounts = lazy(() => import('./pages/AllAccounts'));
 const Issues = lazy(() => import('./pages/Issues'));
 const ManageEmployee = lazy(() => import('./pages/ManageEmployee'));
+const RevolutionaryFeatures = lazy(() => import('./components/RevolutionaryFeatures'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -43,6 +44,7 @@ function App() {
             <Route path="/manage-employee/:employeeId" element={isAuthenticated && user?.role === 'manager' ? <ManageEmployee /> : <Navigate to="/" />} />
             <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
             <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
+            <Route path="/revolutionary-features" element={isAuthenticated ? <RevolutionaryFeatures /> : <Navigate to="/login" />} />
           </Route>
         </Routes>
       </Suspense>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, Target, BarChart3, TrendingUp, Users, User, Settings, 
-  Menu, X, Bell, LogOut, Shield, FileText, AlertCircle
+  Menu, X, Bell, LogOut, Shield, FileText, AlertCircle, Crown, Sparkles
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,7 +22,16 @@ const Layout = () => {
   }, [user, navigate]);
   const location = useLocation();
 
-  const baseNavigation = [
+  interface NavigationItem {
+  name: string;
+  href: string;
+  icon: any;
+  badge?: string;
+  special?: boolean;
+  managerOnly?: boolean;
+}
+
+const baseNavigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Goals', href: '/goals', icon: Target },
     { name: 'KPIs', href: '/kpis', icon: BarChart3 },
@@ -30,12 +39,22 @@ const Layout = () => {
     { name: 'Issues', href: '/issues', icon: AlertCircle },
   ];
 
-  const managerNavigation = [
+  const revolutionaryNavigation: NavigationItem[] = [
+    { 
+      name: 'Revolutionary Features', 
+      href: '/revolutionary-features', 
+      icon: Crown,
+      badge: 'NEW',
+      special: true
+    },
+  ];
+
+  const managerNavigation: NavigationItem[] = [
     { name: 'All Accounts', href: '/all-accounts', icon: Users, managerOnly: true },
     { name: 'Team Rankings', href: '/team-rankings', icon: TrendingUp, managerOnly: true },
   ];
 
-  const bottomNavigation = [
+  const bottomNavigation: NavigationItem[] = [
     { name: 'Profile', href: '/profile', icon: User },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
@@ -43,6 +62,7 @@ const Layout = () => {
   const isManager = user?.role === 'Department Head';
   const navigation = [
     ...baseNavigation,
+    ...revolutionaryNavigation,
     ...(isManager ? managerNavigation : []),
     ...bottomNavigation,
   ];
@@ -126,16 +146,32 @@ const Layout = () => {
                       <Link
                         to={item.href}
                         onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center p-3 rounded-lg transition-all ${
-                          active
-                            ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg'
-                            : 'text-gray-300 hover:bg-white/10'
+                        className={`flex items-center p-3 rounded-lg transition-all relative ${
+                          item.special
+                            ? active
+                              ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-lg border border-yellow-500/50'
+                              : 'text-yellow-400 hover:bg-yellow-500/10 border border-transparent'
+                            : active
+                              ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg'
+                              : 'text-gray-300 hover:bg-white/10'
                         }`}
                         aria-current={active ? 'page' : undefined}
                         aria-label={item.name}
                       >
                         <Icon size={20} aria-hidden="true" />
                         <span className="ml-3">{item.name}</span>
+                        {item.badge && (
+                          <span className={`ml-auto px-2 py-1 text-xs rounded ${
+                            item.special
+                              ? 'bg-yellow-500 text-white'
+                              : 'bg-primary-500 text-white'
+                          }`}>
+                            {item.badge}
+                          </span>
+                        )}
+                        {item.special && (
+                          <Sparkles className="ml-2 w-4 h-4 text-yellow-400 animate-pulse" />
+                        )}
                       </Link>
                     </li>
                   );
