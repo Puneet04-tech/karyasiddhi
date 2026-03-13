@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { 
   Brain, Heart, Coins, Globe, Gamepad2, Eye, Zap, Trophy, 
   BarChart3, Target, Users, Settings, Bell, Search, Menu,
-  Crown, Sparkles, Rocket
+  Crown, Sparkles, Rocket, Dna, Brain as BrainIcon, Shield,
+  Network
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
@@ -13,6 +14,14 @@ import EmpathyEngine from '../features/empathy-engine/EmpathyEngine';
 import BlockchainKarma from '../features/blockchain-karma/BlockchainKarma';
 import BharatNetIntegration from '../features/bharatnet/BharatNetIntegration';
 import CarnivalOfProductivity from '../features/carnival-of-productivity/CarnivalOfProductivity';
+import GovVerse from '../features/govverse/GovVerse';
+import ARVRTraining from '../features/ar-vr-training/ARVRTraining';
+import DigitalTwinSimulation from '../features/digital-twin/DigitalTwinSimulation';
+import MoodAdaptiveUI from '../features/mood-adaptive-ui/MoodAdaptiveUI';
+import DNAGovernance from '../features/dna-governance/DNAGovernance';
+import PrecognitionEngine from '../features/precognition-engine/PrecognitionEngine';
+import ZeroKnowledgeGovernance from '../features/zero-knowledge/ZeroKnowledgeGovernance';
+import EcosystemIntelligence from '../features/ecosystem-intelligence/EcosystemIntelligence';
 
 const RevolutionaryFeatures = () => {
   const { user } = useAuthStore();
@@ -94,12 +103,52 @@ const RevolutionaryFeatures = () => {
     {
       id: 'mood-ui',
       title: 'Mood-Adaptive UI',
-      description: 'Emotional Interface (Coming Soon)',
+      description: 'Emotional Interface',
       icon: Sparkles,
       color: 'from-green-500/30 to-teal-500/30',
       iconColor: 'text-green-400',
-      badge: 'RESEARCH',
-      status: 'coming-soon'
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'dna-governance',
+      title: 'DNA of Governance',
+      description: 'Genetic Algorithm Optimization',
+      icon: Dna,
+      color: 'from-purple-500/30 to-indigo-500/30',
+      iconColor: 'text-purple-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'precognition-engine',
+      title: 'Precognition Engine',
+      description: 'Advanced Forecasting',
+      icon: BrainIcon,
+      color: 'from-blue-500/30 to-purple-500/30',
+      iconColor: 'text-blue-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'zero-knowledge',
+      title: 'Zero-Knowledge Governance',
+      description: 'Privacy-First Analytics',
+      icon: Shield,
+      color: 'from-cyan-500/30 to-blue-500/30',
+      iconColor: 'text-cyan-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'ecosystem-intelligence',
+      title: 'Ecosystem Intelligence',
+      description: 'Interconnected Governance',
+      icon: Network,
+      color: 'from-green-500/30 to-blue-500/30',
+      iconColor: 'text-green-400',
+      badge: 'NEW',
+      status: 'active'
     }
   ];
 
@@ -115,6 +164,22 @@ const RevolutionaryFeatures = () => {
         return <BharatNetIntegration />;
       case 'carnival':
         return <CarnivalOfProductivity />;
+      case 'govverse':
+        return <GovVerse />;
+      case 'ar-vr-training':
+        return <ARVRTraining />;
+      case 'digital-twin':
+        return <DigitalTwinSimulation />;
+      case 'mood-ui':
+        return <MoodAdaptiveUI />;
+      case 'dna-governance':
+        return <DNAGovernance />;
+      case 'precognition-engine':
+        return <PrecognitionEngine />;
+      case 'zero-knowledge':
+        return <ZeroKnowledgeGovernance />;
+      case 'ecosystem-intelligence':
+        return <EcosystemIntelligence />;
       default:
         return (
           <div className="flex items-center justify-center h-96">
