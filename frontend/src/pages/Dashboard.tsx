@@ -4,7 +4,7 @@ import {
   CheckCircle, Clock, Users, Activity, BarChart3
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { LineChart, Line, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ComposedChart, ScatterChart, Scatter, Treemap } from 'recharts';
 import { useAuthStore } from '../store/authStore';
 import { formatPercentage, getProgressColor } from '../lib/utils';
 import api from '../lib/api';
@@ -85,6 +85,79 @@ const Dashboard = () => {
     { name: 'Operational', value: 18, color: '#14B8A6' },
     { name: 'Development', value: 8, color: '#F59E0B' },
     { name: 'Innovation', value: 7, color: '#EC4899' },
+  ], []);
+
+  // Additional data for new charts
+  const weeklyProgress = useMemo(() => [
+    { week: 'Week 1', completed: 3, started: 5, delayed: 1 },
+    { week: 'Week 2', completed: 4, started: 7, delayed: 2 },
+    { week: 'Week 3', completed: 6, started: 4, delayed: 1 },
+    { week: 'Week 4', completed: 5, started: 6, delayed: 3 },
+    { week: 'Week 5', completed: 8, started: 5, delayed: 2 },
+    { week: 'Week 6', completed: 7, started: 8, delayed: 1 },
+  ], []);
+
+  const departmentPerformance = useMemo(() => [
+    { department: 'IT', goals: 15, completed: 12, efficiency: 80, satisfaction: 4.2 },
+    { department: 'HR', goals: 8, completed: 6, efficiency: 75, satisfaction: 4.5 },
+    { department: 'Finance', goals: 12, completed: 10, efficiency: 83, satisfaction: 4.1 },
+    { department: 'Operations', goals: 18, completed: 14, efficiency: 78, satisfaction: 4.3 },
+    { department: 'Marketing', goals: 6, completed: 5, efficiency: 85, satisfaction: 4.6 },
+  ], []);
+
+  const kpiTrends = useMemo(() => [
+    { month: 'Jan', efficiency: 72, quality: 85, innovation: 68, collaboration: 78 },
+    { month: 'Feb', efficiency: 75, quality: 87, innovation: 70, collaboration: 80 },
+    { month: 'Mar', efficiency: 78, quality: 86, innovation: 73, collaboration: 82 },
+    { month: 'Apr', efficiency: 82, quality: 88, innovation: 75, collaboration: 85 },
+    { month: 'May', efficiency: 85, quality: 90, innovation: 78, collaboration: 87 },
+    { month: 'Jun', efficiency: 87, quality: 92, innovation: 82, collaboration: 89 },
+  ], []);
+
+  const resourceAllocation = useMemo(() => [
+    { resource: 'Development', allocated: 40, utilized: 35, efficiency: 88 },
+    { resource: 'Design', allocated: 20, utilized: 18, efficiency: 90 },
+    { resource: 'Testing', allocated: 25, utilized: 22, efficiency: 88 },
+    { resource: 'Management', allocated: 15, utilized: 14, efficiency: 93 },
+  ], []);
+
+  const riskAssessment = useMemo(() => [
+    { risk: 'Technical', probability: 30, impact: 70, mitigation: 60 },
+    { risk: 'Resource', probability: 45, impact: 50, mitigation: 75 },
+    { risk: 'Timeline', probability: 25, impact: 80, mitigation: 70 },
+    { risk: 'Budget', probability: 20, impact: 90, mitigation: 85 },
+    { risk: 'Quality', probability: 15, impact: 75, mitigation: 80 },
+  ], []);
+
+  const skillsRadar = useMemo(() => [
+    { skill: 'Technical', A: 85, B: 75, fullMark: 100 },
+    { skill: 'Communication', A: 78, B: 85, fullMark: 100 },
+    { skill: 'Leadership', A: 82, B: 70, fullMark: 100 },
+    { skill: 'Innovation', A: 75, B: 80, fullMark: 100 },
+    { skill: 'Problem Solving', A: 88, B: 72, fullMark: 100 },
+    { skill: 'Time Management', A: 80, B: 78, fullMark: 100 },
+  ], []);
+
+  const productivityHeatmap = useMemo(() => [
+    { day: 'Mon', hour: '9AM', value: 85 }, { day: 'Mon', hour: '11AM', value: 92 },
+    { day: 'Mon', hour: '1PM', value: 78 }, { day: 'Mon', hour: '3PM', value: 88 },
+    { day: 'Tue', hour: '9AM', value: 88 }, { day: 'Tue', hour: '11AM', value: 95 },
+    { day: 'Tue', hour: '1PM', value: 82 }, { day: 'Tue', hour: '3PM', value: 90 },
+    { day: 'Wed', hour: '9AM', value: 82 }, { day: 'Wed', hour: '11AM', value: 90 },
+    { day: 'Wed', hour: '1PM', value: 75 }, { day: 'Wed', hour: '3PM', value: 85 },
+    { day: 'Thu', hour: '9AM', value: 90 }, { day: 'Thu', hour: '11AM', value: 93 },
+    { day: 'Thu', hour: '1PM', value: 80 }, { day: 'Thu', hour: '3PM', value: 87 },
+    { day: 'Fri', hour: '9AM', value: 75 }, { day: 'Fri', hour: '11AM', value: 85 },
+    { day: 'Fri', hour: '1PM', value: 70 }, { day: 'Fri', hour: '3PM', value: 80 },
+  ], []);
+
+  const goalCompletionRates = useMemo(() => [
+    { goal: 'Website Redesign', planned: 100, actual: 95, team: 'Frontend' },
+    { goal: 'API Development', planned: 100, actual: 88, team: 'Backend' },
+    { goal: 'Database Migration', planned: 100, actual: 102, team: 'DevOps' },
+    { goal: 'Security Audit', planned: 100, actual: 85, team: 'Security' },
+    { goal: 'User Testing', planned: 100, actual: 110, team: 'QA' },
+    { goal: 'Documentation', planned: 100, actual: 78, team: 'Technical Writing' },
   ], []);
 
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -244,110 +317,307 @@ const Dashboard = () => {
         </motion.div>
       </motion.div>
 
-      {/* Charts Section */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Performance Trend */}
-        <div className="lg:col-span-2 card p-6">
-          <h2 className="text-xl font-semibold text-white mb-6">Performance Trend</h2>
-          <div ref={chartRef} className="relative">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={performanceData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <defs>
-                  <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#7c3aed" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="1" />
-                  </linearGradient>
-                  <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.18" />
-                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.03" />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
-                <XAxis dataKey="month" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
-                <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v}%`} tick={{ fill: '#9aa6b2' }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
-                  labelStyle={{ color: '#f1f5f9' }}
-                  formatter={(v: any) => [`${v}%`, 'Score']}
-                />
-                <Area dataKey="score" stroke="none" fill="url(#areaGrad)" isAnimationActive={false} />
-                <Line
-                  type="monotone"
-                  dataKey="score"
-                  stroke="url(#lineGrad)"
-                  strokeWidth={3}
-                  dot={{ fill: '#fff', stroke: '#7c3aed', strokeWidth: 2, r: 5 }}
-                  activeDot={{ r: 7 }}
-                  strokeLinecap="round"
-                  isAnimationActive={!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+      {/* Comprehensive Charts Section */}
+      <div className="space-y-6">
+        
+        {/* First Row: Performance Trend & Goals by Category */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Performance Trend */}
+          <div className="lg:col-span-2 card p-6">
+            <h2 className="text-xl font-semibold text-white mb-6">Performance Trend</h2>
+            <div ref={chartRef} className="relative">
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={performanceData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#7c3aed" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#06b6d4" stopOpacity="1" />
+                    </linearGradient>
+                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.18" />
+                      <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.03" />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+                  <XAxis dataKey="month" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                  <YAxis stroke="#94a3b8" tickFormatter={(v) => `${v}%`} tick={{ fill: '#9aa6b2' }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                    labelStyle={{ color: '#f1f5f9' }}
+                    formatter={(v: any) => [`${v}%`, 'Score']}
+                  />
+                  <Area dataKey="score" stroke="none" fill="url(#areaGrad)" isAnimationActive={false} />
+                  <Line
+                    type="monotone"
+                    dataKey="score"
+                    stroke="url(#lineGrad)"
+                    strokeWidth={3}
+                    dot={{ fill: '#fff', stroke: '#7c3aed', strokeWidth: 2, r: 5 }}
+                    activeDot={{ r: 7 }}
+                    strokeLinecap="round"
+                    isAnimationActive={!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
 
-        {/* Goals by Category */}
-        <div className="card p-6">
-          <h2 className="text-xl font-semibold text-white mb-6">Goals by Category</h2>
-          <div className="relative" style={{ minHeight: 300 }}>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <defs>
-                  <linearGradient id="sliceGrad1" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#6366F1" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9" />
-                  </linearGradient>
-                  <linearGradient id="sliceGrad2" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#14B8A6" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#0ea5a4" stopOpacity="0.9" />
-                  </linearGradient>
-                  <linearGradient id="sliceGrad3" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#F59E0B" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#f97316" stopOpacity="0.9" />
-                  </linearGradient>
-                  <linearGradient id="sliceGrad4" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#EC4899" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#db2777" stopOpacity="0.9" />
-                  </linearGradient>
-                </defs>
+          {/* Goals by Category */}
+          <div className="card p-6">
+            <h2 className="text-xl font-semibold text-white mb-6">Goals by Category</h2>
+            <div className="relative" style={{ minHeight: 300 }}>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <defs>
+                    <linearGradient id="sliceGrad1" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#6366F1" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.9" />
+                    </linearGradient>
+                    <linearGradient id="sliceGrad2" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#14B8A6" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#0ea5a4" stopOpacity="0.9" />
+                    </linearGradient>
+                    <linearGradient id="sliceGrad3" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#F59E0B" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#f97316" stopOpacity="0.9" />
+                    </linearGradient>
+                    <linearGradient id="sliceGrad4" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#EC4899" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#db2777" stopOpacity="0.9" />
+                    </linearGradient>
+                  </defs>
 
-                <Pie
-                  data={goalsByCategory}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={92}
-                  paddingAngle={4}
-                  labelLine={false}
-                  label={(entry) => `${entry.name} (${entry.value})`}
-                  dataKey="value"
-                >
-                  {goalsByCategory.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={
-                      index === 0 ? 'url(#sliceGrad1)'
-                      : index === 1 ? 'url(#sliceGrad2)'
-                      : index === 2 ? 'url(#sliceGrad3)'
-                      : 'url(#sliceGrad4)'
-                    } stroke="#0b1220" strokeWidth={2} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
-                  formatter={(value: any, name: any) => [value, String(name)]}
-                />
-                <Legend layout="vertical" verticalAlign="middle" align="right" />
-              </PieChart>
-            </ResponsiveContainer>
+                  <Pie
+                    data={goalsByCategory}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={92}
+                    paddingAngle={4}
+                    labelLine={false}
+                    label={(entry) => `${entry.name} (${entry.value})`}
+                    dataKey="value"
+                  >
+                    {goalsByCategory.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={
+                        index === 0 ? 'url(#sliceGrad1)'
+                        : index === 1 ? 'url(#sliceGrad2)'
+                        : index === 2 ? 'url(#sliceGrad3)'
+                        : 'url(#sliceGrad4)'
+                      } stroke="#0b1220" strokeWidth={2} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                    formatter={(value: any, name: any) => [value, String(name)]}
+                  />
+                  <Legend layout="vertical" verticalAlign="middle" align="right" />
+                </PieChart>
+              </ResponsiveContainer>
 
-            {/* Top label (moved to top to avoid overlap) */}
-            <div className="absolute top-3 left-1/2 transform -translate-x-1/2 pointer-events-none z-10">
-              <div className="text-center">
-                <div className="text-xl font-bold text-white">{goalsByCategory.reduce((s, g) => s + g.value, 0)}</div>
-                <div className="text-sm text-gray-400">Total Goals</div>
+              {/* Top label (moved to top to avoid overlap) */}
+              <div className="absolute top-3 left-1/2 transform -translate-x-1/2 pointer-events-none z-10">
+                <div className="text-center">
+                  <div className="text-xl font-bold text-white">{goalsByCategory.reduce((s, g) => s + g.value, 0)}</div>
+                  <div className="text-sm text-gray-400">Total Goals</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Second Row: Weekly Progress & Department Performance */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Weekly Progress */}
+          <div className="card p-6">
+            <h2 className="text-xl font-semibold text-white mb-6">Weekly Progress Analysis</h2>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={weeklyProgress} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="completedGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0.3" />
+                  </linearGradient>
+                  <linearGradient id="startedGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
+                  </linearGradient>
+                  <linearGradient id="delayedGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity="0.3" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+                <XAxis dataKey="week" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <YAxis stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                />
+                <Legend />
+                <Bar dataKey="completed" fill="url(#completedGrad)" name="Completed" />
+                <Bar dataKey="started" fill="url(#startedGrad)" name="Started" />
+                <Bar dataKey="delayed" fill="url(#delayedGrad)" name="Delayed" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Department Performance */}
+          <div className="card p-6">
+            <h2 className="text-xl font-semibold text-white mb-6">Department Performance</h2>
+            <ResponsiveContainer width="100%" height={280}>
+              <ComposedChart data={departmentPerformance} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="efficiencyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+                <XAxis dataKey="department" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <YAxis stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                />
+                <Legend />
+                <Bar dataKey="goals" fill="#6366f1" name="Total Goals" />
+                <Bar dataKey="completed" fill="#10b981" name="Completed" />
+                <Line type="monotone" dataKey="efficiency" stroke="url(#efficiencyGrad)" strokeWidth={3} name="Efficiency %" />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Third Row: KPI Trends & Resource Allocation */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* KPI Trends */}
+          <div className="card p-6">
+            <h2 className="text-xl font-semibold text-white mb-6">Multi-KPI Trends</h2>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={kpiTrends} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+                <XAxis dataKey="month" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <YAxis stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                />
+                <Legend />
+                <Line type="monotone" dataKey="efficiency" stroke="#10b981" strokeWidth={2} name="Efficiency" />
+                <Line type="monotone" dataKey="quality" stroke="#3b82f6" strokeWidth={2} name="Quality" />
+                <Line type="monotone" dataKey="innovation" stroke="#f59e0b" strokeWidth={2} name="Innovation" />
+                <Line type="monotone" dataKey="collaboration" stroke="#8b5cf6" strokeWidth={2} name="Collaboration" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Resource Allocation */}
+          <div className="card p-6">
+            <h2 className="text-xl font-semibold text-white mb-6">Resource Allocation</h2>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={resourceAllocation} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="allocatedGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.3" />
+                  </linearGradient>
+                  <linearGradient id="utilizedGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f97316" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#f97316" stopOpacity="0.3" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+                <XAxis dataKey="resource" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <YAxis stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                />
+                <Legend />
+                <Bar dataKey="allocated" fill="url(#allocatedGrad)" name="Allocated %" />
+                <Bar dataKey="utilized" fill="url(#utilizedGrad)" name="Utilized %" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Fourth Row: Skills Radar & Risk Assessment */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Skills Radar Chart */}
+          <div className="card p-6">
+            <h2 className="text-xl font-semibold text-white mb-6">Skills Comparison Radar</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <RadarChart data={skillsRadar} margin={{ top: 20, right: 80, bottom: 20, left: 80 }}>
+                <PolarGrid stroke="#374151" />
+                <PolarAngleAxis dataKey="skill" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <PolarRadiusAxis angle={90} domain={[0, 100]} stroke="#374151" tick={{ fill: '#6b7280' }} />
+                <Radar name="Team A" dataKey="A" stroke="#10b981" fill="#10b981" fillOpacity={0.3} strokeWidth={2} />
+                <Radar name="Team B" dataKey="B" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} strokeWidth={2} />
+                <Legend />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Risk Assessment */}
+          <div className="card p-6">
+            <h2 className="text-xl font-semibold text-white mb-6">Risk Assessment Matrix</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+                <XAxis type="number" dataKey="probability" name="Probability" unit="%" domain={[0, 100]} stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <YAxis type="number" dataKey="impact" name="Impact" unit="%" domain={[0, 100]} stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                  cursor={{ strokeDasharray: '3 3' }}
+                />
+                <Scatter name="Risks" data={riskAssessment} fill="#ef4444">
+                  {riskAssessment.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={
+                      entry.probability * entry.impact > 4000 ? '#ef4444' :
+                      entry.probability * entry.impact > 2000 ? '#f59e0b' : '#10b981'
+                    } />
+                  ))}
+                </Scatter>
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Fifth Row: Goal Completion Rates */}
+        <div className="card p-6">
+          <h2 className="text-xl font-semibold text-white mb-6">Goal Completion Rates by Team</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={goalCompletionRates} margin={{ top: 20, right: 80, bottom: 20, left: 20 }}>
+              <defs>
+                <linearGradient id="plannedGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity="0.3" />
+                </linearGradient>
+                <linearGradient id="actualGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity="0.3" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#0f172a" />
+              <XAxis dataKey="goal" stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} angle={-45} textAnchor="end" height={100} />
+              <YAxis stroke="#94a3b8" tick={{ fill: '#9aa6b2' }} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#0b1220', border: '1px solid #111827', borderRadius: 8 }}
+                labelStyle={{ color: '#f1f5f9' }}
+              />
+              <Legend />
+              <Bar dataKey="planned" fill="url(#plannedGrad)" name="Planned %" />
+              <Bar dataKey="actual" fill="url(#actualGrad)" name="Actual %" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+
       </div>
 
       {/* Team Rankings Section - Manager Only */}
