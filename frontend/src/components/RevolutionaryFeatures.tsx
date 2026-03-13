@@ -3,7 +3,8 @@ import {
   Brain, Heart, Coins, Globe, Gamepad2, Eye, Zap, Trophy, 
   BarChart3, Target, Users, Settings, Bell, Search, Menu,
   Crown, Sparkles, Rocket, Dna, Brain as BrainIcon, Shield,
-  Network
+  Network, Trophy as TrophyIcon, Mirror, FlaskConical,
+  BarChart3 as BarChartIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
@@ -22,6 +23,10 @@ import DNAGovernance from '../features/dna-governance/DNAGovernance';
 import PrecognitionEngine from '../features/precognition-engine/PrecognitionEngine';
 import ZeroKnowledgeGovernance from '../features/zero-knowledge/ZeroKnowledgeGovernance';
 import EcosystemIntelligence from '../features/ecosystem-intelligence/EcosystemIntelligence';
+import EnhancedGamification from '../features/enhanced-gamification/EnhancedGamification';
+import DigitalMirror from '../features/digital-mirror/DigitalMirror';
+import LaboratoryOfGovernance from '../features/laboratory-governance/LaboratoryOfGovernance';
+import TidalWaveAnalytics from '../features/tidal-wave-analytics/TidalWaveAnalytics';
 
 const RevolutionaryFeatures = () => {
   const { user } = useAuthStore();
@@ -141,12 +146,42 @@ const RevolutionaryFeatures = () => {
       status: 'active'
     },
     {
-      id: 'ecosystem-intelligence',
-      title: 'Ecosystem Intelligence',
-      description: 'Interconnected Governance',
-      icon: Network,
-      color: 'from-green-500/30 to-blue-500/30',
+      id: 'enhanced-gamification',
+      title: 'Enhanced Gamification',
+      description: 'Advanced Achievement System',
+      icon: TrophyIcon,
+      color: 'from-yellow-500/30 to-orange-500/30',
+      iconColor: 'text-yellow-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'digital-mirror',
+      title: 'Digital Mirror',
+      description: 'Real-time Self-Awareness',
+      icon: Mirror,
+      color: 'from-blue-500/30 to-purple-500/30',
+      iconColor: 'text-blue-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'laboratory-governance',
+      title: 'Laboratory of Governance',
+      description: 'A/B Testing Platform',
+      icon: FlaskConical,
+      color: 'from-green-500/30 to-teal-500/30',
       iconColor: 'text-green-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'tidal-wave-analytics',
+      title: 'Tidal Wave Analytics',
+      description: 'Social Network Mapping',
+      icon: Network,
+      color: 'from-purple-500/30 to-indigo-500/30',
+      iconColor: 'text-purple-400',
       badge: 'NEW',
       status: 'active'
     }
@@ -180,6 +215,14 @@ const RevolutionaryFeatures = () => {
         return <ZeroKnowledgeGovernance />;
       case 'ecosystem-intelligence':
         return <EcosystemIntelligence />;
+      case 'enhanced-gamification':
+        return <EnhancedGamification />;
+      case 'digital-mirror':
+        return <DigitalMirror />;
+      case 'laboratory-governance':
+        return <LaboratoryOfGovernance />;
+      case 'tidal-wave-analytics':
+        return <TidalWaveAnalytics />;
       default:
         return (
           <div className="flex items-center justify-center h-96">
