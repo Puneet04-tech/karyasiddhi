@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { MessageSquare, Star, ThumbsUp, ThumbsDown, Users, TrendingUp, AlertCircle, CheckCircle, Phone, MessageCircle, Send, Globe, MapPin, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics, useRealTimeAllUsers } from '../../lib/useRealTimeData';
 
 interface CitizenFeedback {
   id: string;
@@ -40,19 +42,83 @@ interface RealTimeAlert {
 }
 
 const BharatNetIntegration = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+  const { data: allUsersData } = useRealTimeAllUsers();
+
   const [feedback, setFeedback] = useState<CitizenFeedback[]>([]);
   const [serviceMetrics, setServiceMetrics] = useState<ServiceMetrics[]>([]);
   const [realTimeAlerts, setRealTimeAlerts] = useState<RealTimeAlert[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
 
+  // Transform analytics and user data to BharatNet feedback
   useEffect(() => {
-    connectToBharatNet();
-    generateMockData();
-    const interval = setInterval(fetchRealTimeData, 15000); // Every 15 seconds
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData && allUsersData) {
+      const analyticsArray = Array.isArray(analyticsData) ? analyticsData : [analyticsData];
+      const data = analyticsArray[0];
+      
+      // Create feedback from user data
+      const mockFeedback: CitizenFeedback[] = (Array.isArray(allUsersData) ? allUsersData : [allUsersData])
+        .slice(0, 5)
+        .map((user: any, index: number) => ({
+          id: user.id || `${index}`,
+          citizenId: `CIT${String(index + 1).padStart(3, '0')}`,
+          citizenName: user.name || `Citizen ${index + 1}`,
+          department: user.department || 'General',
+          officer: user.name || 'Officer',
+          service: ['Land Registration', 'Water Connection', 'Driving License', 'Tax Payment', 'Birth Certificate'][index % 5],
+          rating: Math.min(5, Math.floor((user.performance_score || 0.7) * 6)),
+          sentiment: (user.performance_score || 0.7) > 0.75 ? 'positive' : 'neutral' as const,
+          message: `${(user.performance_score || 0.7) > 0.75 ? 'Excellent' : 'Good'} service experience with this department`,
+          category: 'service_quality' as const,
+          timestamp: new Date(),
+          location: user.department || 'Regional Office',
+          resolved: true,
+          response: 'Thank you for your feedback!'
+        }));
+
+      // Create service metrics from analytics
+      const mockMetrics: ServiceMetrics[] = [
+        {
+          serviceName: 'Performance Services',
+          totalFeedback: Math.floor(Math.random() * 500) + 200,
+          averageRating: Math.round((data?.performance_score || 0.7) * 4.5 * 10) / 10,
+          responseTime: Math.floor(Math.random() * 100) + 24,
+          satisfactionRate: Math.round((data?.avg_kpi || 0.75) * 100),
+          issuesResolved: Math.floor(Math.random() * 300) + 100
+        },
+        {
+          serviceName: 'Team Services',
+          totalFeedback: Math.floor(Math.random() * 300) + 100,
+          averageRating: Math.round((data?.avg_kpi || 0.75) * 4.5 * 10) / 10,
+          responseTime: Math.floor(Math.random() * 80) + 32,
+          satisfactionRate: Math.round((data?.performance_score || 0.7) * 95),
+          issuesResolved: Math.floor(Math.random() * 200) + 80
+        }
+      ];
+
+      setFeedback(mockFeedback);
+      setServiceMetrics(mockMetrics);
+
+      // Generate alerts based on performance
+      const performanceThreshold = 0.7;
+      if ((data?.performance_score || 0.7) < performanceThreshold) {
+        const alertMessage: RealTimeAlert = {
+          id: Date.now().toString(),
+          type: 'service_failure',
+          severity: 'high',
+          department: user?.department || 'Operations',
+          message: 'Service performance below threshold',
+          citizenCount: Math.floor(Math.random() * 50) + 10,
+          timestamp: new Date()
+        };
+        setRealTimeAlerts(prev => [alertMessage, ...prev].slice(0, 10));
+      }
+    }
+  }, [analyticsData, allUsersData]);
 
   const connectToBharatNet = async () => {
     setIsConnecting(true);
@@ -62,83 +128,6 @@ const BharatNetIntegration = () => {
     
     setIsConnected(true);
     setIsConnecting(false);
-  };
-
-  const generateMockData = () => {
-    const mockFeedback: CitizenFeedback[] = [
-      {
-        id: '1',
-        citizenId: 'CIT001',
-        citizenName: 'Ramesh Kumar',
-        department: 'Revenue Department',
-        officer: 'Arun Singh',
-        service: 'Land Registration',
-        rating: 5,
-        sentiment: 'positive',
-        message: 'Excellent service! The land registration process was completed in just 2 days. Officer was very helpful.',
-        category: 'service_quality',
-        timestamp: new Date(Date.now() - 30 * 60 * 1000),
-        location: 'Delhi',
-        resolved: true,
-        response: 'Thank you for your feedback! We\'re glad to provide efficient service.'
-      },
-      {
-        id: '2',
-        citizenId: 'CIT002',
-        citizenName: 'Sunita Devi',
-        department: 'Municipal Corporation',
-        officer: 'Priya Sharma',
-        service: 'Water Connection',
-        rating: 2,
-        sentiment: 'negative',
-        message: 'Water connection application pending for 3 weeks. No response from department.',
-        category: 'response_time',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        location: 'Mumbai',
-        resolved: false
-      },
-      {
-        id: '3',
-        citizenId: 'CIT003',
-        citizenName: 'Mohammed Ali',
-        department: 'Transport Department',
-        officer: 'Rajesh Kumar',
-        service: 'Driving License',
-        rating: 4,
-        sentiment: 'positive',
-        message: 'Good service overall. Process was smooth but could be faster.',
-        category: 'process_efficiency',
-        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-        location: 'Bangalore',
-        resolved: true
-      }
-    ];
-
-    const mockMetrics: ServiceMetrics[] = [
-      { serviceName: 'Land Registration', totalFeedback: 234, averageRating: 4.2, responseTime: 48, satisfactionRate: 85, issuesResolved: 198 },
-      { serviceName: 'Water Connection', totalFeedback: 189, averageRating: 3.1, responseTime: 120, satisfactionRate: 62, issuesResolved: 117 },
-      { serviceName: 'Driving License', totalFeedback: 456, averageRating: 3.8, responseTime: 72, satisfactionRate: 76, issuesResolved: 347 },
-      { serviceName: 'Birth Certificate', totalFeedback: 167, averageRating: 4.5, responseTime: 24, satisfactionRate: 89, issuesResolved: 149 },
-      { serviceName: 'Tax Payment', totalFeedback: 298, averageRating: 3.9, responseTime: 36, satisfactionRate: 78, issuesResolved: 232 }
-    ];
-
-    setFeedback(mockFeedback);
-    setServiceMetrics(mockMetrics);
-  };
-
-  const fetchRealTimeData = async () => {
-    // Simulate real-time data fetching from BharatNet
-    const newAlert: RealTimeAlert = {
-      id: Date.now().toString(),
-      type: ['negative_spike', 'service_failure', 'citizen_complaint', 'praise_spike'][Math.floor(Math.random() * 4)] as RealTimeAlert['type'],
-      severity: ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)] as RealTimeAlert['severity'],
-      department: ['Revenue', 'Municipal', 'Transport', 'Health'][Math.floor(Math.random() * 4)],
-      message: 'Real-time citizen feedback detected',
-      citizenCount: Math.floor(Math.random() * 50) + 1,
-      timestamp: new Date()
-    };
-
-    setRealTimeAlerts(prev => [newAlert, ...prev].slice(0, 10));
   };
 
   const getSentimentColor = (sentiment: string) => {
@@ -177,7 +166,6 @@ const BharatNetIntegration = () => {
     { time: '20:00', positive: 48, negative: 20, neutral: 28 }
   ];
 
-  const [isConnecting, setIsConnecting] = useState(false);
 
   return (
     <div className="space-y-6">

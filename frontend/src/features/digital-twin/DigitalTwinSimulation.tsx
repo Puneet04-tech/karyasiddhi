@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 
 interface DigitalTwin {
   id: string;
@@ -63,6 +65,9 @@ interface OptimizationSuggestion {
 }
 
 const DigitalTwinSimulation = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+
   const [selectedTwin, setSelectedTwin] = useState<DigitalTwin | null>(null);
   const [digitalTwins, setDigitalTwins] = useState<DigitalTwin[]>([]);
   const [simulationScenarios, setSimulationScenarios] = useState<SimulationScenario[]>([]);
@@ -71,13 +76,140 @@ const DigitalTwinSimulation = () => {
   const [simulationProgress, setSimulationProgress] = useState(0);
   const [activeScenario, setActiveScenario] = useState<SimulationScenario | null>(null);
 
+  // Transform analytics data to digital twins
   useEffect(() => {
-    generateDigitalTwins();
-    generateSimulationScenarios();
-    generateOptimizations();
-    const interval = setInterval(updateDigitalTwins, 25000);
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const performanceScore = data?.performance_score || 0.7;
+      const avgKpi = data?.avg_kpi || 0.75;
+      
+      // Create digital twins from analytics
+      const mockTwins: DigitalTwin[] = [
+        {
+          id: '1',
+          name: 'Department Operations',
+          type: 'department',
+          status: 'active',
+          accuracy: Math.round(performanceScore * 100),
+          lastUpdated: new Date(),
+          efficiency: Math.round(avgKpi * 100),
+          costSavings: Math.floor((avgKpi) * 500000),
+          performance: {
+            productivity: Math.round(performanceScore * 100),
+            quality: Math.round(performanceScore * 95),
+            speed: Math.round(performanceScore * 90),
+            satisfaction: Math.round(performanceScore * 92)
+          },
+          predictions: {
+            nextWeek: Math.round(performanceScore * 110),
+            nextMonth: Math.round(performanceScore * 115),
+            nextQuarter: Math.round(performanceScore * 120)
+          }
+        },
+        {
+          id: '2',
+          name: 'Process Workflows',
+          type: 'workflow',
+          status: 'active',
+          accuracy: Math.round(avgKpi * 100),
+          lastUpdated: new Date(),
+          efficiency: Math.round(performanceScore * 100),
+          costSavings: Math.floor(performanceScore * 300000),
+          performance: {
+            productivity: Math.round(performanceScore * 95),
+            quality: Math.round(performanceScore * 93),
+            speed: Math.round(performanceScore * 88),
+            satisfaction: Math.round(performanceScore * 90)
+          },
+          predictions: {
+            nextWeek: Math.round(performanceScore * 105),
+            nextMonth: Math.round(performanceScore * 110),
+            nextQuarter: Math.round(performanceScore * 115)
+          }
+        }
+      ];
+
+      setDigitalTwins(mockTwins);
+      if (!selectedTwin && mockTwins.length > 0) {
+        setSelectedTwin(mockTwins[0]);
+      }
+
+      // Create simulation scenarios
+      const mockScenarios: SimulationScenario[] = [
+        {
+          id: '1',
+          title: 'Resource Optimization',
+          description: 'Simulate optimal resource allocation',
+          type: 'resource_allocation',
+          parameters: {
+            variables: ['Budget', 'Staff', 'Equipment'],
+            constraints: ['Max budget: $1M', 'Team size: 50'],
+            objectives: ['Increase productivity', 'Reduce costs']
+          },
+          results: {
+            baseline: Math.round(performanceScore * 100),
+            simulated: Math.round(performanceScore * 120),
+            improvement: 20,
+            confidence: 85
+          },
+          status: 'completed'
+        },
+        {
+          id: '2',
+          title: 'Process Improvement',
+          description: 'Simulate workflow optimization',
+          type: 'workflow_optimization',
+          parameters: {
+            variables: ['Process steps', 'Automation level', 'Quality checks'],
+            constraints: ['No major changes', 'Budget limit: $200K'],
+            objectives: ['Faster execution', 'Better quality']
+          },
+          results: {
+            baseline: Math.round(avgKpi * 100),
+            simulated: Math.round(avgKpi * 125),
+            improvement: 25,
+            confidence: 78
+          },
+          status: 'completed'
+        }
+      ];
+
+      setSimulationScenarios(mockScenarios);
+
+      // Create optimization suggestions
+      const mockOptimizations: OptimizationSuggestion[] = [
+        {
+          id: '1',
+          category: 'process',
+          title: 'Automate Routine Tasks',
+          description: 'Implement automation for repetitive processes',
+          impact: 'high',
+          implementation: {
+            cost: 150000,
+            time: 8,
+            difficulty: 'medium'
+          },
+          expectedROI: 400000
+        },
+        {
+          id: '2',
+          category: 'resource',
+          title: 'Resource Reallocation',
+          description: 'Redistribute team members for optimal efficiency',
+          impact: 'medium',
+          implementation: {
+            cost: 25000,
+            time: 2,
+            difficulty: 'easy'
+          },
+          expectedROI: 200000
+        }
+      ];
+
+      setOptimizations(mockOptimizations);
+    }
+  }, [analyticsData]);
 
   const generateDigitalTwins = () => {
     const twins: DigitalTwin[] = [

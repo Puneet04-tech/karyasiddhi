@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 
 interface SelfAwarenessMetric {
   id: string;
@@ -76,6 +78,9 @@ interface GrowthPrediction {
 }
 
 const DigitalMirror = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+
   const [metrics, setMetrics] = useState<SelfAwarenessMetric[]>([]);
   const [digitalProfile, setDigitalProfile] = useState<DigitalTwinProfile | null>(null);
   const [insights, setInsights] = useState<ReflectionInsight[]>([]);
@@ -84,288 +89,148 @@ const DigitalMirror = () => {
   const [selfAwarenessScore, setSelfAwarenessScore] = useState(87.3);
   const [activeReflection, setActiveReflection] = useState<string | null>(null);
 
+  // Transform analytics data to mirror metrics and profile
   useEffect(() => {
-    generateMetrics();
-    generateDigitalProfile();
-    generateInsights();
-    generatePredictions();
-    const interval = setInterval(updateSelfAwarenessData, 25000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const generateMetrics = () => {
-    const mockMetrics: SelfAwarenessMetric[] = [
-      {
-        id: '1',
-        name: 'Productivity Score',
-        category: 'performance',
-        current_value: 87.4,
-        target_value: 92,
-        trend: 'improving',
-        insight: 'Your productivity has increased by 12% this month',
-        recommendations: [
-          'Maintain current task management approach',
-          'Continue using time-blocking techniques',
-          'Leverage peak productivity hours (9-11 AM)'
-        ],
-        last_updated: new Date(Date.now() - 2 * 60 * 60 * 1000)
-      },
-      {
-        id: '2',
-        name: 'Wellness Index',
-        category: 'wellness',
-        current_value: 82.7,
-        target_value: 88,
-        trend: 'stable',
-        insight: 'Work-life balance is maintained at healthy levels',
-        recommendations: [
-          'Consider taking regular breaks',
-          'Maintain current sleep schedule',
-          'Practice stress management techniques'
-        ],
-        last_updated: new Date(Date.now() - 1 * 60 * 60 * 1000)
-      },
-      {
-        id: '3',
-        name: 'Skill Development',
-        category: 'skills',
-        current_value: 91.2,
-        target_value: 95,
-        trend: 'improving',
-        insight: 'Technical skills showing strong growth trajectory',
-        recommendations: [
-          'Focus on advanced certification courses',
-          'Mentor junior team members',
-          'Participate in cross-functional projects'
-        ],
-        last_updated: new Date(Date.now() - 3 * 60 * 60 * 1000)
-      },
-      {
-        id: '4',
-        name: 'Growth Potential',
-        category: 'growth',
-        current_value: 78.9,
-        target_value: 85,
-        trend: 'improving',
-        insight: 'Leadership capabilities developing ahead of schedule',
-        recommendations: [
-          'Take on more leadership responsibilities',
-          'Enroll in management training programs',
-          'Seek mentorship from senior leaders'
-        ],
-        last_updated: new Date(Date.now() - 4 * 60 * 60 * 1000)
-      },
-      {
-        id: '5',
-        name: 'Collaboration Effectiveness',
-        category: 'collaboration',
-        current_value: 89.5,
-        target_value: 93,
-        trend: 'improving',
-        insight: 'Cross-team collaboration at record high levels',
-        recommendations: [
-          'Continue current collaboration practices',
-          'Share best practices with other teams',
-          'Lead inter-departmental initiatives'
-        ],
-        last_updated: new Date(Date.now() - 2 * 60 * 60 * 1000)
-      }
-    ];
-
-    setMetrics(mockMetrics);
-  };
-
-  const generateDigitalProfile = () => {
-    const mockProfile: DigitalTwinProfile = {
-      id: '1',
-      name: 'Arun Singh',
-      avatar: '👨‍💼',
-      department: 'Digital Services',
-      role: 'Senior Technical Lead',
-      experience_level: 8,
-      skills: {
-        technical: 92,
-        leadership: 78,
-        communication: 85,
-        innovation: 88,
-        problem_solving: 90,
-        collaboration: 87
-      },
-      performance_history: [
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const performanceScore = data?.performance_score || 0.7;
+      const avgKpi = data?.avg_kpi || 0.75;
+      
+      // Create metrics from analytics
+      const mockMetrics: SelfAwarenessMetric[] = [
         {
-          date: new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000),
-          productivity: 75,
-          efficiency: 78,
-          quality: 82,
-          teamwork: 80
+          id: '1',
+          name: 'Performance Score',
+          category: 'performance',
+          current_value: Math.round(performanceScore * 100),
+          target_value: 92,
+          trend: performanceScore > 0.8 ? 'improving' : 'stable',
+          insight: `Current performance at ${Math.round(performanceScore * 100)}% of target`,
+          recommendations: [
+            'Focus on high-impact tasks',
+            'Maintain consistent delivery',
+            'Leverage team collaboration'
+          ],
+          last_updated: new Date()
         },
         {
-          date: new Date(Date.now() - 5 * 30 * 24 * 60 * 60 * 1000),
-          productivity: 78,
-          efficiency: 81,
-          quality: 85,
-          teamwork: 83
+          id: '2',
+          name: 'KPI Achievement',
+          category: 'performance',
+          current_value: Math.round(avgKpi * 100),
+          target_value: 88,
+          trend: avgKpi > 0.8 ? 'improving' : 'improving',
+          insight: `KPI performance at ${Math.round(avgKpi * 100)}%`,
+          recommendations: [
+            'Monitor key metrics',
+            'Quarterly reviews',
+            'Continuous improvement'
+          ],
+          last_updated: new Date()
         },
         {
-          date: new Date(Date.now() - 4 * 30 * 24 * 60 * 60 * 1000),
-          productivity: 82,
-          efficiency: 84,
-          quality: 87,
-          teamwork: 85
-        },
-        {
-          date: new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000),
-          productivity: 85,
-          efficiency: 87,
-          quality: 89,
-          teamwork: 87
-        },
-        {
-          date: new Date(Date.now() - 2 * 30 * 24 * 60 * 60 * 1000),
-          productivity: 87,
-          efficiency: 89,
-          quality: 91,
-          teamwork: 89
-        },
-        {
-          date: new Date(Date.now() - 1 * 30 * 24 * 60 * 60 * 1000),
-          productivity: 89,
-          efficiency: 91,
-          quality: 93,
-          teamwork: 91
+          id: '3',
+          name: 'Team Collaboration',
+          category: 'collaboration',
+          current_value: Math.round((data?.team_size || 0) * 2),
+          target_value: 90,
+          trend: 'improving',
+          insight: `Leading team of ${data?.team_size || 0} members`,
+          recommendations: [
+            'Strengthen team dynamics',
+            'Cross-functional projects',
+            'Team development programs'
+          ],
+          last_updated: new Date()
         }
-      ],
-      digital_footprint: {
-        tasks_completed: 1247,
-        hours_worked: 1890,
-        meetings_attended: 234,
-        projects_led: 12,
-        innovations_submitted: 8
-      }
-    };
+      ];
 
-    setDigitalProfile(mockProfile);
-  };
+      setMetrics(mockMetrics);
+      setSelfAwarenessScore(Math.round(performanceScore * 100));
 
-  const generateInsights = () => {
-    const mockInsights: ReflectionInsight[] = [
-      {
-        id: '1',
-        type: 'strength',
-        title: 'Technical Excellence',
-        description: 'Your technical skills are in the top 10% of your department',
-        confidence: 94.2,
-        impact: 'high',
-        actionable: false,
-        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000)
-      },
-      {
-        id: '2',
-        type: 'improvement',
-        title: 'Leadership Development',
-        description: 'Consider developing strategic thinking skills for senior roles',
-        confidence: 87.8,
-        impact: 'medium',
-        actionable: true,
-        created_at: new Date(Date.now() - 4 * 60 * 60 * 1000)
-      },
-      {
-        id: '3',
-        type: 'opportunity',
-        title: 'Cross-Department Collaboration',
-        description: 'Your collaboration skills could benefit other departments',
-        confidence: 91.5,
-        impact: 'high',
-        actionable: true,
-        created_at: new Date(Date.now() - 1 * 60 * 60 * 1000)
-      },
-      {
-        id: '4',
-        type: 'pattern',
-        title: 'Peak Performance Pattern',
-        description: 'You perform best in morning hours (9-11 AM)',
-        confidence: 89.3,
-        impact: 'medium',
-        actionable: true,
-        created_at: new Date(Date.now() - 3 * 60 * 60 * 1000)
-      }
-    ];
-
-    setInsights(mockInsights);
-  };
-
-  const generatePredictions = () => {
-    const mockPredictions: GrowthPrediction[] = [
-      {
-        id: '1',
-        category: 'career',
-        timeframe: '6_months',
-        prediction: 'Promotion to Technical Manager with 85% probability',
-        probability: 85,
-        required_actions: [
-          'Complete leadership training',
-          'Mentor 2 junior developers',
-          'Lead cross-functional project'
+      // Create digital profile
+      const mockProfile: DigitalTwinProfile = {
+        id: user?.id || '1',
+        name: user?.name || 'Employee',
+        avatar: '👤',
+        department: user?.department || 'Operations',
+        role: 'Staff Member',
+        experience_level: 5,
+        skills: {
+          technical: Math.round(performanceScore * 100),
+          leadership: Math.round(avgKpi * 100),
+          communication: Math.round(performanceScore * 95),
+          innovation: Math.round(performanceScore * 85),
+          problem_solving: Math.round(performanceScore * 90),
+          collaboration: Math.round((data?.team_size || 0) > 0 ? 85 : 70)
+        },
+        performance_history: [
+          {
+            date: new Date(),
+            productivity: Math.round(performanceScore * 100),
+            efficiency: Math.round(avgKpi * 100),
+            quality: Math.round(performanceScore * 95),
+            teamwork: Math.round((data?.team_size || 0) > 0 ? 88 : 75)
+          }
         ],
-        potential_outcome: 'Career advancement to management level',
-        confidence_interval: { lower: 75, upper: 95 }
-      },
-      {
-        id: '2',
-        category: 'skills',
-        timeframe: '3_months',
-        prediction: 'Advanced certification achievement likely',
-        probability: 78,
-        required_actions: [
-          'Enroll in cloud architecture course',
-          'Complete current project successfully',
-          'Study 10 hours per week'
-        ],
-        potential_outcome: 'Professional certification in cloud technologies',
-        confidence_interval: { lower: 68, upper: 88 }
-      },
-      {
-        id: '3',
-        category: 'performance',
-        timeframe: '1_year',
-        prediction: 'Top 5% performer in department',
-        probability: 72,
-        required_actions: [
-          'Maintain current productivity levels',
-          'Focus on quality improvements',
-          'Develop automation skills'
-        ],
-        potential_outcome: 'Recognition as high-performing employee',
-        confidence_interval: { lower: 62, upper: 82 }
-      },
-      {
-        id: '4',
-        category: 'leadership',
-        timeframe: '3_years',
-        prediction: 'Department leadership role achievable',
-        probability: 65,
-        required_actions: [
-          'Complete MBA or equivalent',
-          'Lead multiple successful projects',
-          'Develop strategic thinking'
-        ],
-        potential_outcome: 'Senior leadership position in technology department',
-        confidence_interval: { lower: 55, upper: 75 }
-      }
-    ];
+        digital_footprint: {
+          tasks_completed: Math.floor(Math.random() * 1000) + 500,
+          hours_worked: Math.floor(Math.random() * 2000) + 1000,
+          meetings_attended: Math.floor(Math.random() * 300) + 100,
+          projects_led: Math.floor((data?.team_size || 0) / 2),
+          innovations_submitted: Math.floor(Math.random() * 20)
+        }
+      };
 
-    setPredictions(mockPredictions);
-  };
+      setDigitalProfile(mockProfile);
 
-  const updateSelfAwarenessData = () => {
-    setMetrics(prev => prev.map(metric => ({
-      ...metric,
-      current_value: Math.max(0, Math.min(100, metric.current_value + (Math.random() - 0.5) * 3)),
-      last_updated: new Date()
-    })));
+      // Create insights based on analytics
+      const mockInsights: ReflectionInsight[] = [
+        {
+          id: '1',
+          type: 'strength',
+          title: 'Strong Performance',
+          description: `Maintaining ${Math.round(performanceScore * 100)}% performance`,
+          confidence: Math.round(performanceScore * 100),
+          impact: 'high',
+          actionable: true,
+          created_at: new Date()
+        },
+        {
+          id: '2',
+          type: 'opportunity',
+          title: 'Growth Potential',
+          description: 'Opportunity to expand team leadership role',
+          confidence: 75,
+          impact: 'high',
+          actionable: true,
+          created_at: new Date()
+        }
+      ];
 
-    setSelfAwarenessScore(prev => Math.min(99, prev + (Math.random() - 0.5) * 2));
-  };
+      setInsights(mockInsights);
+
+      // Create predictions
+      const mockPredictions: GrowthPrediction[] = [
+        {
+          id: '1',
+          category: 'performance',
+          timeframe: '3_months',
+          prediction: 'Performance improvement expected',
+          probability: Math.round(performanceScore * 100),
+          required_actions: ['Maintain focus', 'Continuous learning'],
+          potential_outcome: 'Improved productivity metrics',
+          confidence_interval: {
+            lower: Math.round(performanceScore * 90),
+            upper: Math.round(performanceScore * 110)
+          }
+        }
+      ];
+
+      setPredictions(mockPredictions);
+    }
+  }, [analyticsData]);
 
   const runDeepAnalysis = () => {
     setIsAnalyzing(true);
@@ -376,7 +241,7 @@ const DigitalMirror = () => {
         id: Date.now().toString(),
         type: 'opportunity',
         title: 'AI-Generated Insight',
-        description: 'Advanced analysis reveals hidden potential for innovation leadership',
+        description: 'Advanced analysis reveals hidden potential for improvement',
         confidence: 93.7,
         impact: 'high',
         actionable: true,
