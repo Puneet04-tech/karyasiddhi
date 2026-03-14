@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import {
   Beaker, FlaskConical, BarChart3, TrendingUp, CheckCircle,
   AlertCircle, Settings, RefreshCw, Play, Pause, Users,
@@ -32,6 +34,9 @@ interface ExperimentMetric {
 }
 
 const LaboratoryOfGovernance: React.FC = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [experiments, setExperiments] = useState<PolicyExperiment[]>([]);
   const [selectedExperiment, setSelectedExperiment] = useState<PolicyExperiment | null>(null);
   const [metrics, setMetrics] = useState<ExperimentMetric[]>([]);
@@ -39,9 +44,48 @@ const LaboratoryOfGovernance: React.FC = () => {
   const [successRate, setSuccessRate] = useState(75);
 
   useEffect(() => {
-    generateExperiments();
-    generateMetrics();
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const mockExperiments: PolicyExperiment[] = [
+        {
+          id: '1',
+          name: 'Flexible Work Policy A/B Test',
+          hypothesis: 'Remote work increases productivity by 15%',
+          status: (data?.performance_score || 0.75) > 0.85 ? 'completed' : 'active',
+          control_group: 150,
+          test_group: 150,
+          confidence: Math.round((data?.performance_score || 0.75) * 100),
+          impact: Math.round((data?.avg_kpi || 0.75) * 20),
+          start_date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
+        },
+        {
+          id: '2',
+          name: 'Performance Bonus Restructure',
+          hypothesis: 'New bonus structure improves engagement',
+          status: 'active',
+          control_group: 120,
+          test_group: 120,
+          confidence: Math.round((data?.performance_score || 0.75) * 95),
+          impact: Math.round((data?.avg_kpi || 0.75) * 15),
+          start_date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        }
+      ];
+      
+      setExperiments(mockExperiments);
+      if (mockExperiments.length > 0) setSelectedExperiment(mockExperiments[0]);
+      
+      const mockMetrics: ExperimentMetric[] = Array.from({ length: 12 }, (_, i) => ({
+        timestamp: `Day ${i + 1}`,
+        control_performance: Math.round((data?.performance_score || 0.75) * 80) + i * 2,
+        test_performance: Math.round((data?.performance_score || 0.75) * 85) + i * 3,
+        statistical_significance: Math.round((data?.avg_kpi || 0.75) * 90) + i * 1
+      }));
+      
+      setMetrics(mockMetrics);
+      setSuccessRate(Math.round((data?.performance_score || 0.75) * 100));
+    }
+  }, [analyticsData]);
 
   const generateExperiments = () => {
     const mockExperiments: PolicyExperiment[] = [

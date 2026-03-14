@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import {
   Smile, Heart, Zap, Brain, TrendingUp, Settings,
   RefreshCw, Users, Activity, BarChart3, PieChart as PieIcon,
@@ -35,6 +37,9 @@ interface EmotionalTrend {
 }
 
 const MoodAdaptiveUI: React.FC = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [moodData, setMoodData] = useState<MoodData[]>([]);
   const [deptMoods, setDeptMoods] = useState<DepartmentMood[]>([]);
   const [emotionalTrends, setEmotionalTrends] = useState<EmotionalTrend[]>([]);
@@ -43,10 +48,45 @@ const MoodAdaptiveUI: React.FC = () => {
   const [selectedDept, setSelectedDept] = useState<DepartmentMood | null>(null);
 
   useEffect(() => {
-    generateMoodData();
-    generateDeptMoods();
-    generateEmotionalTrends();
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const sentiment = Math.round((data?.performance_score || 0.72) * 100);
+      const engagement = Math.round((data?.avg_kpi || 0.70) * 100);
+      
+      const mockMoodData: MoodData[] = Array.from({ length: 12 }, (_, i) => ({
+        timestamp: new Date(Date.now() - (11 - i) * 2 * 60 * 60 * 1000).toLocaleTimeString().slice(0, 5),
+        sentiment: 60 + (sentiment - 60) * (0.8 + i * 0.02),
+        engagement: 55 + (engagement - 55) * (0.9 + i * 0.01),
+        stress_level: 30 + Math.max(0, 30 - sentiment * 0.3),
+        productivity: 65 + (sentiment - 65) * 0.8
+      }));
+      
+      setMoodData(mockMoodData);
+      
+      const depts: DepartmentMood[] = [
+        { name: 'IT', sentiment, engagement, satisfaction: Math.round((data?.avg_kpi || 0.75) * 100), stress: Math.max(20, 50 - sentiment * 0.4) },
+        { name: 'DSD', sentiment: sentiment - 5, engagement: engagement - 3, satisfaction: Math.round((data?.avg_kpi || 0.75) * 95), stress: Math.max(25, 55 - sentiment * 0.4) },
+        { name: 'EGU', sentiment: sentiment - 10, engagement: engagement - 8, satisfaction: Math.round((data?.avg_kpi || 0.75) * 85), stress: Math.max(30, 60 - sentiment * 0.4) },
+        { name: 'R&D', sentiment: sentiment + 5, engagement: engagement + 5, satisfaction: Math.round((data?.avg_kpi || 0.75) * 105), stress: Math.max(15, 45 - sentiment * 0.4) },
+        { name: 'Operations', sentiment: sentiment - 3, engagement: engagement - 2, satisfaction: Math.round((data?.avg_kpi || 0.75) * 92), stress: Math.max(22, 52 - sentiment * 0.4) }
+      ];
+      
+      setDeptMoods(depts);
+      if (depts.length > 0) setSelectedDept(depts[0]);
+      
+      const trends: EmotionalTrend[] = [
+        { emotion: 'Positive', score: sentiment, color: '#10b981', count: Math.floor(sentiment * 3) },
+        { emotion: 'Neutral', score: Math.max(0, 100 - sentiment - 20), color: '#f59e0b', count: Math.floor((100 - sentiment) * 1.5) },
+        { emotion: 'Stressed', score: Math.max(0, 100 - sentiment - 80), color: '#ef4444', count: Math.max(0, Math.floor((100 - sentiment) * 0.5)) },
+        { emotion: 'Motivated', score: engagement, color: '#3b82f6', count: Math.floor(engagement * 0.3) }
+      ];
+      
+      setEmotionalTrends(trends);
+      setOrgSentiment(sentiment);
+      setCurrentMood(sentiment > 75 ? 'positive' : sentiment > 50 ? 'neutral' : 'negative');
+    }
+  }, [analyticsData]);
 
   const generateMoodData = () => {
     const data: MoodData[] = Array.from({ length: 12 }, (_, i) => ({

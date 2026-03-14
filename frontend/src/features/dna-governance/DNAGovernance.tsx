@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import {
   Dna, Microscope, GitBranch, Activity, Target, TrendingUp,
   BarChart3, LineChart, Settings, RefreshCw, Copy, Zap,
@@ -36,6 +38,9 @@ interface EvolutionMetric {
 }
 
 const DNAGovernance: React.FC = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [strands, setStrands] = useState<GeneticStrand[]>([]);
   const [selectedStrand, setSelectedStrand] = useState<GeneticStrand | null>(null);
   const [evolutionData, setEvolutionData] = useState<EvolutionMetric[]>([]);
@@ -43,9 +48,53 @@ const DNAGovernance: React.FC = () => {
   const [populationHealth, setPopulationHealth] = useState(82.5);
 
   useEffect(() => {
-    generateInitialPopulation();
-    generateEvolutionData();
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const categories: Array<'leadership' | 'innovation' | 'efficiency' | 'collaboration' | 'adaptability'> = 
+        ['leadership', 'innovation', 'efficiency', 'collaboration', 'adaptability'];
+      const traitNames: Record<string, string[]> = {
+        leadership: ['Decision Making', 'Influence', 'Vision'],
+        innovation: ['Creativity', 'Risk Taking', 'Adaptability'],
+        efficiency: ['Process Optimization', 'Resource Management', 'Time Management'],
+        collaboration: ['Teamwork', 'Communication', 'Empathy'],
+        adaptability: ['Flexibility', 'Learning', 'Resilience']
+      };
+
+      const mockStrands: GeneticStrand[] = Array.from({ length: 5 }, (_, i) => {
+        const traits: DNATrait[] = categories.flatMap((cat, idx) => 
+          traitNames[cat].map((name, jdx) => ({
+            id: `${i}-${idx}-${jdx}`,
+            name,
+            value: Math.round((data?.performance_score || 0.8) * 100),
+            dominant: (data?.performance_score || 0.8) > 0.75,
+            expression: Math.round(((data?.performance_score || 0.8) + (data?.avg_kpi || 0.75)) / 2 * 100),
+            category: cat
+          }))
+        );
+        return {
+          id: (i + 1).toString(),
+          generation: i + 1,
+          traits,
+          fitness: Math.round((data?.performance_score || 0.8) * 100),
+          timestamp: new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+        };
+      });
+      
+      setStrands(mockStrands);
+      if (mockStrands.length > 0) setSelectedStrand(mockStrands[0]);
+      
+      const mockEvolutionData: EvolutionMetric[] = Array.from({ length: 10 }, (_, i) => ({
+        generation: i + 1,
+        fitness: Math.round(60 + (data?.performance_score || 0.8) * 40),
+        dominant_traits: 8 + Math.floor(i * 0.5),
+        mutation_rate: 5 - (i * 0.4)
+      }));
+      
+      setEvolutionData(mockEvolutionData);
+      setPopulationHealth(Math.round((data?.performance_score || 0.8) * 100));
+    }
+  }, [analyticsData]);
 
   const generateInitialPopulation = () => {
     const categories: Array<'leadership' | 'innovation' | 'efficiency' | 'collaboration' | 'adaptability'> = 
