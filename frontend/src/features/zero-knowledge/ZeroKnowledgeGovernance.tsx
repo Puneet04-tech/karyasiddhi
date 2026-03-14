@@ -10,6 +10,8 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 
 interface ZKProof {
   id: string;
@@ -41,6 +43,9 @@ interface CryptographicMetric {
 }
 
 const ZeroKnowledgeGovernance: React.FC = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+
   const [proofs, setProofs] = useState<ZKProof[]>([]);
   const [records, setRecords] = useState<GovernanceRecord[]>([]);
   const [metrics, setMetrics] = useState<CryptographicMetric[]>([]);
@@ -48,18 +53,89 @@ const ZeroKnowledgeGovernance: React.FC = () => {
   const [verificationMode, setVerificationMode] = useState(true);
   const [systemHealth, setSystemHealth] = useState(94.2);
 
+  // Transform analytics data to cryptographic metrics
   useEffect(() => {
-    generateMockProofs();
-    generateMockRecords();
-    generateMockMetrics();
-    const interval = setInterval(() => {
-      setSystemHealth(prev => {
-        const change = (Math.random() - 0.5) * 3;
-        return Math.max(85, Math.min(99, prev + change));
-      });
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      const performanceScore = data?.performance_score || 0.7;
+      const avgKpi = data?.avg_kpi || 0.75;
+
+      // Generate proofs based on analytics
+      const mockProofs: ZKProof[] = [
+        {
+          id: '1',
+          title: `Performance Verification (${Math.round(performanceScore * 100)}%)`,
+          type: 'identity',
+          status: performanceScore > 0.7 ? 'verified' : 'pending',
+          confidence: Math.round(performanceScore * 100),
+          prover: user?.name || 'System',
+          verifier: 'Analytics-Verification',
+          timestamp: new Date(),
+          metadata_hidden: true
+        },
+        {
+          id: '2',
+          title: `KPI Compliance (${Math.round(avgKpi * 100)}%)`,
+          type: 'compliance',
+          status: avgKpi > 0.75 ? 'verified' : 'pending',
+          confidence: Math.round(avgKpi * 100),
+          prover: user?.department || 'Department',
+          verifier: 'Compliance-Engine',
+          timestamp: new Date(),
+          metadata_hidden: true
+        }
+      ];
+
+      // Generate governance records
+      const mockRecords: GovernanceRecord[] = [
+        {
+          id: '1',
+          action: `Performance update to ${Math.round(performanceScore * 100)}%`,
+          actor: user?.name || 'System',
+          timestamp: new Date(),
+          encrypted: true,
+          verification_count: 3,
+          compliance_score: Math.round(avgKpi * 100)
+        },
+        {
+          id: '2',
+          action: 'System verification completed',
+          actor: 'Verification-System',
+          timestamp: new Date(Date.now() - 60 * 60 * 1000),
+          encrypted: true,
+          verification_count: 5,
+          compliance_score: 95
+        }
+      ];
+
+      // Generate metrics
+      const mockMetrics: CryptographicMetric[] = [
+        {
+          name: 'Verification Confidence',
+          current: Math.round(performanceScore * 100),
+          target: 95,
+          status: performanceScore > 0.9 ? 'optimal' : 'warning'
+        },
+        {
+          name: 'Governance Compliance',
+          current: Math.round(avgKpi * 100),
+          target: 90,
+          status: avgKpi > 0.85 ? 'optimal' : 'warning'
+        },
+        {
+          name: 'System Integrity',
+          current: 99,
+          target: 99,
+          status: 'optimal'
+        }
+      ];
+
+      setProofs(mockProofs);
+      setRecords(mockRecords);
+      setMetrics(mockMetrics);
+      setSystemHealth(Math.round((performanceScore + avgKpi) / 2 * 100));
+    }
+  }, [analyticsData]);
 
   const generateMockProofs = () => {
     const mockProofs: ZKProof[] = [

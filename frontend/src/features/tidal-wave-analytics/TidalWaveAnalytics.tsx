@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import {
   TrendingUp, Waves, Activity, AlertCircle, BarChart3, LineChart as LineChartIcon,
   Zap, Brain, Target, Clock, Settings, RefreshCw, Download, Filter,
@@ -41,6 +43,9 @@ interface WaveMetric {
 }
 
 const TidalWaveAnalytics: React.FC = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [waves, setWaves] = useState<DataWave[]>([]);
   const [insights, setInsights] = useState<AnalyticsInsight[]>([]);
   const [activeWave, setActiveWave] = useState<DataWave | null>(null);
@@ -48,15 +53,64 @@ const TidalWaveAnalytics: React.FC = () => {
   const [chartData, setChartData] = useState<WaveMetric[]>([]);
 
   useEffect(() => {
-    generateWaves();
-    generateInsights();
-    generateChartData();
-    const interval = setInterval(() => {
-      generateWaves();
-      generateChartData();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      // Transform analytics to data waves
+      const mockWaves: DataWave[] = [
+        {
+          id: '1',
+          name: 'Performance Wave',
+          intensity: Math.round((data?.performance_score || 0.7) * 100),
+          volume: Math.floor((data?.performance_score || 0.7) * 50000),
+          velocity: ((data?.performance_score || 0.7) * 100),
+          timestamp: new Date(),
+          sources: ['Performance Data', 'Analytics Module'],
+          trend: (data?.performance_score || 0.7) > 0.8 ? 'rising' : 'stable'
+        }
+      ];
+      
+      setWaves(mockWaves);
+      if (!activeWave && mockWaves.length > 0) {
+        setActiveWave(mockWaves[0]);
+      }
+
+      // Generate insights
+      const mockInsights: AnalyticsInsight[] = [
+        {
+          id: '1',
+          category: 'trend',
+          title: `Performance Trend: ${data?.performance_score ? 'Trending Up' : 'Stable'}`,
+          description: `Current performance at ${Math.round((data?.performance_score || 0.7) * 100)}% of target`,
+          confidence: 88,
+          impact: 'high',
+          actionable: true
+        }
+      ];
+      
+      setInsights(mockInsights);
+
+      // Generate chart data
+      const mockChartData: WaveMetric[] = [
+        {
+          timestamp: '00:00',
+          volume: Math.floor((data?.performance_score || 0.7) * 40000),
+          velocity: ((data?.performance_score || 0.7) * 80),
+          intensity: Math.round((data?.performance_score || 0.7) * 80),
+          trend_index: Math.round((data?.performance_score || 0.7) * 100)
+        },
+        {
+          timestamp: '12:00',
+          volume: Math.floor((data?.performance_score || 0.7) * 50000),
+          velocity: ((data?.performance_score || 0.7) * 100),
+          intensity: Math.round((data?.performance_score || 0.7) * 100),
+          trend_index: Math.round((data?.performance_score || 0.7) * 100)
+        }
+      ];
+      
+      setChartData(mockChartData);
+    }
+  }, [analyticsData]);
 
   const generateWaves = () => {
     const sources = ['Department Data', 'User Activity', 'System Events', 'API Requests', 'Performance Metrics'];
