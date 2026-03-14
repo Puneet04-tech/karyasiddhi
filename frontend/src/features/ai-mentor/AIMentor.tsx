@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Brain, MessageCircle, Target, TrendingUp, Award, Lightbulb, Zap, Heart, BookOpen, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/authStore';
+import { useRealTimeInsights, useRealTimePredictions, useRealTimeAnalytics } from '../../lib/useRealTimeData';
 
 interface AIMessage {
   id: string;
@@ -27,6 +28,10 @@ interface PersonalInsight {
 
 const AIMentor = () => {
   const { user } = useAuthStore();
+  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+  const { data: insightsData, loading: insightsLoading } = useRealTimeInsights(user?.id);
+  const { data: predictionsData, loading: predictionsLoading } = useRealTimePredictions(user?.id);
+  
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [insights, setInsights] = useState<PersonalInsight | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -34,50 +39,39 @@ const AIMentor = () => {
   const [chatMode, setChatMode] = useState(false);
   const [userMessage, setUserMessage] = useState('');
 
+  // Generate insights from real API data
   useEffect(() => {
-    generatePersonalInsights();
-    const interval = setInterval(generateAIMessage, 45000); // Every 45 seconds
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const newInsights: PersonalInsight = {
+        currentProductivity: analyticsData.productivity || 78,
+        potentialProductivity: analyticsData.potentialProductivity || 92,
+        skillGaps: Array.isArray(insightsData) && insightsData[0]?.skillGaps ? insightsData[0].skillGaps : ['Data Analysis', 'Strategic Planning', 'Public Speaking'],
+        careerPath: Array.isArray(predictionsData) && predictionsData[0]?.careerPath ? predictionsData[0].careerPath : ['Senior Officer', 'Department Head', 'Director'],
+        burnoutRisk: analyticsData.burnoutRisk || 35,
+        teamHarmony: analyticsData.teamHarmony || 85,
+        emotionalIntelligence: analyticsData.emotionalIntelligence || 72
+      };
+      setInsights(newInsights);
+    }
+  }, [analyticsData, insightsData, predictionsData]);
 
-  const generatePersonalInsights = async () => {
-    // Simulate AI analysis of user performance
-    const mockInsights: PersonalInsight = {
-      currentProductivity: 78,
-      potentialProductivity: 92,
-      skillGaps: ['Data Analysis', 'Strategic Planning', 'Public Speaking'],
-      careerPath: ['Senior Officer', 'Department Head', 'Director'],
-      burnoutRisk: 35,
-      teamHarmony: 85,
-      emotionalIntelligence: 72
-    };
-    setInsights(mockInsights);
-  };
-
-  const generateAIMessage = async () => {
-    setIsTyping(true);
-    
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const messageTypes: AIMessage['type'][] = ['insight', 'recommendation', 'warning', 'achievement', 'coaching'];
-    const categories: AIMessage['category'][] = ['performance', 'career', 'skills', 'wellness', 'collaboration'];
-    
-    const newMessage: AIMessage = {
-      id: Date.now().toString(),
-      type: messageTypes[Math.floor(Math.random() * messageTypes.length)],
-      title: generateMessageTitle(),
-      message: generateMessageContent(),
-      confidence: Math.floor(Math.random() * 30) + 70,
-      priority: ['low', 'medium', 'high', 'urgent'][Math.floor(Math.random() * 4)] as AIMessage['priority'],
-      actionable: Math.random() > 0.5,
-      category: categories[Math.floor(Math.random() * categories.length)],
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [newMessage, ...prev].slice(0, 10));
-    setIsTyping(false);
-  };
+  // Convert API insights to UI messages
+  useEffect(() => {
+    if (insightsData && Array.isArray(insightsData) && insightsData.length > 0) {
+      const apiMessages = insightsData.slice(0, 10).map((insight: any) => ({
+        id: insight.id || Date.now().toString(),
+        type: insight.type || 'insight' as AIMessage['type'],
+        title: insight.title || 'AI Insight',
+        message: insight.message || insight.content || '',
+        confidence: insight.confidence || 85,
+        priority: insight.priority || 'medium' as AIMessage['priority'],
+        actionable: insight.actionable !== false,
+        category: insight.category || 'performance' as AIMessage['category'],
+        timestamp: insight.timestamp ? new Date(insight.timestamp) : new Date()
+      }));
+      setMessages(apiMessages);
+    }
+  }, [insightsData]);
 
   const generateMessageTitle = (): string => {
     const titles = [
