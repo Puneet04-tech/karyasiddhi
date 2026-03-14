@@ -283,7 +283,7 @@ const RevolutionaryFeatures = () => {
                   <Crown className="w-6 h-6 text-primary-400" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold gradient-text">Revolutionary Features</h2>
+                  <h2 className="text-lg font-bold gradient-text">Enterprise Solutions</h2>
                   <p className="text-xs text-gray-400">Next-Gen Governance</p>
                 </div>
               </div>
@@ -376,7 +376,7 @@ const RevolutionaryFeatures = () => {
                   <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search revolutionary features..."
+                    placeholder="Search enterprise solutions..."
                     className="pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary-500 w-64"
                   />
                 </div>

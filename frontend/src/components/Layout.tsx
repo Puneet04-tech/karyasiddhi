@@ -41,7 +41,7 @@ const baseNavigation: NavigationItem[] = [
 
   const revolutionaryNavigation: NavigationItem[] = [
     { 
-      name: 'Revolutionary Features', 
+      name: 'Enterprise Solutions', 
       href: '/revolutionary-features', 
       icon: Crown,
       badge: 'NEW',
