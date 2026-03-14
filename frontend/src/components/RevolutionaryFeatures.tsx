@@ -91,22 +91,22 @@ const RevolutionaryFeatures = () => {
     {
       id: 'govverse',
       title: 'GovVerse',
-      description: 'Metaverse Government (Coming Soon)',
+      description: 'Metaverse Government',
       icon: Eye,
       color: 'from-indigo-500/30 to-purple-500/30',
       iconColor: 'text-indigo-400',
-      badge: 'SOON',
-      status: 'coming-soon'
+      badge: 'LIVE',
+      status: 'active'
     },
     {
       id: 'digital-twin',
       title: 'Digital Twin',
-      description: 'Office Simulation (Coming Soon)',
+      description: 'Office Simulation',
       icon: Zap,
       color: 'from-cyan-500/30 to-blue-500/30',
       iconColor: 'text-cyan-400',
-      badge: 'ALPHA',
-      status: 'coming-soon'
+      badge: 'BETA',
+      status: 'active'
     },
     {
       id: 'mood-ui',
