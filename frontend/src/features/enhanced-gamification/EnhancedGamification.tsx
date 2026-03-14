@@ -2,7 +2,7 @@
 import {
   Trophy, Star, Zap, Target, Award, Users, Activity, TrendingUp,
   Medal, Flame, Crown, Gift, Lock, Unlock, RefreshCw, BarChart3,
-  Calendar, Clock, CheckCircle, AlertCircle, Settings, Play, Pause
+  Calendar, Clock, CheckCircle, AlertCircle, Settings, Play, Pause, User as UserIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -10,6 +10,8 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics, useRealTimeAllUsers } from '../../lib/useRealTimeData';
 
 interface PlayerProfile {
   id: string;
@@ -65,14 +67,18 @@ interface GamificationMetric {
 }
 
 const EnhancedGamification: React.FC = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+  const { data: allUsersData, loading: usersLoading } = useRealTimeAllUsers();
+
   const [playerProfile, setPlayerProfile] = useState<PlayerProfile>({
-    id: '1',
-    name: 'Employee-001',
+    id: user?.id || '1',
+    name: user?.name || 'Employee',
     level: 12,
     experience: 2450,
     total_points: 15680,
     rank: 3,
-    department: 'IT',
+    department: user?.department || 'IT',
     avatar_color: 'from-blue-500 to-purple-500'
   });
 
@@ -83,150 +89,125 @@ const EnhancedGamification: React.FC = () => {
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
   const [streak, setStreak] = useState(7);
 
+  // Transform analytics data to player profile
   useEffect(() => {
-    generateAchievements();
-    generateChallenges();
-    generateLeaderboard();
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      // Calculate player stats based on analytics
+      const level = Math.floor((data?.performance_score || 0) * 20);
+      const experience = Math.floor((data?.performance_score || 0) * 5000);
+      
+      setPlayerProfile(prev => ({
+        ...prev,
+        level: Math.max(1, level),
+        experience: experience % 3000,
+        total_points: Math.round((data?.performance_score || 0) * 25000),
+        rank: Math.floor(Math.random() * 20) + 1
+      }));
 
-  const generateAchievements = () => {
-    const mockAchievements: Achievement[] = [
-      {
-        id: '1',
-        title: 'Quick Starter',
-        description: 'Complete first 5 tasks',
-        points: 100,
-        xp_value: 50,
-        category: 'milestone',
-        progress: 100,
-        rarity: 'common',
-        unlocked: true,
-        unlocked_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: '2',
-        title: 'Rising Star',
-        description: 'Reach level 10',
-        points: 500,
-        xp_value: 250,
-        category: 'performance',
-        progress: 100,
-        rarity: 'rare',
-        unlocked: true,
-        unlocked_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: '3',
-        title: 'Innovation Leader',
-        description: 'Submit 10 innovative ideas',
-        points: 750,
-        xp_value: 400,
-        category: 'innovation',
-        progress: 70,
-        rarity: 'epic',
-        unlocked: false
-      },
-      {
-        id: '4',
-        title: 'Team Player',
-        description: 'Collaborate on 20 projects',
-        points: 600,
-        xp_value: 350,
-        category: 'collaboration',
-        progress: 85,
-        rarity: 'epic',
-        unlocked: false
-      },
-      {
-        id: '5',
-        title: 'Excellence Achiever',
-        description: 'Maintain 90% performance score for 30 days',
-        points: 1000,
-        xp_value: 500,
-        category: 'performance',
-        progress: 45,
-        rarity: 'legendary',
-        unlocked: false
-      },
-      {
-        id: '6',
-        title: 'Leadership Champion',
-        description: 'Lead 5 successful team initiatives',
-        points: 800,
-        xp_value: 450,
-        category: 'leadership',
-        progress: 60,
-        rarity: 'epic',
-        unlocked: false
-      }
-    ];
-    setAchievements(mockAchievements);
-  };
+      // Generate achievements based on user data
+      const mockAchievements: Achievement[] = [
+        {
+          id: '1',
+          title: 'Quick Starter',
+          description: 'Complete first 5 tasks',
+          points: 100,
+          xp_value: 50,
+          category: 'milestone',
+          progress: 100,
+          rarity: 'common',
+          unlocked: true,
+          unlocked_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        },
+        {
+          id: '2',
+          title: 'Rising Star',
+          description: `Reach level ${level}`,
+          points: 500,
+          xp_value: 250,
+          category: 'performance',
+          progress: 100,
+          rarity: 'rare',
+          unlocked: level >= 10,
+          unlocked_at: level >= 10 ? new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) : undefined
+        },
+        {
+          id: '3',
+          title: 'Performance Master',
+          description: `Maintain ${Math.round((data?.avg_kpi || 0) * 100)}% KPI`,
+          points: 750,
+          xp_value: 400,
+          category: 'performance',
+          progress: Math.round((data?.avg_kpi || 0) * 100),
+          rarity: 'epic',
+          unlocked: (data?.avg_kpi || 0) > 0.85
+        },
+        {
+          id: '4',
+          title: 'Team Player',
+          description: `Lead team of ${data?.team_size || 0} members`,
+          points: 600,
+          xp_value: 350,
+          category: 'collaboration',
+          progress: Math.round(((data?.team_size || 0) / 20) * 100),
+          rarity: 'epic',
+          unlocked: (data?.team_size || 0) > 5
+        }
+      ];
 
-  const generateChallenges = () => {
-    const mockChallenges: Challenge[] = [
-      {
-        id: '1',
-        title: 'Speed Coding Challenge',
-        description: 'Complete code review tasks under time pressure',
-        difficulty: 'medium',
-        reward_points: 250,
-        reward_xp: 150,
-        status: 'active',
-        ends_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        participants: 34,
-        progress: 65
-      },
-      {
-        id: '2',
-        title: 'Innovation Sprint',
-        description: 'Propose and implement a new feature',
-        difficulty: 'hard',
-        reward_points: 500,
-        reward_xp: 300,
-        status: 'active',
-        ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        participants: 18,
-        progress: 40
-      },
-      {
-        id: '3',
-        title: 'Team Collaboration',
-        description: 'Work with 3+ team members on a project',
-        difficulty: 'easy',
-        reward_points: 150,
-        reward_xp: 100,
-        status: 'available',
-        ends_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-        participants: 52,
-        progress: 0
-      },
-      {
-        id: '4',
-        title: 'Perfect Attendance',
-        description: 'Maintain perfect attendance for a week',
-        difficulty: 'easy',
-        reward_points: 100,
-        reward_xp: 75,
-        status: 'completed',
-        ends_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        participants: 127,
-        progress: 100
-      }
-    ];
-    setChallenges(mockChallenges);
-  };
+      setAchievements(mockAchievements);
 
-  const generateLeaderboard = () => {
-    const mockLeaderboard: Leaderboard[] = [
-      { rank: 1, user_name: 'Rajesh Kumar', department: 'IT', total_points: 28450, level: 15, badges_earned: 12 },
-      { rank: 2, user_name: 'Priya Sharma', department: 'DSD', total_points: 26780, level: 14, badges_earned: 11 },
-      { rank: 3, user_name: 'Employee-001', department: 'IT', total_points: 15680, level: 12, badges_earned: 8 },
-      { rank: 4, user_name: 'Amit Patel', department: 'EGU', total_points: 14920, level: 11, badges_earned: 7 },
-      { rank: 5, user_name: 'Sneha Reddy', department: 'IT', total_points: 14250, level: 10, badges_earned: 6 }
-    ];
-    setLeaderboard(mockLeaderboard);
-  };
+      // Generate challenges
+      const mockChallenges: Challenge[] = [
+        {
+          id: '1',
+          title: 'Performance Challenge',
+          description: `Maintain ${Math.round((data?.avg_kpi || 0) * 100)}% KPI targets`,
+          difficulty: 'medium',
+          reward_points: 250,
+          reward_xp: 150,
+          status: 'active',
+          ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          participants: Math.floor(Math.random() * 50) + 10,
+          progress: Math.round((data?.avg_kpi || 0) * 100)
+        },
+        {
+          id: '2',
+          title: 'Team Excellence Sprint',
+          description: `Lead your team to ${Math.round((data?.avg_kpi || 0) * 100)}% performance`,
+          difficulty: 'hard',
+          reward_points: 500,
+          reward_xp: 300,
+          status: 'active',
+          ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+          participants: Math.floor(Math.random() * 30) + 5,
+          progress: Math.round((data?.avg_kpi || 0) * 100)
+        }
+      ];
+
+      setChallenges(mockChallenges);
+    }
+  }, [analyticsData]);
+
+  // Transform all users data to leaderboard
+  useEffect(() => {
+    if (allUsersData && Array.isArray(allUsersData)) {
+      const leaderboardData = allUsersData
+        .map((u: any, index: number) => ({
+          rank: index + 1,
+          user_name: u.name || u.user_name || `User ${u.id}`,
+          department: u.department || 'Operations',
+          total_points: Math.round((u.performance_score || 0) * 25000),
+          level: Math.floor((u.performance_score || 0) * 20),
+          badges_earned: Math.floor(Math.random() * 15) + 5
+        }))
+        .sort((a: any, b: any) => b.total_points - a.total_points)
+        .slice(0, 10);
+      
+      setLeaderboard(leaderboardData);
+    }
+  }, [allUsersData]);
 
   const experienceData = [
     { date: 'Mon', xp: 120, tasks: 5, achievements: 1 },
@@ -301,7 +282,7 @@ const EnhancedGamification: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${playerProfile.avatar_color} flex items-center justify-center`}>
-              <User className="w-8 h-8 text-white" />
+              <UserIcon className="w-8 h-8 text-white" />
             </div>
             <div>
               <p className="text-sm text-gray-400">Level {playerProfile.level}</p>

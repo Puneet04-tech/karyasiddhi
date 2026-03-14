@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Star, Target, Zap, Award, Medal, Crown, Flame, Rocket, Gem, Coins, Gift, Heart, Users, TrendingUp, Gamepad2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics, useRealTimeTeamRankings } from '../../lib/useRealTimeData';
 
 interface Achievement {
   id: string;
@@ -66,6 +68,10 @@ interface Competition {
 }
 
 const CarnivalOfProductivity = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+  const { data: rankingsData, loading: rankingsLoading } = useRealTimeTeamRankings();
+
   const [userStats, setUserStats] = useState({
     level: 28,
     xp: 15420,
@@ -82,170 +88,164 @@ const CarnivalOfProductivity = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'quests' | 'achievements' | 'competitions' | 'leaderboard'>('overview');
 
+  // Transform analytics data to game stats
   useEffect(() => {
-    generateGameData();
-    const interval = setInterval(updateGameStats, 30000); // Every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      // Calculate game stats based on analytics
+      const level = Math.floor((data?.performance_score || 0) * 50);
+      const xp = Math.floor((data?.performance_score || 0) * 30000);
+      
+      setUserStats({
+        level: Math.max(1, level),
+        xp: xp,
+        coins: Math.round((data?.avg_kpi || 0) * 5000),
+        streak: Math.floor((data?.performance_score || 0) * 50),
+        totalAchievements: Math.floor((data?.performance_score || 0) * 100),
+        rank: Math.floor(Math.random() * 20) + 1,
+        powerUps: 3
+      });
 
-  const generateGameData = () => {
-    const mockAchievements: Achievement[] = [
-      {
-        id: '1',
-        title: 'Speed Demon',
-        description: 'Complete 10 tasks in under 30 minutes',
-        icon: '⚡',
-        category: 'productivity',
-        rarity: 'rare',
-        points: 500,
-        unlocked: true,
-        unlockedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        progress: 10,
-        maxProgress: 10
-      },
-      {
-        id: '2',
-        title: 'Collaboration Master',
-        description: 'Help 50 team members achieve their goals',
-        icon: '🤝',
-        category: 'collaboration',
-        rarity: 'epic',
-        points: 1000,
-        unlocked: false,
-        progress: 32,
-        maxProgress: 50
-      },
-      {
-        id: '3',
-        title: 'Innovation Pioneer',
-        description: 'Submit 5 innovative process improvements',
-        icon: '💡',
-        category: 'innovation',
-        rarity: 'legendary',
-        points: 2000,
-        unlocked: false,
-        progress: 2,
-        maxProgress: 5
-      },
-      {
-        id: '4',
-        title: 'Early Bird',
-        description: 'Log in before 8 AM for 30 consecutive days',
-        icon: '🌅',
-        category: 'milestone',
-        rarity: 'common',
-        points: 300,
-        unlocked: true,
-        progress: 30,
-        maxProgress: 30
-      },
-      {
-        id: '5',
-        title: 'Goal Crusher',
-        description: 'Complete 100 goals with 95%+ rating',
-        icon: '🎯',
-        category: 'productivity',
-        rarity: 'epic',
-        points: 1500,
-        unlocked: false,
-        progress: 78,
-        maxProgress: 100
-      }
-    ];
+      // Generate achievements from analytics
+      const mockAchievements: Achievement[] = [
+        {
+          id: '1',
+          title: 'Performance Star',
+          description: `Achieving ${Math.round((data?.performance_score || 0) * 100)}% performance`,
+          icon: '⭐',
+          category: 'productivity',
+          rarity: (data?.performance_score || 0) > 0.8 ? 'epic' : 'rare',
+          points: 500,
+          unlocked: (data?.performance_score || 0) > 0.6,
+          progress: Math.round((data?.performance_score || 0) * 100),
+          maxProgress: 100
+        },
+        {
+          id: '2',
+          title: 'Team Collaborator',
+          description: `Leading team of ${data?.team_size || 0} members`,
+          icon: '🤝',
+          category: 'collaboration',
+          rarity: (data?.team_size || 0) > 10 ? 'epic' : 'rare',
+          points: 1000,
+          unlocked: (data?.team_size || 0) > 5,
+          progress: Math.min(data?.team_size || 0, 50),
+          maxProgress: 50
+        },
+        {
+          id: '3',
+          title: 'KPI Master',
+          description: `Maintaining ${Math.round((data?.avg_kpi || 0) * 100)}% KPI success`,
+          icon: '📊',
+          category: 'productivity',
+          rarity: (data?.avg_kpi || 0) > 0.9 ? 'legendary' : 'epic',
+          points: 2000,
+          unlocked: (data?.avg_kpi || 0) > 0.85,
+          progress: Math.round((data?.avg_kpi || 0) * 100),
+          maxProgress: 100
+        }
+      ];
 
-    const mockQuests: Quest[] = [
-      {
-        id: '1',
-        title: 'Daily Productivity Burst',
-        description: 'Complete your daily goals with excellence',
-        type: 'daily',
-        difficulty: 'easy',
-        rewards: { xp: 100, coins: 50, badges: ['Daily Warrior'] },
-        tasks: [
-          { id: '1', description: 'Complete 5 goals', completed: true, progress: 5, target: 5 },
-          { id: '2', description: 'Maintain 90%+ quality', completed: false, progress: 85, target: 90 },
-          { id: '3', description: 'Help 2 team members', completed: true, progress: 2, target: 2 }
-        ],
-        deadline: new Date(Date.now() + 4 * 60 * 60 * 1000),
-        active: true
-      },
-      {
-        id: '2',
-        title: 'Weekly Collaboration Challenge',
-        description: 'Excel in team collaboration and mentoring',
-        type: 'weekly',
-        difficulty: 'medium',
-        rewards: { xp: 500, coins: 200, badges: ['Team Player'] },
-        tasks: [
-          { id: '1', description: 'Mentor 3 junior employees', completed: true, progress: 3, target: 3 },
-          { id: '2', description: 'Participate in 5 team meetings', completed: false, progress: 3, target: 5 },
-          { id: '3', description: 'Share 2 best practices', completed: true, progress: 2, target: 2 }
-        ],
-        deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-        active: true
-      }
-    ];
+      // Generate quests
+      const mockQuests: Quest[] = [
+        {
+          id: '1',
+          title: 'Daily Excellence Quest',
+          description: 'Maintain performance through today',
+          type: 'daily',
+          difficulty: 'easy',
+          rewards: { xp: 100, coins: 50, badges: ['Daily Warrior'] },
+          tasks: [
+            { id: '1', description: 'Complete daily tasks', completed: true, progress: 5, target: 5 },
+            { id: '2', description: 'Maintain performance', completed: (data?.performance_score || 0) > 0.85, progress: Math.round((data?.performance_score || 0) * 100), target: 90 },
+            { id: '3', description: 'Help team members', completed: (data?.team_size || 0) > 0, progress: data?.team_size || 0, target: 2 }
+          ],
+          deadline: new Date(Date.now() + 4 * 60 * 60 * 1000),
+          active: true
+        },
+        {
+          id: '2',
+          title: 'Weekly Leadership Challenge',
+          description: 'Excel in team performance metrics',
+          type: 'weekly',
+          difficulty: 'medium',
+          rewards: { xp: 500, coins: 200, badges: ['Team Leader'] },
+          tasks: [
+            { id: '1', description: 'Lead team success', completed: (data?.avg_kpi || 0) > 0.8, progress: Math.round((data?.avg_kpi || 0) * 100), target: 85 },
+            { id: '2', description: 'Mentor team members', completed: true, progress: data?.team_size || 0, target: 3 },
+            { id: '3', description: 'Share best practices', completed: true, progress: 2, target: 2 }
+          ],
+          deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+          active: true
+        }
+      ];
 
-    const mockCompetitions: Competition[] = [
-      {
-        id: '1',
-        title: 'Productivity Olympics 2024',
-        description: 'The ultimate competition to find the most productive government employee',
-        type: 'individual',
-        startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-        participants: 15420,
-        prizePool: 100000,
-        rules: [
-          'Complete daily quests consistently',
-          'Maintain high quality standards',
-          'Help team members succeed',
-          'Innovate and improve processes'
-        ],
-        leaderboard: [],
-        status: 'active'
-      },
-      {
-        id: '2',
-        title: 'Department vs Department',
-        description: 'Battle it out between government departments',
-        type: 'department',
-        startDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
-        participants: 5000,
-        prizePool: 50000,
-        rules: [
-          'Collective department goals',
-          'Cross-department collaboration',
-          'Resource optimization',
-          'Citizen satisfaction scores'
-        ],
-        leaderboard: [],
-        status: 'upcoming'
-      }
-    ];
+      setAchievements(mockAchievements);
+      setActiveQuests(mockQuests);
 
-    const mockLeaderboard: LeaderboardEntry[] = [
-      { rank: 1, name: 'Priya Sharma', department: 'IT', level: 42, xp: 28450, coins: 5234, achievements: 89, streak: 45, avatar: '👩‍💼' },
-      { rank: 2, name: 'Arun Singh', department: 'Revenue', level: 38, xp: 24320, coins: 4892, achievements: 76, streak: 32, avatar: '👨‍💼' },
-      { rank: 3, name: 'Rajesh Kumar', department: 'Health', level: 35, xp: 21450, coins: 4321, achievements: 68, streak: 28, avatar: '👨‍⚕️' },
-      { rank: 12, name: 'You', department: 'IT', level: userStats.level, xp: userStats.xp, coins: userStats.coins, achievements: userStats.totalAchievements, streak: userStats.streak, avatar: '🌟' }
-    ];
+      // Generate competitions
+      const mockCompetitions: Competition[] = [
+        {
+          id: '1',
+          title: 'Performance Olympics Hall',
+          description: 'Compete with colleagues on overall performance',
+          type: 'individual',
+          startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+          participants: Math.floor(Math.random() * 1000) + 100,
+          prizePool: 100000,
+          rules: [
+            'Maintain high performance',
+            'Complete daily objectives',
+            'Help team members',
+            'Improve processes'
+          ],
+          leaderboard: [],
+          status: 'active'
+        },
+        {
+          id: '2',
+          title: 'Department Excellence Hall',
+          description: 'Compete with other departments',
+          type: 'department',
+          startDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+          endDate: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
+          participants: Math.floor(Math.random() * 5000) + 1000,
+          prizePool: 50000,
+          rules: [
+            'Department collaboration',
+            'Performance improvement',
+            'Resource efficiency',
+            'Innovation in processes'
+          ],
+          leaderboard: [],
+          status: 'upcoming'
+        }
+      ];
 
-    setAchievements(mockAchievements);
-    setActiveQuests(mockQuests);
-    setCompetitions(mockCompetitions);
-    setLeaderboard(mockLeaderboard);
-  };
+      setCompetitions(mockCompetitions);
+    }
+  }, [analyticsData]);
 
-  const updateGameStats = () => {
-    setUserStats(prev => ({
-      ...prev,
-      xp: prev.xp + Math.floor(Math.random() * 50) + 10,
-      coins: prev.coins + Math.floor(Math.random() * 20) + 5,
-      streak: Math.random() > 0.1 ? prev.streak + 1 : 1
-    }));
-  };
+  // Transform rankings data to leaderboard
+  useEffect(() => {
+    if (rankingsData && Array.isArray(rankingsData)) {
+      const leaderboardData = rankingsData.slice(0, 10).map((person: any, index: number) => ({
+        rank: index + 1,
+        name: person.name || person.user_name || `User ${person.id}`,
+        department: person.department || 'Operations',
+        level: Math.floor((person.performance_score || 0) * 50),
+        xp: Math.floor((person.performance_score || 0) * 30000),
+        coins: Math.round((person.avg_kpi || 0) * 5000),
+        achievements: Math.floor((person.performance_score || 0) * 100),
+        streak: Math.floor((person.performance_score || 0) * 50),
+        avatar: index === 0 ? '👑' : index === 1 ? '🏅' : index === 2 ? '🥉' : '🌟'
+      }));
+      
+      setLeaderboard(leaderboardData);
+    }
+  }, [rankingsData]);
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Star, Zap, Shield, Award, TrendingUp, Users, Clock, CheckCircle, AlertCircle, Coins, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area } from 'recharts';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics, useRealTimeTeamRankings } from '../../lib/useRealTimeData';
 
 interface KarmaTransaction {
   id: string;
@@ -40,157 +42,97 @@ interface SmartContract {
 }
 
 const BlockchainKarma = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData, loading: analyticsLoading, error: analyticsError } = useRealTimeAnalytics(user?.id);
+  const { data: rankingsData, loading: rankingsLoading } = useRealTimeTeamRankings();
+
   const [metrics, setMetrics] = useState<ReputationMetrics>({
-    totalKarma: 2847,
-    reputationScore: 89,
-    trustLevel: 92,
-    influenceIndex: 76,
-    collaborationScore: 85,
-    innovationIndex: 71,
-    leadershipRating: 68,
-    integrityScore: 95
+    totalKarma: 0,
+    reputationScore: 0,
+    trustLevel: 0,
+    influenceIndex: 0,
+    collaborationScore: 0,
+    innovationIndex: 0,
+    leadershipRating: 0,
+    integrityScore: 0
   });
 
   const [transactions, setTransactions] = useState<KarmaTransaction[]>([]);
   const [smartContracts, setSmartContracts] = useState<SmartContract[]>([]);
-  const [isMining, setIsMining] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'transactions' | 'contracts' | 'leaderboard'>('overview');
 
+  // Transform analytics data to reputation metrics
   useEffect(() => {
-    generateTransactions();
-    generateSmartContracts();
-    const interval = setInterval(mineNewKarma, 60000); // Every minute
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      // Calculate metrics based on analytics data
+      setMetrics({
+        totalKarma: Math.round((data?.performance_score || 0) * 100),
+        reputationScore: Math.round(data?.performance_score * 100) || 0,
+        trustLevel: Math.round((data?.avg_kpi || 0) * 100),
+        influenceIndex: Math.round((data?.team_size || 0) * 10),
+        collaborationScore: Math.round((data?.avg_kpi || 0) * 85),
+        innovationIndex: Math.round(Math.random() * 100),
+        leadershipRating: Math.round((data?.performance_score || 0) * 68),
+        integrityScore: 95
+      });
 
-  const generateTransactions = () => {
-    const mockTransactions: KarmaTransaction[] = [
-      {
-        id: '1',
-        type: 'earned',
-        category: 'performance',
-        amount: 50,
-        description: 'Exceeded quarterly KPI targets by 15%',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        blockchainHash: '0x7f8a9b2c...',
-        verified: true
-      },
-      {
-        id: '2',
-        type: 'bonus',
-        category: 'collaboration',
-        amount: 25,
-        description: 'Mentored junior team member - successful skill transfer',
-        from: 'System',
-        to: 'You',
-        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-        blockchainHash: '0x9c2d8e1f...',
-        verified: true
-      },
-      {
-        id: '3',
-        type: 'spent',
-        category: 'leadership',
-        amount: -100,
-        description: 'Redeemed for advanced leadership training program',
-        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-        blockchainHash: '0x3e7a9b1c...',
-        verified: true
-      },
-      {
-        id: '4',
-        type: 'earned',
-        category: 'innovation',
-        amount: 75,
-        description: 'Submitted innovative process improvement - approved for implementation',
-        timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000),
-        blockchainHash: '0x8b1c9d2e...',
-        verified: true
-      },
-      {
-        id: '5',
-        type: 'penalty',
-        category: 'integrity',
-        amount: -30,
-        description: 'Late project delivery - missed deadline by 3 days',
-        timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000),
-        blockchainHash: '0x2d8e1f9a...',
-        verified: true
-      }
-    ];
-    
-    setTransactions(mockTransactions);
-  };
+      // Generate transactions from analytics insights
+      const mockTransactions: KarmaTransaction[] = [
+        {
+          id: '1',
+          type: 'earned',
+          category: 'performance',
+          amount: Math.round((data?.performance_score || 0) * 50),
+          description: `Current performance score: ${Math.round((data?.performance_score || 0) * 100)}%`,
+          timestamp: new Date(),
+          blockchainHash: '0x7f8a9b2c...',
+          verified: true
+        },
+        {
+          id: '2',
+          type: 'earned',
+          category: 'collaboration',
+          amount: Math.round((data?.avg_kpi || 0) * 25),
+          description: 'Team collaboration metrics tracked',
+          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+          blockchainHash: '0x9c2d8e1f...',
+          verified: true
+        }
+      ];
 
-  const generateSmartContracts = () => {
-    const mockContracts: SmartContract[] = [
-      {
-        id: '1',
-        title: 'Performance Excellence',
-        description: 'Achieve 95%+ on all KPIs for 3 consecutive months',
-        karmaReward: 500,
-        requirements: ['KPI > 95%', '3 months consistency', 'Peer validation'],
-        progress: 67,
-        status: 'active',
-        participants: ['You', 'Team Alpha'],
-        deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: '2',
-        title: 'Innovation Champion',
-        description: 'Submit and implement 3 innovative solutions',
-        karmaReward: 750,
-        requirements: ['3 innovations', 'Implementation complete', 'Measurable impact'],
-        progress: 33,
-        status: 'active',
-        participants: ['You'],
-        deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: '3',
-        title: 'Mentorship Master',
-        description: 'Successfully mentor 5 junior employees',
-        karmaReward: 300,
-        requirements: ['5 mentees', 'Skill improvement', 'Feedback rating > 4.5'],
-        progress: 80,
-        status: 'active',
-        participants: ['You', 'Mentee Group'],
-        deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000)
-      }
-    ];
-    
-    setSmartContracts(mockContracts);
-  };
+      setTransactions(mockTransactions);
 
-  const mineNewKarma = async () => {
-    setIsMining(true);
-    
-    // Simulate blockchain mining
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Add random karma transaction
-    const categories: KarmaTransaction['category'][] = ['performance', 'collaboration', 'innovation', 'leadership', 'mentoring', 'integrity'];
-    const types: KarmaTransaction['type'][] = ['earned', 'bonus'];
-    
-    const newTransaction: KarmaTransaction = {
-      id: Date.now().toString(),
-      type: types[Math.floor(Math.random() * types.length)],
-      category: categories[Math.floor(Math.random() * categories.length)],
-      amount: Math.floor(Math.random() * 50) + 10,
-      description: 'Real-time achievement detected by AI',
-      timestamp: new Date(),
-      blockchainHash: `0x${Math.random().toString(16).substr(2, 8)}...`,
-      verified: true
-    };
-    
-    setTransactions(prev => [newTransaction, ...prev]);
-    setMetrics(prev => ({
-      ...prev,
-      totalKarma: prev.totalKarma + newTransaction.amount
-    }));
-    
-    setIsMining(false);
-  };
+      // Generate smart contracts based on KPI data
+      const smartContractTemplates: SmartContract[] = [
+        {
+          id: '1',
+          title: 'Performance Excellence',
+          description: `Maintain ${Math.round((data?.avg_kpi || 0) * 100)}% KPI performance`,
+          karmaReward: 500,
+          requirements: ['KPI > 90%', '3 months consistency', 'Peer validation'],
+          progress: Math.round((data?.avg_kpi || 0) * 100),
+          status: 'active',
+          participants: ['You', 'Team Alpha'],
+          deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        },
+        {
+          id: '2',
+          title: 'Team Success',
+          description: `Lead team of ${data?.team_size || 0} members to excellence`,
+          karmaReward: 750,
+          requirements: ['Team performance > 85%', 'Implementation complete', 'Measurable impact'],
+          progress: Math.round((data?.avg_kpi || 0) * 100),
+          status: 'active',
+          participants: ['You'],
+          deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
+        }
+      ];
+
+      setSmartContracts(smartContractTemplates);
+    }
+  }, [analyticsData]);
 
   const getTrustLevel = (score: number) => {
     if (score >= 90) return { level: 'Platinum', color: 'text-purple-400', icon: Crown };
@@ -231,10 +173,10 @@ const BlockchainKarma = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isMining && (
+          {analyticsLoading && (
             <div className="flex items-center gap-2 text-orange-400">
               <Zap className="w-4 h-4 animate-pulse" />
-              <span className="text-sm">Mining...</span>
+              <span className="text-sm">Loading...</span>
             </div>
           )}
           <div className={`px-3 py-1 rounded-lg flex items-center gap-2 ${trustLevel.color} bg-opacity-20`}>
@@ -501,40 +443,38 @@ const BlockchainKarma = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-white">Global Karma Leaderboard</h2>
           <div className="card p-6">
-            <div className="space-y-3">
-              {[
-                { rank: 1, name: 'Arun Singh', karma: 5234, level: 'Platinum' },
-                { rank: 2, name: 'Priya Sharma', karma: 4892, level: 'Platinum' },
-                { rank: 3, name: 'Rajesh Kumar', karma: 4321, level: 'Gold' },
-                { rank: 4, name: 'You', karma: metrics.totalKarma, level: trustLevel.level },
-                { rank: 5, name: 'Amit Patel', karma: 3876, level: 'Gold' },
-              ].map((person) => (
-                <motion.div
-                  key={person.rank}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className={`flex items-center justify-between p-3 rounded-lg ${
-                    person.name === 'You' ? 'bg-primary-500/20 border border-primary-500/50' : 'bg-gray-800/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                      person.rank === 1 ? 'bg-yellow-500/20 text-yellow-500' :
-                      person.rank === 2 ? 'bg-gray-400/20 text-gray-400' :
-                      person.rank === 3 ? 'bg-orange-500/20 text-orange-500' :
-                      'bg-primary-500/20 text-primary-400'
-                    }`}>
-                      {person.rank}
+            {rankingsLoading ? (
+              <div className="text-center text-gray-400">Loading leaderboard...</div>
+            ) : (
+              <div className="space-y-3">
+                {Array.isArray(rankingsData) && rankingsData.slice(0, 5).map((person: any, index: number) => (
+                  <motion.div
+                    key={person.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className={`flex items-center justify-between p-3 rounded-lg ${
+                      person.id === user?.id ? 'bg-primary-500/20 border border-primary-500/50' : 'bg-gray-800/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                        index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                        index === 1 ? 'bg-gray-400/20 text-gray-400' :
+                        index === 2 ? 'bg-orange-500/20 text-orange-500' :
+                        'bg-primary-500/20 text-primary-400'
+                      }`}>
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">{person.name || person.user_name || `User ${person.id}`}</p>
+                        <p className="text-sm text-gray-400">{person.department || 'Operations'}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-white">{person.name}</p>
-                      <p className="text-sm text-gray-400">{person.level}</p>
-                    </div>
-                  </div>
-                  <div className="text-lg font-bold text-yellow-400">{person.karma}</div>
-                </motion.div>
-              ))}
-            </div>
+                    <div className="text-lg font-bold text-yellow-400">{Math.round((person.performance_score || 0) * 5000)}</div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
