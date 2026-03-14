@@ -17,9 +17,10 @@ CREATE TABLE IF NOT EXISTS enterprise_ai_mentor (
   next_milestone TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_ai_mentor_user_id ON enterprise_ai_mentor(user_id);
 
 -- EMPATHY ENGINE Data for each user
 CREATE TABLE IF NOT EXISTS enterprise_empathy_engine (
@@ -34,9 +35,10 @@ CREATE TABLE IF NOT EXISTS enterprise_empathy_engine (
   recommendations JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_empathy_engine_user_id ON enterprise_empathy_engine(user_id);
 
 -- BLOCKCHAIN KARMA Reputation system
 CREATE TABLE IF NOT EXISTS enterprise_blockchain_karma (
@@ -52,9 +54,10 @@ CREATE TABLE IF NOT EXISTS enterprise_blockchain_karma (
   karma_history JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_blockchain_karma_user_id ON enterprise_blockchain_karma(user_id);
 
 -- BHARATNET INTEGRATION Citizen feedback
 CREATE TABLE IF NOT EXISTS enterprise_bharatnet (
@@ -70,9 +73,10 @@ CREATE TABLE IF NOT EXISTS enterprise_bharatnet (
   recent_feedback JSONB[],
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_bharatnet_user_id ON enterprise_bharatnet(user_id);
 
 -- CARNIVAL OF PRODUCTIVITY Gamification
 CREATE TABLE IF NOT EXISTS enterprise_carnival (
@@ -90,9 +94,11 @@ CREATE TABLE IF NOT EXISTS enterprise_carnival (
   multipliers JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_carnival_user_id ON enterprise_carnival(user_id);
+CREATE INDEX IF NOT EXISTS idx_enterprise_carnival_rank ON enterprise_carnival(leaderboard_rank);
 
 -- GOVVERSE Metaverse Data
 CREATE TABLE IF NOT EXISTS enterprise_govverse (
@@ -107,9 +113,10 @@ CREATE TABLE IF NOT EXISTS enterprise_govverse (
   metaverse_connections JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_govverse_user_id ON enterprise_govverse(user_id);
 
 -- DIGITAL MIRROR Self-awareness metrics
 CREATE TABLE IF NOT EXISTS enterprise_digital_mirror (
@@ -124,9 +131,10 @@ CREATE TABLE IF NOT EXISTS enterprise_digital_mirror (
   insights JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_digital_mirror_user_id ON enterprise_digital_mirror(user_id);
 
 -- DIGITAL TWIN SIMULATION Office simulation
 CREATE TABLE IF NOT EXISTS enterprise_digital_twin (
@@ -140,10 +148,11 @@ CREATE TABLE IF NOT EXISTS enterprise_digital_twin (
   optimization_suggestions JSONB,
   simulation_results JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_user_id (user_id),
-  INDEX idx_department_id (department_id)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_digital_twin_user_id ON enterprise_digital_twin(user_id);
+CREATE INDEX IF NOT EXISTS idx_enterprise_digital_twin_department_id ON enterprise_digital_twin(department_id);
 
 -- AR/VR TRAINING
 CREATE TABLE IF NOT EXISTS enterprise_ar_vr_training (
@@ -159,9 +168,10 @@ CREATE TABLE IF NOT EXISTS enterprise_ar_vr_training (
   practical_experience_hours INT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_ar_vr_user_id ON enterprise_ar_vr_training(user_id);
 
 -- MOOD ADAPTIVE UI - Emotional state tracking
 CREATE TABLE IF NOT EXISTS enterprise_mood_adaptive_ui (
@@ -177,9 +187,10 @@ CREATE TABLE IF NOT EXISTS enterprise_mood_adaptive_ui (
   accessibility_adjustments JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_mood_user_id ON enterprise_mood_adaptive_ui(user_id);
 
 -- DNA GOVERNANCE - Genetic algorithm optimization
 CREATE TABLE IF NOT EXISTS enterprise_dna_governance (
@@ -194,9 +205,10 @@ CREATE TABLE IF NOT EXISTS enterprise_dna_governance (
   evolution_history JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_dna_user_id ON enterprise_dna_governance(user_id);
 
 -- PRECOGNITION ENGINE - Advanced forecasting
 CREATE TABLE IF NOT EXISTS enterprise_precognition_engine (
@@ -211,9 +223,10 @@ CREATE TABLE IF NOT EXISTS enterprise_precognition_engine (
   opportunity_detections TEXT[],
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_precognition_user_id ON enterprise_precognition_engine(user_id);
 
 -- ZERO KNOWLEDGE GOVERNANCE - Privacy-first analytics
 CREATE TABLE IF NOT EXISTS enterprise_zero_knowledge (
@@ -227,9 +240,10 @@ CREATE TABLE IF NOT EXISTS enterprise_zero_knowledge (
   privacy_settings JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_zero_knowledge_user_id ON enterprise_zero_knowledge(user_id);
 
 -- ECOSYSTEM INTELLIGENCE
 CREATE TABLE IF NOT EXISTS enterprise_ecosystem_intelligence (
@@ -243,9 +257,10 @@ CREATE TABLE IF NOT EXISTS enterprise_ecosystem_intelligence (
   optimization_opportunities JSONB[],
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_ecosystem_user_id ON enterprise_ecosystem_intelligence(user_id);
 
 -- ENHANCED GAMIFICATION
 CREATE TABLE IF NOT EXISTS enterprise_gamification (
@@ -261,9 +276,11 @@ CREATE TABLE IF NOT EXISTS enterprise_gamification (
   team_achievements JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_gamification_user_id ON enterprise_gamification(user_id);
+CREATE INDEX IF NOT EXISTS idx_enterprise_gamification_rank ON enterprise_gamification(leaderboard_rank);
 
 -- LABORATORY OF GOVERNANCE - A/B Testing
 CREATE TABLE IF NOT EXISTS enterprise_laboratory_governance (
@@ -277,9 +294,10 @@ CREATE TABLE IF NOT EXISTS enterprise_laboratory_governance (
   statistical_significance NUMERIC(3,1) DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_laboratory_user_id ON enterprise_laboratory_governance(user_id);
 
 -- TIDAL WAVE ANALYTICS
 CREATE TABLE IF NOT EXISTS enterprise_tidal_wave_analytics (
@@ -293,9 +311,10 @@ CREATE TABLE IF NOT EXISTS enterprise_tidal_wave_analytics (
   trend_analysis JSONB[],
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_tidal_wave_user_id ON enterprise_tidal_wave_analytics(user_id);
 
 -- DEEPFAKE DETECTION
 CREATE TABLE IF NOT EXISTS enterprise_deepfake_detection (
@@ -309,9 +328,10 @@ CREATE TABLE IF NOT EXISTS enterprise_deepfake_detection (
   verified_documents INT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_deepfake_user_id ON enterprise_deepfake_detection(user_id);
 
 -- ALGORITHMIC JUSTICE - Fairness auditing
 CREATE TABLE IF NOT EXISTS enterprise_algorithmic_justice (
@@ -325,9 +345,10 @@ CREATE TABLE IF NOT EXISTS enterprise_algorithmic_justice (
   transparency_rating NUMERIC(3,1) DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_justice_user_id ON enterprise_algorithmic_justice(user_id);
 
 -- QUANTUM MANAGEMENT - Superposition decisions
 CREATE TABLE IF NOT EXISTS enterprise_quantum_management (
@@ -341,9 +362,10 @@ CREATE TABLE IF NOT EXISTS enterprise_quantum_management (
   quantum_insights JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id),
-  INDEX idx_user_id (user_id)
+  UNIQUE(user_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_quantum_user_id ON enterprise_quantum_management(user_id);
 
 -- MANAGER DASHBOARD - Aggregated team data
 CREATE TABLE IF NOT EXISTS enterprise_manager_dashboard (
@@ -356,10 +378,11 @@ CREATE TABLE IF NOT EXISTS enterprise_manager_dashboard (
   team_goals JSONB,
   department_targets JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_manager_id (manager_id),
-  INDEX idx_department_id (department_id)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_manager_dashboard_manager_id ON enterprise_manager_dashboard(manager_id);
+CREATE INDEX IF NOT EXISTS idx_enterprise_manager_dashboard_department_id ON enterprise_manager_dashboard(department_id);
 
 -- TEAM ENTERPRISE METRICS - Aggregated feature metrics
 CREATE TABLE IF NOT EXISTS enterprise_team_metrics (
@@ -372,11 +395,12 @@ CREATE TABLE IF NOT EXISTS enterprise_team_metrics (
   feature_engagement INT DEFAULT 0,
   team_insights JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_manager_id (manager_id),
-  INDEX idx_department_id (department_id),
-  INDEX idx_feature_name (feature_name)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_enterprise_team_metrics_manager_id ON enterprise_team_metrics(manager_id);
+CREATE INDEX IF NOT EXISTS idx_enterprise_team_metrics_department_id ON enterprise_team_metrics(department_id);
+CREATE INDEX IF NOT EXISTS idx_enterprise_team_metrics_feature_name ON enterprise_team_metrics(feature_name);
 
 -- DEPARTMENT ENTERPRISE STATS - Department-level aggregations
 CREATE TABLE IF NOT EXISTS enterprise_department_stats (
@@ -391,31 +415,32 @@ CREATE TABLE IF NOT EXISTS enterprise_department_stats (
   departmental_goals JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(department_id),
-  INDEX idx_department_id (department_id)
+  UNIQUE(department_id)
 );
 
--- Create indexes for commonly queried fields
-CREATE INDEX idx_enterprise_ai_mentor_user_id ON enterprise_ai_mentor(user_id);
-CREATE INDEX idx_enterprise_empathy_engine_user_id ON enterprise_empathy_engine(user_id);
-CREATE INDEX idx_enterprise_blockchain_karma_user_id ON enterprise_blockchain_karma(user_id);
-CREATE INDEX idx_enterprise_bharatnet_user_id ON enterprise_bharatnet(user_id);
-CREATE INDEX idx_enterprise_carnival_user_id ON enterprise_carnival(user_id);
-CREATE INDEX idx_enterprise_carnival_rank ON enterprise_carnival(leaderboard_rank);
-CREATE INDEX idx_enterprise_govverse_user_id ON enterprise_govverse(user_id);
-CREATE INDEX idx_enterprise_digital_mirror_user_id ON enterprise_digital_mirror(user_id);
-CREATE INDEX idx_enterprise_digital_twin_user_id ON enterprise_digital_twin(user_id);
-CREATE INDEX idx_enterprise_ar_vr_user_id ON enterprise_ar_vr_training(user_id);
-CREATE INDEX idx_enterprise_mood_user_id ON enterprise_mood_adaptive_ui(user_id);
-CREATE INDEX idx_enterprise_dna_user_id ON enterprise_dna_governance(user_id);
-CREATE INDEX idx_enterprise_precognition_user_id ON enterprise_precognition_engine(user_id);
-CREATE INDEX idx_enterprise_zero_knowledge_user_id ON enterprise_zero_knowledge(user_id);
-CREATE INDEX idx_enterprise_ecosystem_user_id ON enterprise_ecosystem_intelligence(user_id);
-CREATE INDEX idx_enterprise_gamification_user_id ON enterprise_gamification(user_id);
-CREATE INDEX idx_enterprise_gamification_rank ON enterprise_gamification(leaderboard_rank);
-CREATE INDEX idx_enterprise_laboratory_user_id ON enterprise_laboratory_governance(user_id);
-CREATE INDEX idx_enterprise_tidal_wave_user_id ON enterprise_tidal_wave_analytics(user_id);
-CREATE INDEX idx_enterprise_deepfake_user_id ON enterprise_deepfake_detection(user_id);
-CREATE INDEX idx_enterprise_justice_user_id ON enterprise_algorithmic_justice(user_id);
-CREATE INDEX idx_enterprise_quantum_user_id ON enterprise_quantum_management(user_id);
-CREATE INDEX idx_enterprise_manager_dashboard_manager_id ON enterprise_manager_dashboard(manager_id);
+CREATE INDEX IF NOT EXISTS idx_enterprise_department_stats_department_id ON enterprise_department_stats(department_id);
+
+-- Enable Row Level Security (RLS) on feature tables for security
+ALTER TABLE enterprise_ai_mentor ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_empathy_engine ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_blockchain_karma ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_bharatnet ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_carnival ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_govverse ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_digital_mirror ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_digital_twin ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_ar_vr_training ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_mood_adaptive_ui ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_dna_governance ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_precognition_engine ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_zero_knowledge ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_ecosystem_intelligence ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_gamification ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_laboratory_governance ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_tidal_wave_analytics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_deepfake_detection ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_algorithmic_justice ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_quantum_management ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_manager_dashboard ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_team_metrics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE enterprise_department_stats ENABLE ROW LEVEL SECURITY;
