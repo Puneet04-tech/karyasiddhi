@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import { 
   Monitor, Headphones, Award, Target, Zap, Play, Pause, RotateCw, 
   Settings, Volume2, Maximize2, Users, Clock, Star, TrendingUp,
@@ -49,6 +51,9 @@ interface TrainingStats {
 }
 
 const ARVRTraining = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [selectedModule, setSelectedModule] = useState<TrainingModule | null>(null);
   const [trainingModules, setTrainingModules] = useState<TrainingModule[]>([]);
   const [activeSession, setActiveSession] = useState<SimulationSession | null>(null);
@@ -69,10 +74,56 @@ const ARVRTraining = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateTrainingModules();
-    const interval = setInterval(updateTrainingStats, 20000);
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const modules: TrainingModule[] = [
+        {
+          id: '1',
+          title: 'VR Governance Protocol Training',
+          category: 'compliance',
+          difficulty: 'beginner',
+          duration: 45,
+          participants: Math.floor((data?.team_size || 5) * 20),
+          rating: Math.round((data?.avg_kpi || 0.75) * 5),
+          isVR: true,
+          isAR: false,
+          description: 'Learn governance protocols in VR environment',
+          learningObjectives: ['Understand protocols', 'Apply best practices'],
+          prerequisites: []
+        },
+        {
+          id: '2',
+          title: 'AR Performance Analysis',
+          category: 'technical',
+          difficulty: 'intermediate',
+          duration: 60,
+          participants: Math.floor((data?.team_size || 5) * 15),
+          rating: Math.round((data?.performance_score || 0.75) * 5),
+          isVR: false,
+          isAR: true,
+          description: 'Analyze performance metrics in AR',
+          learningObjectives: ['Analyze data', 'Create reports'],
+          prerequisites: ['Basics']
+        }
+      ];
+      
+      setTrainingModules(modules);
+      if (modules.length > 0) setSelectedModule(modules[0]);
+      
+      const stats: TrainingStats = {
+        totalSessions: Math.floor((data?.performance_score || 0.75) * 100),
+        completedModules: Math.floor((data?.performance_score || 0.75) * 20),
+        averageScore: Math.round((data?.avg_kpi || 0.75) * 100),
+        totalTime: Math.floor((data?.performance_score || 0.75) * 300),
+        skillImprovement: Math.round((data?.avg_kpi || 0.75) * 50),
+        certificationLevel: (data?.performance_score || 0.75) > 0.8 ? 'Advanced' : 'Intermediate',
+        ranking: Math.floor(Math.random() * 50) + 1
+      };
+      
+      setTrainingStats(stats);
+    }
+  }, [analyticsData]);
 
   const generateTrainingModules = () => {
     const modules: TrainingModule[] = [

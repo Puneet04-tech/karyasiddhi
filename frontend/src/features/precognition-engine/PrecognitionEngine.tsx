@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics, useRealTimeAnomalies } from '../../lib/useRealTimeData';
 import {
   Brain, Zap, TrendingUp, Settings, RefreshCw, AlertCircle,
   CheckCircle, Clock, Target, Activity, BarChart3, LineChart as LineChartIcon,
@@ -40,6 +42,10 @@ interface AnomalyAlert {
 }
 
 const PrecognitionEngine: React.FC = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: anomaliesData } = useRealTimeAnomalies(user?.id);
+
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [forecastData, setForecastData] = useState<TimeSeriesForecast[]>([]);
   const [anomalies, setAnomalies] = useState<AnomalyAlert[]>([]);
@@ -47,10 +53,72 @@ const PrecognitionEngine: React.FC = () => {
   const [modelAccuracy, setModelAccuracy] = useState(87.3);
 
   useEffect(() => {
-    generatePredictions();
-    generateForecastData();
-    generateAnomalies();
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const mockPredictions: Prediction[] = [
+        {
+          id: '1',
+          metric: 'Employee Engagement',
+          current_value: Math.round((data?.performance_score || 0.72) * 100),
+          predicted_value: Math.round((data?.performance_score || 0.72) * 110),
+          confidence: Math.round((data?.avg_kpi || 0.75) * 100),
+          trend: (data?.performance_score || 0.72) > 0.7 ? 'up' : 'down',
+          days_ahead: 30,
+          category: (data?.performance_score || 0.72) > 0.7 ? 'positive' : 'warning'
+        },
+        {
+          id: '2',
+          metric: 'Project Delivery Risk',
+          current_value: Math.round((100 - (data?.performance_score || 0.72) * 100) * 0.2),
+          predicted_value: Math.round((100 - (data?.performance_score || 0.72) * 100) * 0.3),
+          confidence: 88,
+          trend: 'up',
+          days_ahead: 30,
+          category: 'warning'
+        },
+        {
+          id: '3',
+          metric: 'Attrition Rate',
+          current_value: Math.round((100 - (data?.performance_score || 0.72) * 100) * 0.08),
+          predicted_value: Math.round((100 - (data?.performance_score || 0.72) * 100) * 0.12),
+          confidence: 85,
+          trend: 'up',
+          days_ahead: 30,
+          category: 'risk'
+        }
+      ];
+      
+      setPredictions(mockPredictions);
+      if (mockPredictions.length > 0) setSelectedPrediction(mockPredictions[0]);
+      
+      const mockForecastData: TimeSeriesForecast[] = Array.from({ length: 14 }, (_, i) => ({
+        timestamp: `Day ${i + 1}`,
+        actual: Math.round((data?.performance_score || 0.72) * 100) - i * 1,
+        predicted: Math.round((data?.performance_score || 0.72) * 105) - i * 1,
+        confidence_upper: Math.round((data?.performance_score || 0.72) * 115) - i * 1,
+        confidence_lower: Math.round((data?.performance_score || 0.72) * 95) - i * 1
+      }));
+      
+      setForecastData(mockForecastData);
+      setModelAccuracy(Math.round((data?.avg_kpi || 0.75) * 100));
+    }
+    
+    if (anomaliesData) {
+      const mockAnomalies: AnomalyAlert[] = Array.isArray(anomaliesData) 
+        ? anomaliesData.slice(0, 3).map((_, i) => ({
+            id: (i + 1).toString(),
+            type: i === 0 ? 'Performance Spike' : i === 1 ? 'Engagement Drop' : 'Resource Anomaly',
+            severity: i === 0 ? 'high' : i === 1 ? 'medium' : 'low',
+            description: `Detected anomaly in system metrics`,
+            detected_at: new Date(),
+            probability: 0.85 - i * 0.1
+          }))
+        : [];
+      
+      setAnomalies(mockAnomalies);
+    }
+  }, [analyticsData, anomaliesData]);
 
   const generatePredictions = () => {
     const mockPredictions: Prediction[] = [
