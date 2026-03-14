@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import { Heart, Brain, Users, Activity, AlertTriangle, TrendingUp, Eye, Smile, Frown, Meh, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -34,6 +36,9 @@ interface EmotionalAlert {
 }
 
 const EmpathyEngine = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [currentMetrics, setCurrentMetrics] = useState<EmotionalMetrics>({
     empathy: 75,
     stress: 45,
@@ -51,13 +56,46 @@ const EmpathyEngine = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('day');
 
   useEffect(() => {
-    generateTeamEmotionData();
-    generateEmotionalAlerts();
-    const interval = setInterval(() => {
-      analyzeEmotionalPatterns();
-    }, 30000); // Every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const metrics: EmotionalMetrics = {
+        empathy: Math.round((data?.avg_kpi || 0.75) * 100),
+        stress: Math.max(20, 100 - Math.round((data?.performance_score || 0.8) * 100)),
+        engagement: Math.round((data?.avg_kpi || 0.75) * 110),
+        collaboration: Math.round((data?.team_size || 5) * 15),
+        communication: Math.round((data?.avg_kpi || 0.75) * 95),
+        leadership: Math.round((data?.performance_score || 0.8) * 100),
+        adaptability: Math.round((data?.avg_kpi || 0.75) * 115),
+        resilience: Math.round((data?.performance_score || 0.8) * 90)
+      };
+      
+      setCurrentMetrics(metrics);
+      
+      const emotionHistory: TeamEmotionData[] = Array.from({ length: 30 }, (_, i) => ({
+        timestamp: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000),
+        teamHarmony: Math.round((data?.avg_kpi || 0.75) * 90) - i * 0.5,
+        collectiveStress: Math.max(20, 100 - Math.round((data?.performance_score || 0.8) * 100)),
+        motivationLevel: Math.round((data?.avg_kpi || 0.75) * 110) - i * 0.3,
+        communicationQuality: Math.round((data?.team_size || 5) * 12)
+      }));
+      
+      setTeamEmotionHistory(emotionHistory);
+      
+      const alertList: EmotionalAlert[] = (data?.performance_score || 0.8) < 0.7
+        ? [{
+            id: '1',
+            type: 'stress_spike',
+            severity: 'high',
+            message: 'Elevated stress levels detected',
+            recommendation: 'Consider team wellness initiatives',
+            timestamp: new Date()
+          }]
+        : [];
+      
+      setAlerts(alertList);
+    }
+  }, [analyticsData]);
 
   const generateTeamEmotionData = () => {
     const data: TeamEmotionData[] = [];
