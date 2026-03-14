@@ -183,12 +183,12 @@ const Login = () => {
                     Email Address
                   </label>
                   <div className="relative group">
-                    <Mail className="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-primary-400 transition-colors" size={20} />
+                    <Mail className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-primary-400 transition-colors pointer-events-none" size={20} />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="input-field pl-11 focus:ring-2 focus:ring-primary-500/50 transition-all"
+                      className="input-field w-full focus:ring-2 focus:ring-primary-500/50 transition-all"
                       placeholder="officer@gov.in"
                       required
                       aria-required="true"
@@ -207,12 +207,12 @@ const Login = () => {
                     Password
                   </label>
                   <div className="relative group">
-                    <Lock className="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-primary-400 transition-colors" size={20} />
+                    <Lock className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-primary-400 transition-colors pointer-events-none" size={20} />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="input-field pl-11 pr-11 focus:ring-2 focus:ring-primary-500/50 transition-all"
+                      className="input-field w-full pr-11 focus:ring-2 focus:ring-primary-500/50 transition-all"
                       placeholder="Enter your password"
                       required
                       aria-required="true"
@@ -222,7 +222,7 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-300 transition-colors"
+                      className="absolute right-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors pointer-events-auto"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
