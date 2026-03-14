@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import { 
   Atom, Zap, Brain, Eye, Activity, TrendingUp, BarChart3,
   Target, Users, Settings, RefreshCw, Clock, AlertTriangle,
@@ -66,6 +68,9 @@ interface QuantumMetric {
 }
 
 const QuantumManagement = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [quantumStates, setQuantumStates] = useState<QuantumState[]>([]);
   const [decisionMatrices, setDecisionMatrices] = useState<DecisionMatrix[]>([]);
   const [insights, setInsights] = useState<QuantumInsight[]>([]);
@@ -75,15 +80,61 @@ const QuantumManagement = () => {
   const [activeSimulation, setActiveSimulation] = useState<string | null>(null);
 
   useEffect(() => {
-    generateQuantumStates();
-    generateDecisionMatrices();
-    generateInsights();
-    generateMetrics();
-    const interval = setInterval(updateQuantumData, 20000);
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const mockStates: QuantumState[] = Array.from({ length: 5 }, (_, i) => ({
+        id: (i + 1).toString(),
+        name: `Quantum State ${i + 1}`,
+        superposition: (data?.performance_score || 0.8) > 0.7,
+        entanglement_level: Math.round((data?.avg_kpi || 0.75) * 100),
+        coherence_score: Math.round((data?.performance_score || 0.8) * 100),
+        probability_amplitude: (data?.performance_score || 0.8),
+        phase: Math.random() * 2 * Math.PI,
+        collapse_probability: 1 - (data?.performance_score || 0.8),
+        measurement_basis: 'computational',
+        last_measured: new Date(),
+        quantum_signature: `QS${i}${Math.random().toString().slice(2, 8)}`
+      }));
+      
+      setQuantumStates(mockStates);
+      
+      const mockInsights: QuantumInsight[] = [
+        {
+          id: '1',
+          title: 'Quantum Coherence Optimal',
+          description: `System coherence at ${Math.round((data?.performance_score || 0.8) * 100)}%`,
+          type: 'coherence',
+          confidence: 92,
+          impact: 'high',
+          quantum_signature: 'QSI001',
+          affected_decisions: ['D1', 'D2'],
+          recommendations: ['Maintain current state', 'Monitor stability'],
+          potential_outcome: 'Improved decision quality',
+          created_at: new Date()
+        }
+      ];
+      
+      setInsights(mockInsights);
+      
+      const mockMetrics: QuantumMetric[] = [
+        {
+          category: 'Coherence',
+          current_value: Math.round((data?.performance_score || 0.8) * 100),
+          target_value: 95,
+          quantum_efficiency: Math.round((data?.avg_kpi || 0.75) * 100),
+          coherence_stability: 88,
+          entanglement_strength: Math.round((data?.team_size || 5) * 15),
+          trend: (data?.performance_score || 0.8) > 0.75 ? 'improving' : 'stable'
+        }
+      ];
+      
+      setMetrics(mockMetrics);
+      setQuantumEfficiency(Math.round((data?.avg_kpi || 0.75) * 100));
+    }
+  }, [analyticsData]);
 
-  const generateQuantumStates = () => {
+  const processQuantumSimulation = async (decisionId: string) => {
     const mockStates: QuantumState[] = [
       {
         id: '1',

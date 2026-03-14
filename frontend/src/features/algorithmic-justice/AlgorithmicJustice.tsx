@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import { 
   Scale, AlertTriangle, CheckCircle, TrendingUp, BarChart3,
   Activity, Target, Users, Shield, Eye, Brain, Settings,
@@ -69,6 +71,9 @@ interface ComplianceReport {
 }
 
 const AlgorithmicJustice = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [fairnessMetrics, setFairnessMetrics] = useState<FairnessMetric[]>([]);
   const [audits, setAudits] = useState<AlgorithmAudit[]>([]);
   const [insights, setInsights] = useState<JusticeInsight[]>([]);
@@ -78,15 +83,70 @@ const AlgorithmicJustice = () => {
   const [activeAudit, setActiveAudit] = useState<string | null>(null);
 
   useEffect(() => {
-    generateFairnessMetrics();
-    generateAudits();
-    generateInsights();
-    generateReports();
-    const interval = setInterval(updateFairnessData, 25000);
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const mockMetrics: FairnessMetric[] = [
+        {
+          id: '1',
+          name: 'Demographic Parity',
+          category: 'demographic',
+          current_score: Math.round((data?.performance_score || 0.91) * 100),
+          target_score: 95,
+          trend: (data?.performance_score || 0.91) > 0.85 ? 'improving' : 'stable',
+          impact_level: 'high',
+          last_assessed: new Date(),
+          recommendations: ['Monitor outliers', 'Adjust thresholds'],
+          historical_data: []
+        }
+      ];
+      
+      setFairnessMetrics(mockMetrics);
+      
+      const mockAudits: AlgorithmAudit[] = [
+        {
+          id: '1',
+          algorithm_name: 'Performance Prediction',
+          type: 'performance',
+          fairness_score: Math.round((data?.avg_kpi || 0.88) * 100),
+          bias_detected: {
+            gender_bias: 100 - Math.round((data?.avg_kpi || 0.88) * 100),
+            age_bias: 100 - Math.round((data?.performance_score || 0.91) * 100),
+            ethnicity_bias: 5,
+            socioeconomic_bias: 3
+          },
+          compliance_score: 94,
+          risk_level: 'low',
+          audit_date: new Date(),
+          findings: ['All fairness criteria met'],
+          recommendations: [],
+          next_audit_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        }
+      ];
+      
+      setAudits(mockAudits);
+      
+      const mockInsights: JusticeInsight[] = [
+        {
+          id: '1',
+          title: 'High Fairness Score',
+          description: 'All algorithms operating within fairness guidelines',
+          type: 'fairness_improvement',
+          severity: 'low',
+          confidence: 96,
+          affected_algorithms: ['PA001', 'PA002'],
+          suggested_actions: ['Continue monitoring', 'Update quarterly'],
+          potential_impact: 95,
+          created_at: new Date()
+        }
+      ];
+      
+      setInsights(mockInsights);
+      setOverallFairness(Math.round((data?.avg_kpi || 0.91) * 100));
+    }
+  }, [analyticsData]);
 
-  const generateFairnessMetrics = () => {
+  const startAudit = async (algorithmId: string) => {
     const mockMetrics: FairnessMetric[] = [
       {
         id: '1',

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAuthStore } from '../../store/authStore';
+import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
 import { 
   Shield, Eye, AlertTriangle, CheckCircle, XCircle, Camera,
   FileVideo, FileImage, Upload, RefreshCw, Settings,
@@ -57,6 +59,9 @@ interface AuthenticationModel {
 }
 
 const DeepfakeDetection = () => {
+  const { user } = useAuthStore();
+  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+
   const [detectionResults, setDetectionResults] = useState<DetectionResult[]>([]);
   const [threats, setThreats] = useState<SecurityThreat[]>([]);
   const [models, setModels] = useState<AuthenticationModel[]>([]);
@@ -65,14 +70,73 @@ const DeepfakeDetection = () => {
   const [activeScan, setActiveScan] = useState<string | null>(null);
 
   useEffect(() => {
-    generateDetectionResults();
-    generateThreats();
-    generateModels();
-    const interval = setInterval(updateSecurityData, 20000);
-    return () => clearInterval(interval);
-  }, []);
+    if (analyticsData) {
+      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+      
+      const mockResults: DetectionResult[] = [
+        {
+          id: '1',
+          file_name: 'official_video.mp4',
+          file_type: 'video',
+          confidence_score: Math.round((data?.performance_score || 0.947) * 100),
+          authenticity_score: Math.round((data?.avg_kpi || 0.94) * 100),
+          manipulation_indicators: {
+            facial_inconsistencies: 100 - Math.round((data?.performance_score || 0.947) * 100),
+            audio_anomalies: 100 - Math.round((data?.avg_kpi || 0.94) * 100),
+            temporal_artifacts: 2,
+            digital_fingerprints: 98
+          },
+          verdict: (data?.performance_score || 0.947) > 0.9 ? 'authentic' : 'suspicious',
+          processing_time: 4500,
+          detected_techniques: [],
+          metadata: {
+            created_at: new Date(),
+            file_size: 2500000,
+            duration: 450,
+            resolution: '4K'
+          }
+        }
+      ];
+      
+      setDetectionResults(mockResults);
+      
+      const mockThreats: SecurityThreat[] = (data?.performance_score || 0.947) < 0.8
+        ? [{
+            id: '1',
+            type: 'deepfake',
+            severity: 'high',
+            description: 'Potential deepfake detected',
+            affected_files: ['file1.mp4', 'file2.mp4'],
+            confidence: Math.round((100 - (data?.performance_score || 0.947) * 100) * 0.9),
+            status: 'investigating',
+            created_at: new Date(),
+            mitigation_actions: ['Quarantine file', 'Notify administrators']
+          }]
+        : [];
+      
+      setThreats(mockThreats);
+      
+      const mockModels: AuthenticationModel[] = [
+        {
+          id: '1',
+          name: 'Primary Detection Model',
+          type: 'ensemble',
+          accuracy: Math.round((data?.avg_kpi || 0.94) * 100),
+          false_positive_rate: 100 - Math.round((data?.avg_kpi || 0.94) * 100),
+          false_negative_rate: 100 - Math.round((data?.performance_score || 0.947) * 100),
+          processing_speed: 4800,
+          last_trained: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          training_data_size: 50000,
+          version: '2.1.0'
+        }
+      ];
+      
+      setModels(mockModels);
+      setOverallSecurity(Math.round((data?.avg_kpi || 0.947) * 100));
+    }
+  }, [analyticsData]);
 
-  const generateDetectionResults = () => {
+  const scanFile = async (file: File) => {
     const mockResults: DetectionResult[] = [
       {
         id: '1',
