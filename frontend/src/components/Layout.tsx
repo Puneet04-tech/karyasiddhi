@@ -80,7 +80,7 @@ const baseNavigation: NavigationItem[] = [
       </a>
       
       {/* Top Navigation Bar */}
-      <nav className="fixed top-0 z-50 w-full glass-morphism border-b border-white/10" role="navigation" aria-label="Top navigation">
+      <nav className="fixed top-0 z-50 w-full glass-morphism border-b border-white/10 backdrop-blur-md" role="navigation" aria-label="Top navigation" style={{ backgroundColor: 'rgba(10, 14, 39, 0.95)' }}>
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -209,7 +209,7 @@ const baseNavigation: NavigationItem[] = [
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="lg:ml-64 pt-20" id="main-content">
+      <main className="lg:ml-64 pt-20 min-h-screen overflow-x-hidden" id="main-content">
         <div className="p-4 md:p-6 lg:p-8">
           <Outlet />
         </div>
