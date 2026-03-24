@@ -93,7 +93,7 @@ const Profile = () => {
               </div>
               <div className="flex items-center gap-3 text-gray-300">
                 <Building size={20} className="text-primary-400" />
-                <span className="text-sm">{user?.department ? (typeof user.department === 'object' ? user.department.name! : user.department) : ''}</span>
+                <span className="text-sm">{user?.department ? (typeof user?.department === 'object' ? user?.department?.name : user?.department) : ''}</span>
               </div>
               <div className="flex items-center gap-3 text-gray-300">
                 <MapPin size={20} className="text-primary-400" />
@@ -202,7 +202,7 @@ const Profile = () => {
                 <label className="block text-sm font-medium text-gray-400 mb-2">Department</label>
                 <input
                   type="text"
-                  defaultValue={user?.department ? (typeof user.department === 'object' ? user.department.name! || '' : user.department) : ''}
+                  defaultValue={user?.department ? (typeof user?.department === 'object' ? user?.department?.name || '' : user?.department) : ''}
                   disabled={!isEditing}
                   className="input-field"
                 />
