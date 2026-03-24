@@ -25,6 +25,7 @@ services:
     env: python
     region: oregon
     plan: free
+    pythonVersion: 3.11
     buildCommand: pip install -r ai-service/requirements.txt
     startCommand: cd ai-service && python main.py
     envVars:
