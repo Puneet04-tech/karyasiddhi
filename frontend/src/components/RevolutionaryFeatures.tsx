@@ -400,7 +400,7 @@ const RevolutionaryFeatures = () => {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-sm font-semibold text-white">{user?.name}</p>
-                  <p className="text-xs text-gray-400">{(() => { const d = user?.department; return (d && typeof d === 'object') ? d.name : (d || ''); })()}</p>
+                  <p className="text-xs text-gray-400">{(() => { const d = user?.department; if (!d) return ''; return typeof d === 'object' ? d.name : d; })()}</p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
                   <span className="text-white font-bold">
