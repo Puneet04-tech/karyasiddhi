@@ -3,7 +3,7 @@ import { Trophy, Star, Zap, Shield, Award, TrendingUp, Users, Clock, CheckCircle
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics, useRealTimeTeamRankings } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 
 interface KarmaTransaction {
   id: string;
@@ -43,8 +43,7 @@ interface SmartContract {
 
 const BlockchainKarma = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData, loading: analyticsLoading, error: analyticsError } = useRealTimeAnalytics(user?.id);
-  const { data: rankingsData, loading: rankingsLoading } = useRealTimeTeamRankings();
+  const { data: blockchainData, loading: blockchainLoading } = useEnterpriseData('blockchain-karma', user?.id);
 
   const [metrics, setMetrics] = useState<ReputationMetrics>({
     totalKarma: 0,
@@ -63,8 +62,8 @@ const BlockchainKarma = () => {
 
   // Transform analytics data to reputation metrics
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (blockchainData) {
+      const data = blockchainData
       
       // Calculate metrics based on analytics data
       setMetrics({
@@ -132,7 +131,7 @@ const BlockchainKarma = () => {
 
       setSmartContracts(smartContractTemplates);
     }
-  }, [analyticsData]);
+  }, [blockchainData, blockchainLoading]);
 
   const getTrustLevel = (score: number) => {
     if (score >= 90) return { level: 'Platinum', color: 'text-purple-400', icon: Crown };
@@ -173,7 +172,7 @@ const BlockchainKarma = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {analyticsLoading && (
+          {blockchainLoading && (
             <div className="flex items-center gap-2 text-orange-400">
               <Zap className="w-4 h-4 animate-pulse" />
               <span className="text-sm">Loading...</span>
@@ -443,11 +442,11 @@ const BlockchainKarma = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-white">Global Karma Leaderboard</h2>
           <div className="card p-6">
-            {rankingsLoading ? (
+            {blockchainLoading ? (
               <div className="text-center text-gray-400">Loading leaderboard...</div>
             ) : (
               <div className="space-y-3">
-                {Array.isArray(rankingsData) && rankingsData.slice(0, 5).map((person: any, index: number) => (
+                {(blockchainData?.leaderboard || []).slice(0, 5).map((person: any, index: number) => (
                   <motion.div
                     key={person.id}
                     initial={{ opacity: 0, x: -20 }}

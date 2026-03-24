@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics, useRealTimeAllUsers } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import {
   Network, Share2, Activity, BarChart3, TrendingUp,
   Settings, RefreshCw, LinkIcon, Zap, Users, Target,
@@ -32,8 +32,7 @@ interface ResourceFlow {
 
 const EcosystemIntelligence: React.FC = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
-  const { data: allUsersData } = useRealTimeAllUsers();
+  const { data: ecosystemData } = useEnterpriseData('ecosystem', user?.id);
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
@@ -41,8 +40,8 @@ const EcosystemIntelligence: React.FC = () => {
   const [ecosystemHealth, setEcosystemHealth] = useState(78.5);
 
   useEffect(() => {
-    if (analyticsData && allUsersData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (ecosystemData) {
+      const data = ecosystemData
       
       // Transform analytics to department data
       const deptNames = ['IT', 'DSD', 'EGU', 'R&D', 'Operations', 'Strategy'];
@@ -73,7 +72,7 @@ const EcosystemIntelligence: React.FC = () => {
       
       setResourceFlows(resourceData);
     }
-  }, [analyticsData, allUsersData]);
+  }, [ecosystemData]);
 
   const deptHealthData = departments.map(d => ({ name: d.name, health: d.health, color: '#3b82f6' }));
   const collaborationData = departments.map(d => ({ name: d.name, x: d.resources, y: d.collaboration_score, size: d.health }));

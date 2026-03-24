@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import { 
   Scale, AlertTriangle, CheckCircle, TrendingUp, BarChart3,
   Activity, Target, Users, Shield, Eye, Brain, Settings,
@@ -72,7 +72,7 @@ interface ComplianceReport {
 
 const AlgorithmicJustice = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: ajusticeData } = useEnterpriseData('algorithmic-justice', user?.id);
 
   const [fairnessMetrics, setFairnessMetrics] = useState<FairnessMetric[]>([]);
   const [audits, setAudits] = useState<AlgorithmAudit[]>([]);
@@ -83,8 +83,8 @@ const AlgorithmicJustice = () => {
   const [activeAudit, setActiveAudit] = useState<string | null>(null);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (ajusticeData) {
+      const data = ajusticeData
       
       const mockMetrics: FairnessMetric[] = [
         {
@@ -144,7 +144,7 @@ const AlgorithmicJustice = () => {
       setInsights(mockInsights);
       setOverallFairness(Math.round((data?.avg_kpi || 0.91) * 100));
     }
-  }, [analyticsData]);
+  }, [ajusticeData]);
 
   const startAudit = async (algorithmId: string) => {
     const mockMetrics: FairnessMetric[] = [

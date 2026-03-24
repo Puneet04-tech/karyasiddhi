@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import {
   Smile, Heart, Zap, Brain, TrendingUp, Settings,
   RefreshCw, Users, Activity, BarChart3, PieChart as PieIcon,
@@ -38,9 +38,9 @@ interface EmotionalTrend {
 
 const MoodAdaptiveUI: React.FC = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: moodData } = useEnterpriseData('mood-ui', user?.id);
 
-  const [moodData, setMoodData] = useState<MoodData[]>([]);
+  const [moods, setMoods] = useState<MoodData[]>([]);
   const [deptMoods, setDeptMoods] = useState<DepartmentMood[]>([]);
   const [emotionalTrends, setEmotionalTrends] = useState<EmotionalTrend[]>([]);
   const [currentMood, setCurrentMood] = useState('positive');
@@ -48,8 +48,8 @@ const MoodAdaptiveUI: React.FC = () => {
   const [selectedDept, setSelectedDept] = useState<DepartmentMood | null>(null);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (moodData) {
+      const data = moodData;
       
       const sentiment = Math.round((data?.performance_score || 0.72) * 100);
       const engagement = Math.round((data?.avg_kpi || 0.70) * 100);
@@ -62,7 +62,7 @@ const MoodAdaptiveUI: React.FC = () => {
         productivity: 65 + (sentiment - 65) * 0.8
       }));
       
-      setMoodData(mockMoodData);
+      setMoods(mockMoodData);
       
       const depts: DepartmentMood[] = [
         { name: 'IT', sentiment, engagement, satisfaction: Math.round((data?.avg_kpi || 0.75) * 100), stress: Math.max(20, 50 - sentiment * 0.4) },
@@ -86,7 +86,7 @@ const MoodAdaptiveUI: React.FC = () => {
       setOrgSentiment(sentiment);
       setCurrentMood(sentiment > 75 ? 'positive' : sentiment > 50 ? 'neutral' : 'negative');
     }
-  }, [analyticsData]);
+  }, [moodData]);
 
   const generateMoodData = () => {
     const data: MoodData[] = Array.from({ length: 12 }, (_, i) => ({
@@ -96,7 +96,7 @@ const MoodAdaptiveUI: React.FC = () => {
       stress_level: 30 + Math.random() * 25,
       productivity: 65 + Math.random() * 25
     }));
-    setMoodData(data);
+    setMoods(data);
   };
 
   const generateDeptMoods = () => {

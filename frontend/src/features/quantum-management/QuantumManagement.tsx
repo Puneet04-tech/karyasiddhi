@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import { 
   Atom, Zap, Brain, Eye, Activity, TrendingUp, BarChart3,
   Target, Users, Settings, RefreshCw, Clock, AlertTriangle,
@@ -69,7 +69,7 @@ interface QuantumMetric {
 
 const QuantumManagement = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: quantumData } = useEnterpriseData('quantum', user?.id);
 
   const [quantumStates, setQuantumStates] = useState<QuantumState[]>([]);
   const [decisionMatrices, setDecisionMatrices] = useState<DecisionMatrix[]>([]);
@@ -80,8 +80,8 @@ const QuantumManagement = () => {
   const [activeSimulation, setActiveSimulation] = useState<string | null>(null);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (quantumData) {
+      const data = quantumData;
       
       const mockStates: QuantumState[] = Array.from({ length: 5 }, (_, i) => ({
         id: (i + 1).toString(),
@@ -132,7 +132,7 @@ const QuantumManagement = () => {
       setMetrics(mockMetrics);
       setQuantumEfficiency(Math.round((data?.avg_kpi || 0.75) * 100));
     }
-  }, [analyticsData]);
+  }, [quantumData]);
 
   const processQuantumSimulation = async (decisionId: string) => {
     const mockStates: QuantumState[] = [

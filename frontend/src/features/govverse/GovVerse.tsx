@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics, useRealTimeAllUsers } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import { 
   Globe, Users, Video, MessageSquare, Monitor, Headphones, 
   Camera, Mic, MicOff, VideoOff, Settings, Zap, Eye,
@@ -55,8 +55,7 @@ interface MetaverseStats {
 
 const GovVerse = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
-  const { data: allUsersData } = useRealTimeAllUsers();
+  const { data: govverseData } = useEnterpriseData('govverse', user?.id);
 
   const [selectedOffice, setSelectedOffice] = useState<VirtualOffice | null>(null);
   const [virtualOffices, setVirtualOffices] = useState<VirtualOffice[]>([]);
@@ -79,8 +78,8 @@ const GovVerse = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (analyticsData && allUsersData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (govverseData) {
+      const data = govverseData
       
       const offices: VirtualOffice[] = [
         {
@@ -124,23 +123,18 @@ const GovVerse = () => {
       
       setUpcomingMeetings(meetings);
       
-      const avatars: Avatar[] = Array.isArray(allUsersData)
-        ? allUsersData.slice(0, 5).map((_, i) => ({
-            id: (i + 1).toString(),
-            name: `User ${i + 1}`,
-            role: 'Officer',
-            department: 'Department ' + String.fromCharCode(65 + i),
-            avatarUrl: '',
-            isOnline: true,
-            currentLocation: 'Main Hub',
-            mood: ['focused', 'collaborative', 'creative', 'analytical'][i % 4] as any
-          }))
-        : [];
+      const avatars: Avatar[] = [
+        { id: '1', name: 'Rajesh Kumar', role: 'Officer', department: 'IT', avatarUrl: '', isOnline: true, currentLocation: 'Main Hub', mood: 'focused' },
+        { id: '2', name: 'Priya Singh', role: 'Manager', department: 'DSD', avatarUrl: '', isOnline: true, currentLocation: 'Conference Room A', mood: 'collaborative' },
+        { id: '3', name: 'Amit Patel', role: 'Officer', department: 'Operations', avatarUrl: '', isOnline: true, currentLocation: 'Training Zone', mood: 'creative' },
+        { id: '4', name: 'Sneha Desai', role: 'Lead', department: 'HR', avatarUrl: '', isOnline: false, currentLocation: 'Virtual Office', mood: 'analytical' },
+        { id: '5', name: 'Rohit Verma', role: 'Officer', department: 'Finance', avatarUrl: '', isOnline: true, currentLocation: 'Main Hub', mood: 'focused' }
+      ];
       
       setOnlineAvatars(avatars);
       
       const metaStats: MetaverseStats = {
-        totalUsers: Array.isArray(allUsersData) ? allUsersData.length * 5 : 1247,
+        totalUsers: 1247,
         activeMeetings: Math.floor((data?.performance_score || 0.75) * 50),
         virtualOffices: 15,
         citizenInteractions: Math.floor((data?.avg_kpi || 0.75) * 1200),
@@ -151,7 +145,7 @@ const GovVerse = () => {
       
       setStats(metaStats);
     }
-  }, [analyticsData, allUsersData]);
+  }, [govverseData]);
 
   const handleStartMeeting = async (office: VirtualOffice) => {
     const offices: VirtualOffice[] = [

@@ -7,7 +7,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 
 interface SelfAwarenessMetric {
   id: string;
@@ -79,7 +79,7 @@ interface GrowthPrediction {
 
 const DigitalMirror = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+  const { data: mirrorData, loading: mirrorLoading } = useEnterpriseData('digital-mirror', user?.id);
 
   const [metrics, setMetrics] = useState<SelfAwarenessMetric[]>([]);
   const [digitalProfile, setDigitalProfile] = useState<DigitalTwinProfile | null>(null);
@@ -91,8 +91,8 @@ const DigitalMirror = () => {
 
   // Transform analytics data to mirror metrics and profile
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (mirrorData) {
+      const data = mirrorData
       
       const performanceScore = data?.performance_score || 0.7;
       const avgKpi = data?.avg_kpi || 0.75;
@@ -230,7 +230,7 @@ const DigitalMirror = () => {
 
       setPredictions(mockPredictions);
     }
-  }, [analyticsData]);
+  }, [mirrorData, mirrorLoading]);
 
   const runDeepAnalysis = () => {
     setIsAnalyzing(true);

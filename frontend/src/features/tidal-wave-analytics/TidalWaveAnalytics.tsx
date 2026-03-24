@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import {
   TrendingUp, Waves, Activity, AlertCircle, BarChart3, LineChart as LineChartIcon,
   Zap, Brain, Target, Clock, Settings, RefreshCw, Download, Filter,
@@ -44,7 +44,7 @@ interface WaveMetric {
 
 const TidalWaveAnalytics: React.FC = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: tidalData } = useEnterpriseData('tidal-wave', user?.id);
 
   const [waves, setWaves] = useState<DataWave[]>([]);
   const [insights, setInsights] = useState<AnalyticsInsight[]>([]);
@@ -53,8 +53,8 @@ const TidalWaveAnalytics: React.FC = () => {
   const [chartData, setChartData] = useState<WaveMetric[]>([]);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (tidalData) {
+      const data = tidalData
       
       // Transform analytics to data waves
       const mockWaves: DataWave[] = [
@@ -110,7 +110,7 @@ const TidalWaveAnalytics: React.FC = () => {
       
       setChartData(mockChartData);
     }
-  }, [analyticsData]);
+  }, [tidalData]);
 
   const generateWaves = () => {
     const sources = ['Department Data', 'User Activity', 'System Events', 'API Requests', 'Performance Metrics'];

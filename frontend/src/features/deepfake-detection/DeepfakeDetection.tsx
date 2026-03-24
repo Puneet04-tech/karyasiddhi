@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import { 
   Shield, Eye, AlertTriangle, CheckCircle, XCircle, Camera,
   FileVideo, FileImage, Upload, RefreshCw, Settings,
@@ -60,7 +60,7 @@ interface AuthenticationModel {
 
 const DeepfakeDetection = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: deepfakeData } = useEnterpriseData('deepfake', user?.id);
 
   const [detectionResults, setDetectionResults] = useState<DetectionResult[]>([]);
   const [threats, setThreats] = useState<SecurityThreat[]>([]);
@@ -70,8 +70,8 @@ const DeepfakeDetection = () => {
   const [activeScan, setActiveScan] = useState<string | null>(null);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (deepfakeData) {
+      const data = deepfakeData
       
       const mockResults: DetectionResult[] = [
         {
@@ -134,7 +134,7 @@ const DeepfakeDetection = () => {
       setModels(mockModels);
       setOverallSecurity(Math.round((data?.avg_kpi || 0.947) * 100));
     }
-  }, [analyticsData]);
+  }, [deepfakeData]);
 
   const scanFile = async (file: File) => {
     const mockResults: DetectionResult[] = [

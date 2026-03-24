@@ -11,7 +11,7 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 
 interface ZKProof {
   id: string;
@@ -44,7 +44,7 @@ interface CryptographicMetric {
 
 const ZeroKnowledgeGovernance: React.FC = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+  const { data: zkData, loading: zkLoading } = useEnterpriseData('zero-knowledge', user?.id);
 
   const [proofs, setProofs] = useState<ZKProof[]>([]);
   const [records, setRecords] = useState<GovernanceRecord[]>([]);
@@ -55,8 +55,8 @@ const ZeroKnowledgeGovernance: React.FC = () => {
 
   // Transform analytics data to cryptographic metrics
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (zkData) {
+      const data = zkData
       const performanceScore = data?.performance_score || 0.7;
       const avgKpi = data?.avg_kpi || 0.75;
 
@@ -135,7 +135,7 @@ const ZeroKnowledgeGovernance: React.FC = () => {
       setMetrics(mockMetrics);
       setSystemHealth(Math.round((performanceScore + avgKpi) / 2 * 100));
     }
-  }, [analyticsData]);
+  }, [zkData, zkLoading]);
 
   const generateMockProofs = () => {
     const mockProofs: ZKProof[] = [

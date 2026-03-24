@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import {
   Dna, Microscope, GitBranch, Activity, Target, TrendingUp,
   BarChart3, LineChart, Settings, RefreshCw, Copy, Zap,
@@ -39,7 +39,7 @@ interface EvolutionMetric {
 
 const DNAGovernance: React.FC = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: dnaData } = useEnterpriseData('dna-governance', user?.id);
 
   const [strands, setStrands] = useState<GeneticStrand[]>([]);
   const [selectedStrand, setSelectedStrand] = useState<GeneticStrand | null>(null);
@@ -48,8 +48,8 @@ const DNAGovernance: React.FC = () => {
   const [populationHealth, setPopulationHealth] = useState(82.5);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (dnaData) {
+      const data = dnaData
       
       const categories: Array<'leadership' | 'innovation' | 'efficiency' | 'collaboration' | 'adaptability'> = 
         ['leadership', 'innovation', 'efficiency', 'collaboration', 'adaptability'];
@@ -94,7 +94,7 @@ const DNAGovernance: React.FC = () => {
       setEvolutionData(mockEvolutionData);
       setPopulationHealth(Math.round((data?.performance_score || 0.8) * 100));
     }
-  }, [analyticsData]);
+  }, [dnaData]);
 
   const generateInitialPopulation = () => {
     const categories: Array<'leadership' | 'innovation' | 'efficiency' | 'collaboration' | 'adaptability'> = 

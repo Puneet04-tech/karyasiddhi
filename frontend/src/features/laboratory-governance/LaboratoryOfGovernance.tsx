@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import {
   Beaker, FlaskConical, BarChart3, TrendingUp, CheckCircle,
   AlertCircle, Settings, RefreshCw, Play, Pause, Users,
@@ -35,7 +35,7 @@ interface ExperimentMetric {
 
 const LaboratoryOfGovernance: React.FC = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: labData } = useEnterpriseData('laboratory', user?.id);
 
   const [experiments, setExperiments] = useState<PolicyExperiment[]>([]);
   const [selectedExperiment, setSelectedExperiment] = useState<PolicyExperiment | null>(null);
@@ -44,8 +44,8 @@ const LaboratoryOfGovernance: React.FC = () => {
   const [successRate, setSuccessRate] = useState(75);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (labData) {
+      const data = labData
       
       const mockExperiments: PolicyExperiment[] = [
         {
@@ -85,7 +85,7 @@ const LaboratoryOfGovernance: React.FC = () => {
       setMetrics(mockMetrics);
       setSuccessRate(Math.round((data?.performance_score || 0.75) * 100));
     }
-  }, [analyticsData]);
+  }, [labData]);
 
   const generateExperiments = () => {
     const mockExperiments: PolicyExperiment[] = [

@@ -7,7 +7,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 
 interface DigitalTwin {
   id: string;
@@ -66,7 +66,7 @@ interface OptimizationSuggestion {
 
 const DigitalTwinSimulation = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
+  const { data: twinData, loading: twinLoading } = useEnterpriseData('digital-twin', user?.id);
 
   const [selectedTwin, setSelectedTwin] = useState<DigitalTwin | null>(null);
   const [digitalTwins, setDigitalTwins] = useState<DigitalTwin[]>([]);
@@ -78,8 +78,8 @@ const DigitalTwinSimulation = () => {
 
   // Transform analytics data to digital twins
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (twinData) {
+      const data = twinData
       
       const performanceScore = data?.performance_score || 0.7;
       const avgKpi = data?.avg_kpi || 0.75;
@@ -209,7 +209,7 @@ const DigitalTwinSimulation = () => {
 
       setOptimizations(mockOptimizations);
     }
-  }, [analyticsData]);
+  }, [twinData, twinLoading]);
 
   const generateDigitalTwins = () => {
     const twins: DigitalTwin[] = [

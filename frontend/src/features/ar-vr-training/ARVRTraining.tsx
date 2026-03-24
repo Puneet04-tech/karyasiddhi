@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import { 
   Monitor, Headphones, Award, Target, Zap, Play, Pause, RotateCw, 
   Settings, Volume2, Maximize2, Users, Clock, Star, TrendingUp,
@@ -52,7 +52,7 @@ interface TrainingStats {
 
 const ARVRTraining = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
+  const { data: arvrData } = useEnterpriseData('ar-vr-training', user?.id);
 
   const [selectedModule, setSelectedModule] = useState<TrainingModule | null>(null);
   const [trainingModules, setTrainingModules] = useState<TrainingModule[]>([]);
@@ -74,8 +74,8 @@ const ARVRTraining = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (arvrData) {
+      const data = arvrData
       
       const modules: TrainingModule[] = [
         {
@@ -123,7 +123,7 @@ const ARVRTraining = () => {
       
       setTrainingStats(stats);
     }
-  }, [analyticsData]);
+  }, [arvrData]);
 
   const generateTrainingModules = () => {
     const modules: TrainingModule[] = [

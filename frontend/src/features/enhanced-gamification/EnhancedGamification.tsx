@@ -11,7 +11,7 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics, useRealTimeAllUsers } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 
 interface PlayerProfile {
   id: string;
@@ -68,8 +68,7 @@ interface GamificationMetric {
 
 const EnhancedGamification: React.FC = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
-  const { data: allUsersData, loading: usersLoading } = useRealTimeAllUsers();
+  const { data: gamificationData, loading: gamificationLoading } = useEnterpriseData('gamification', user?.id);
 
   const [playerProfile, setPlayerProfile] = useState<PlayerProfile>({
     id: user?.id || '1',
@@ -89,12 +88,12 @@ const EnhancedGamification: React.FC = () => {
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
   const [streak, setStreak] = useState(7);
 
-  // Transform analytics data to player profile
+  // Transform gamification data to player profile and leaderboard
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (gamificationData) {
+      const data = gamificationData;
       
-      // Calculate player stats based on analytics
+      // Calculate player stats based on gamification data
       const level = Math.floor((data?.performance_score || 0) * 20);
       const experience = Math.floor((data?.performance_score || 0) * 5000);
       
@@ -187,27 +186,19 @@ const EnhancedGamification: React.FC = () => {
       ];
 
       setChallenges(mockChallenges);
-    }
-  }, [analyticsData]);
-
-  // Transform all users data to leaderboard
-  useEffect(() => {
-    if (allUsersData && Array.isArray(allUsersData)) {
-      const leaderboardData = allUsersData
-        .map((u: any, index: number) => ({
-          rank: index + 1,
-          user_name: u.name || u.user_name || `User ${u.id}`,
-          department: u.department || 'Operations',
-          total_points: Math.round((u.performance_score || 0) * 25000),
-          level: Math.floor((u.performance_score || 0) * 20),
-          badges_earned: Math.floor(Math.random() * 15) + 5
-        }))
-        .sort((a: any, b: any) => b.total_points - a.total_points)
-        .slice(0, 10);
+      
+      // Generate leaderboard
+      const leaderboardData: Leaderboard[] = [
+        { rank: 1, user_name: 'Raj Kumar', department: 'IT', total_points: 25000, level: 20, badges_earned: 15 },
+        { rank: 2, user_name: 'Priya Singh', department: 'DSD', total_points: 22000, level: 18, badges_earned: 13 },
+        { rank: 3, user_name: 'Amit Patel', department: 'Operations', total_points: 20000, level: 17, badges_earned: 12 },
+        { rank: 4, user_name: 'Sneha Desai', department: 'HR', total_points: 18000, level: 16, badges_earned: 11 },
+        { rank: 5, user_name: 'Rohit Sharma', department: 'Finance', total_points: 15000, level: 15, badges_earned: 10 }
+      ];
       
       setLeaderboard(leaderboardData);
     }
-  }, [allUsersData]);
+  }, [gamificationData]);
 
   const experienceData = [
     { date: 'Mon', xp: 120, tasks: 5, achievements: 1 },

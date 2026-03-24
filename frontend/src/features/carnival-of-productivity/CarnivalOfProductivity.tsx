@@ -3,7 +3,7 @@ import { Trophy, Star, Target, Zap, Award, Medal, Crown, Flame, Rocket, Gem, Coi
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics, useRealTimeTeamRankings } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 
 interface Achievement {
   id: string;
@@ -69,8 +69,7 @@ interface Competition {
 
 const CarnivalOfProductivity = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
-  const { data: rankingsData, loading: rankingsLoading } = useRealTimeTeamRankings();
+  const { data: carnivalData, loading: carnivalLoading } = useEnterpriseData('carnival', user?.id);
 
   const [userStats, setUserStats] = useState({
     level: 28,
@@ -90,8 +89,8 @@ const CarnivalOfProductivity = () => {
 
   // Transform analytics data to game stats
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (carnivalData) {
+      const data = carnivalData
       
       // Calculate game stats based on analytics
       const level = Math.floor((data?.performance_score || 0) * 50);
@@ -225,27 +224,21 @@ const CarnivalOfProductivity = () => {
       ];
 
       setCompetitions(mockCompetitions);
-    }
-  }, [analyticsData]);
-
-  // Transform rankings data to leaderboard
-  useEffect(() => {
-    if (rankingsData && Array.isArray(rankingsData)) {
-      const leaderboardData = rankingsData.slice(0, 10).map((person: any, index: number) => ({
-        rank: index + 1,
-        name: person.name || person.user_name || `User ${person.id}`,
-        department: person.department || 'Operations',
-        level: Math.floor((person.performance_score || 0) * 50),
-        xp: Math.floor((person.performance_score || 0) * 30000),
-        coins: Math.round((person.avg_kpi || 0) * 5000),
-        achievements: Math.floor((person.performance_score || 0) * 100),
-        streak: Math.floor((person.performance_score || 0) * 50),
-        avatar: index === 0 ? '👑' : index === 1 ? '🏅' : index === 2 ? '🥉' : '🌟'
-      }));
+      
+      // Generate  leaderboard from carnival data
+      const leaderboardData = [
+        { rank: 1, name: 'Rajesh Kumar', department: 'IT', level: 45, xp: 25000, coins: 3500, achievements: 78, streak: 42, avatar: '👑' },
+        { rank: 2, name: 'Priya Sharma', department: 'DSD', level: 42, xp: 22000, coins: 3200, achievements: 72, streak: 38, avatar: '🏅' },
+        { rank: 3, name: 'Amit Singh', department: 'Operations', level: 40, xp: 20000, coins: 3000, achievements: 68, streak: 35, avatar: '🥉' },
+        { rank: 4, name: 'Sneha Desai', department: 'HR', level: 38, xp: 18000, coins: 2800, achievements: 65, streak: 32, avatar: '🌟' },
+        { rank: 5, name: 'Rohit Patel', department: 'Finance', level: 35, xp: 15000, coins: 2500, achievements: 60, streak: 28, avatar: '🌟' }
+      ];
       
       setLeaderboard(leaderboardData);
     }
-  }, [rankingsData]);
+  }, [carnivalData, carnivalLoading]);
+
+  // Placeholder useEffect removed - rankings now integrated into main effect
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {

@@ -3,7 +3,7 @@ import { MessageSquare, Star, ThumbsUp, ThumbsDown, Users, TrendingUp, AlertCirc
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics, useRealTimeAllUsers } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 
 interface CitizenFeedback {
   id: string;
@@ -43,8 +43,7 @@ interface RealTimeAlert {
 
 const BharatNetIntegration = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData, loading: analyticsLoading } = useRealTimeAnalytics(user?.id);
-  const { data: allUsersData } = useRealTimeAllUsers();
+  const { data: bharatnetData, loading: bharatnetLoading } = useEnterpriseData('bharatnet', user?.id);
 
   const [feedback, setFeedback] = useState<CitizenFeedback[]>([]);
   const [serviceMetrics, setServiceMetrics] = useState<ServiceMetrics[]>([]);
@@ -56,29 +55,17 @@ const BharatNetIntegration = () => {
 
   // Transform analytics and user data to BharatNet feedback
   useEffect(() => {
-    if (analyticsData && allUsersData) {
-      const analyticsArray = Array.isArray(analyticsData) ? analyticsData : [analyticsData];
-      const data = analyticsArray[0];
+    if (bharatnetData) {
+      const data = bharatnetData;
       
-      // Create feedback from user data
-      const mockFeedback: CitizenFeedback[] = (Array.isArray(allUsersData) ? allUsersData : [allUsersData])
-        .slice(0, 5)
-        .map((user: any, index: number) => ({
-          id: user.id || `${index}`,
-          citizenId: `CIT${String(index + 1).padStart(3, '0')}`,
-          citizenName: user.name || `Citizen ${index + 1}`,
-          department: user.department || 'General',
-          officer: user.name || 'Officer',
-          service: ['Land Registration', 'Water Connection', 'Driving License', 'Tax Payment', 'Birth Certificate'][index % 5],
-          rating: Math.min(5, Math.floor((user.performance_score || 0.7) * 6)),
-          sentiment: (user.performance_score || 0.7) > 0.75 ? 'positive' : 'neutral' as const,
-          message: `${(user.performance_score || 0.7) > 0.75 ? 'Excellent' : 'Good'} service experience with this department`,
-          category: 'service_quality' as const,
-          timestamp: new Date(),
-          location: user.department || 'Regional Office',
-          resolved: true,
-          response: 'Thank you for your feedback!'
-        }));
+      // Create feedback from user data      
+      const mockFeedback: CitizenFeedback[] = [
+        { id: '1', citizenId: 'C001', citizenName: 'Rajesh Kumar', department: 'Delhi', officer: 'Officer 1', service: 'Land Registration', rating: 5, sentiment: 'positive', message: 'Excellent service', category: 'service_quality', timestamp: new Date(), location: 'Delhi', resolved: true, response: 'Thank you' },
+        { id: '2', citizenId: 'C002', citizenName: 'Priya Singh', department: 'Mumbai', officer: 'Officer 2', service: 'Water Connection', rating: 4, sentiment: 'positive', message: 'Very helpful', category: 'service_quality', timestamp: new Date(), location: 'Mumbai', resolved: true, response: 'Thank you' },
+        { id: '3', citizenId: 'C003', citizenName: 'Amit Patel', department: 'Bangalore', officer: 'Officer 3', service: 'Driving License', rating: 4, sentiment: 'neutral', message: 'Good assistance', category: 'service_quality', timestamp: new Date(), location: 'Bangalore', resolved: true, response: 'Thank you' },
+        { id: '4', citizenId: 'C004', citizenName: 'Sneha Desai', department: 'Pune', officer: 'Officer 4', service: 'Tax Payment', rating: 5, sentiment: 'positive', message: 'Efficient service', category: 'service_quality', timestamp: new Date(), location: 'Pune', resolved: true, response: 'Thank you' },
+        { id: '5', citizenId: 'C005', citizenName: 'Rohit Verma', department: 'Chennai', officer: 'Officer 5', service: 'Birth Certificate', rating: 4, sentiment: 'positive', message: 'Helpful staff', category: 'service_quality', timestamp: new Date(), location: 'Chennai', resolved: true, response: 'Thank you' }
+      ];
 
       // Create service metrics from analytics
       const mockMetrics: ServiceMetrics[] = [
@@ -118,7 +105,7 @@ const BharatNetIntegration = () => {
         setRealTimeAlerts(prev => [alertMessage, ...prev].slice(0, 10));
       }
     }
-  }, [analyticsData, allUsersData]);
+  }, [bharatnetData]);
 
   const connectToBharatNet = async () => {
     setIsConnecting(true);

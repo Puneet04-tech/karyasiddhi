@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { useRealTimeAnalytics, useRealTimeAnomalies } from '../../lib/useRealTimeData';
+import { useEnterpriseData } from '../../lib/useEnterpriseData';
 import {
   Brain, Zap, TrendingUp, Settings, RefreshCw, AlertCircle,
   CheckCircle, Clock, Target, Activity, BarChart3, LineChart as LineChartIcon,
@@ -43,8 +43,7 @@ interface AnomalyAlert {
 
 const PrecognitionEngine: React.FC = () => {
   const { user } = useAuthStore();
-  const { data: analyticsData } = useRealTimeAnalytics(user?.id);
-  const { data: anomaliesData } = useRealTimeAnomalies(user?.id);
+  const { data: precognitionData } = useEnterpriseData('precognition', user?.id);
 
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [forecastData, setForecastData] = useState<TimeSeriesForecast[]>([]);
@@ -53,8 +52,8 @@ const PrecognitionEngine: React.FC = () => {
   const [modelAccuracy, setModelAccuracy] = useState(87.3);
 
   useEffect(() => {
-    if (analyticsData) {
-      const data = Array.isArray(analyticsData) ? analyticsData[0] : analyticsData;
+    if (precognitionData) {
+      const data = precognitionData
       
       const mockPredictions: Prediction[] = [
         {
@@ -102,23 +101,20 @@ const PrecognitionEngine: React.FC = () => {
       
       setForecastData(mockForecastData);
       setModelAccuracy(Math.round((data?.avg_kpi || 0.75) * 100));
-    }
-    
-    if (anomaliesData) {
-      const mockAnomalies: AnomalyAlert[] = Array.isArray(anomaliesData) 
-        ? anomaliesData.slice(0, 3).map((_, i) => ({
-            id: (i + 1).toString(),
-            type: i === 0 ? 'Performance Spike' : i === 1 ? 'Engagement Drop' : 'Resource Anomaly',
-            severity: i === 0 ? 'high' : i === 1 ? 'medium' : 'low',
-            description: `Detected anomaly in system metrics`,
-            detected_at: new Date(),
-            probability: 0.85 - i * 0.1
-          }))
-        : [];
+      
+      // Get anomalies from precognition data
+      const mockAnomalies: AnomalyAlert[] = (data?.anomalies || []).slice(0, 3).map((_, i) => ({
+        id: ((i + 1).toString()),
+        type: i === 0 ? 'Performance Spike' : i === 1 ? 'Engagement Drop' : 'Resource Anomaly',
+        severity: i === 0 ? 'high' : i === 1 ? 'medium' : 'low',
+        description: `Detected anomaly in system metrics`,
+        detected_at: new Date(),
+        probability: 0.85 - i * 0.1
+      }));
       
       setAnomalies(mockAnomalies);
     }
-  }, [analyticsData, anomaliesData]);
+  }, [precognitionData]);
 
   const generatePredictions = () => {
     const mockPredictions: Prediction[] = [
