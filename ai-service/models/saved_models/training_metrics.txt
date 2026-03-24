@@ -1,0 +1,21 @@
+Training Completed: 2026-03-24 21:58:50
+Data Source: Synthetic Data (Database Unavailable)
+Database Host: localhost
+
+completion_model:
+  mae: 41.66690379925629
+  rmse: 53.67154016897123
+  n_samples: 1000
+  test_size: 200
+
+risk_model:
+  accuracy: 0.32
+  f1_score: 0.2943997218098217
+  n_samples: 1000
+  test_size: 200
+
+anomaly_model:
+  n_samples: 1000
+  n_anomalies_detected: 100
+  anomaly_percentage: 10.0%
+
