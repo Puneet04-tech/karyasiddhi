@@ -8,6 +8,7 @@ import { KpisModule } from './kpis/kpis.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { IssuesModule } from './issues/issues.module';
+import { EnterpriseSolutionsModule } from './enterprise-solutions/enterprise-solutions.module';
 import { SnakeNamingStrategy } from './common/snake-naming.strategy';
 
 @Module({
@@ -48,6 +49,7 @@ import { SnakeNamingStrategy } from './common/snake-naming.strategy';
     AnalyticsModule,
     DepartmentsModule,
     IssuesModule,
+    EnterpriseSolutionsModule,
   ],
 })
 export class AppModule {}
