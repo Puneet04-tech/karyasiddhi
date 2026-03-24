@@ -93,7 +93,7 @@ const Profile = () => {
               </div>
               <div className="flex items-center gap-3 text-gray-300">
                 <Building size={20} className="text-primary-400" />
-                <span className="text-sm">{(() => { const d = user?.department; if (!d) return ''; return typeof d === 'object' ? d.name : d; })()}</span>
+                <span className="text-sm">{(() => { const d = user?.department as any; if (!d) return ''; return typeof d === 'object' ? d.name : d; })()}</span>
               </div>
               <div className="flex items-center gap-3 text-gray-300">
                 <MapPin size={20} className="text-primary-400" />
@@ -202,7 +202,7 @@ const Profile = () => {
                 <label className="block text-sm font-medium text-gray-400 mb-2">Department</label>
                 <input
                   type="text"
-                  defaultValue={(() => { const d = user?.department; if (!d) return ''; return typeof d === 'object' ? (d.name || '') : d; })()}
+                  defaultValue={(() => { const d = user?.department as any; if (!d) return ''; return typeof d === 'object' ? (d.name || '') : d; })()}
                   disabled={!isEditing}
                   className="input-field"
                 />
