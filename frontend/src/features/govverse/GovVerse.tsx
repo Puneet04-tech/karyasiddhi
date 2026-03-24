@@ -687,7 +687,7 @@ const GovVerse = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Department</span>
-                  <span className="text-white">{typeof avatar?.department === 'object' ? avatar?.department?.name : (avatar?.department || '')}</span>
+                  <span className="text-white">{avatar?.department ? (typeof avatar.department === 'object' ? avatar.department.name : avatar.department) : ''}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Location</span>
