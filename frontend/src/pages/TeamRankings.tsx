@@ -202,7 +202,7 @@ const TeamRankings = () => {
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <span className="text-sm text-gray-300">{(() => { const d = member?.department; return d ? (typeof d === 'object' ? d.name : d) : ''; })()}</span>
+                    <span className="text-sm text-gray-300">{(() => { const d = member?.department; return (d && typeof d === 'object') ? d.name : (d || ''); })()}</span>
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center justify-center">

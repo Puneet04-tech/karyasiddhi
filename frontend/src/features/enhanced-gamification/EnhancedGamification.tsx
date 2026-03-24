@@ -287,7 +287,7 @@ const EnhancedGamification: React.FC = () => {
             <div>
               <p className="text-sm text-gray-400">Level {playerProfile.level}</p>
               <h2 className="text-2xl font-bold text-white">{playerProfile.name}</h2>
-              <p className="text-sm text-gray-400">{(() => { const d = playerProfile?.department; return d ? (typeof d === 'object' ? d.name : d) : ''; })()}  • Rank #{playerProfile.rank}</p>
+              <p className="text-sm text-gray-400">{(() => { const d = playerProfile?.department; return (d && typeof d === 'object') ? d.name : (d || ''); })()}  • Rank #{playerProfile.rank}</p>
             </div>
           </div>
           <div className="flex items-center gap-6">
@@ -527,7 +527,7 @@ const EnhancedGamification: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-white">{entry.user_name}</p>
-                  <p className="text-sm text-gray-400">Level {entry.level} • {(() => { const d = entry?.department; return d ? (typeof d === 'object' ? d.name : d) : ''; })()}</p>
+                  <p className="text-sm text-gray-400">Level {entry.level} • {(() => { const d = entry?.department; return (d && typeof d === 'object') ? d.name : (d || ''); })()}</p>
                 </div>
               </div>
               <div className="text-right">

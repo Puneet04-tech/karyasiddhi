@@ -684,7 +684,7 @@ const CarnivalOfProductivity = () => {
                     <div className="text-2xl">{entry.avatar}</div>
                     <div>
                       <p className="font-semibold text-white">{entry.name}</p>
-                      <p className="text-sm text-gray-400">{(() => { const d = entry?.department; return d ? (typeof d === 'object' ? d.name : d) : ''; })()}  • Level {entry.level}</p>
+                      <p className="text-sm text-gray-400">{(() => { const d = entry?.department; return (d && typeof d === 'object') ? d.name : (d || ''); })()}  • Level {entry.level}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6 text-right">
