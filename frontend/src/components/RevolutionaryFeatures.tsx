@@ -400,7 +400,7 @@ const RevolutionaryFeatures = () => {
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-sm font-semibold text-white">{user?.name}</p>
-                  <p className="text-xs text-gray-400">{user?.department ? (typeof user.department === 'object' ? user.department.name : user.department) : ''}</p>
+                  <p className="text-xs text-gray-400">{user?.department ? (typeof user.department === 'object' ? user.department.name! : user.department) : ''}</p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
                   <span className="text-white font-bold">
