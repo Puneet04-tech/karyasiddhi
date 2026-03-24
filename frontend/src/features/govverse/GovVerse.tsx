@@ -78,7 +78,7 @@ const GovVerse = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (govverseData) {
+    if (govverseData || true) {
       const data = govverseData
       
       const offices: VirtualOffice[] = [

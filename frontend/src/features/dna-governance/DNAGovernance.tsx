@@ -48,7 +48,7 @@ const DNAGovernance: React.FC = () => {
   const [populationHealth, setPopulationHealth] = useState(82.5);
 
   useEffect(() => {
-    if (dnaData) {
+    if (dnaData || true) {
       const data = dnaData
       
       const categories: Array<'leadership' | 'innovation' | 'efficiency' | 'collaboration' | 'adaptability'> = 

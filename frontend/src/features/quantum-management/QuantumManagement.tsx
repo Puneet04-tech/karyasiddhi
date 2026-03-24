@@ -80,7 +80,7 @@ const QuantumManagement = () => {
   const [activeSimulation, setActiveSimulation] = useState<string | null>(null);
 
   useEffect(() => {
-    if (quantumData) {
+    if (quantumData || true) {
       const data = quantumData;
       
       const mockStates: QuantumState[] = Array.from({ length: 5 }, (_, i) => ({

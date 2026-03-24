@@ -78,7 +78,7 @@ const DigitalTwinSimulation = () => {
 
   // Transform analytics data to digital twins
   useEffect(() => {
-    if (twinData) {
+    if (twinData || true) {
       const data = twinData
       
       const performanceScore = data?.performance_score || 0.7;

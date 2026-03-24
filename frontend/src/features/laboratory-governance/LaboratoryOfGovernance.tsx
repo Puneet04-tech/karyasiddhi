@@ -44,7 +44,7 @@ const LaboratoryOfGovernance: React.FC = () => {
   const [successRate, setSuccessRate] = useState(75);
 
   useEffect(() => {
-    if (labData) {
+    if (labData || true) {
       const data = labData
       
       const mockExperiments: PolicyExperiment[] = [

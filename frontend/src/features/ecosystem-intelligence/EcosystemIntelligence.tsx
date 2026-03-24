@@ -40,7 +40,7 @@ const EcosystemIntelligence: React.FC = () => {
   const [ecosystemHealth, setEcosystemHealth] = useState(78.5);
 
   useEffect(() => {
-    if (ecosystemData) {
+    if (ecosystemData || true) {
       const data = ecosystemData
       
       // Transform analytics to department data

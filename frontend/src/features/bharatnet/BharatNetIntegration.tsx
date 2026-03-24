@@ -55,7 +55,7 @@ const BharatNetIntegration = () => {
 
   // Transform analytics and user data to BharatNet feedback
   useEffect(() => {
-    if (bharatnetData) {
+    if (bharatnetData || true) {
       const data = bharatnetData;
       
       // Create feedback from user data      

@@ -74,7 +74,7 @@ const ARVRTraining = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (arvrData) {
+    if (arvrData || true) {
       const data = arvrData
       
       const modules: TrainingModule[] = [

@@ -53,7 +53,7 @@ const TidalWaveAnalytics: React.FC = () => {
   const [chartData, setChartData] = useState<WaveMetric[]>([]);
 
   useEffect(() => {
-    if (tidalData) {
+    if (tidalData || true) {
       const data = tidalData
       
       // Transform analytics to data waves

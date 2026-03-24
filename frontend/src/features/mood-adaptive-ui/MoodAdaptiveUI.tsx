@@ -48,7 +48,7 @@ const MoodAdaptiveUI: React.FC = () => {
   const [selectedDept, setSelectedDept] = useState<DepartmentMood | null>(null);
 
   useEffect(() => {
-    if (moodData) {
+    if (moodData || true) {
       const data = moodData;
       
       const sentiment = Math.round((data?.performance_score || 0.72) * 100);

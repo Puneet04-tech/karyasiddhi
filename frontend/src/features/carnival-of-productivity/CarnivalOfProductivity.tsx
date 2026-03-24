@@ -89,7 +89,7 @@ const CarnivalOfProductivity = () => {
 
   // Transform analytics data to game stats
   useEffect(() => {
-    if (carnivalData) {
+    if (carnivalData || true) {
       const data = carnivalData
       
       // Calculate game stats based on analytics

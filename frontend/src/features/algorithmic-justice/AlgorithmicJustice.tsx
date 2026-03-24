@@ -83,7 +83,7 @@ const AlgorithmicJustice = () => {
   const [activeAudit, setActiveAudit] = useState<string | null>(null);
 
   useEffect(() => {
-    if (ajusticeData) {
+    if (ajusticeData || true) {
       const data = ajusticeData
       
       const mockMetrics: FairnessMetric[] = [

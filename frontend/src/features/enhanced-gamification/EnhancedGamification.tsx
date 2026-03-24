@@ -90,7 +90,7 @@ const EnhancedGamification: React.FC = () => {
 
   // Transform gamification data to player profile and leaderboard
   useEffect(() => {
-    if (gamificationData) {
+    if (gamificationData || true) {
       const data = gamificationData;
       
       // Calculate player stats based on gamification data

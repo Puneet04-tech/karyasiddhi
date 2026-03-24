@@ -55,7 +55,7 @@ const ZeroKnowledgeGovernance: React.FC = () => {
 
   // Transform analytics data to cryptographic metrics
   useEffect(() => {
-    if (zkData) {
+    if (zkData || true) {
       const data = zkData
       const performanceScore = data?.performance_score || 0.7;
       const avgKpi = data?.avg_kpi || 0.75;

@@ -70,7 +70,7 @@ const DeepfakeDetection = () => {
   const [activeScan, setActiveScan] = useState<string | null>(null);
 
   useEffect(() => {
-    if (deepfakeData) {
+    if (deepfakeData || true) {
       const data = deepfakeData
       
       const mockResults: DetectionResult[] = [

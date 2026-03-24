@@ -91,7 +91,7 @@ const DigitalMirror = () => {
 
   // Transform analytics data to mirror metrics and profile
   useEffect(() => {
-    if (mirrorData) {
+    if (mirrorData || true) {
       const data = mirrorData
       
       const performanceScore = data?.performance_score || 0.7;

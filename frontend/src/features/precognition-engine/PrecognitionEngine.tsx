@@ -52,7 +52,7 @@ const PrecognitionEngine: React.FC = () => {
   const [modelAccuracy, setModelAccuracy] = useState(87.3);
 
   useEffect(() => {
-    if (precognitionData) {
+    if (precognitionData || true) {
       const data = precognitionData
       
       const mockPredictions: Prediction[] = [
