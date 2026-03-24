@@ -61,6 +61,7 @@ export const useEnterpriseData = (featureKey: string, userId?: string) => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
         const fetcher = featureFetchers[featureKey];
         
         if (!fetcher) {
@@ -68,11 +69,20 @@ export const useEnterpriseData = (featureKey: string, userId?: string) => {
         }
         
         const result = await fetcher(userId);
-        setData(result);
+        
+        if (!result || (typeof result === 'object' && Object.keys(result).length === 0)) {
+          console.warn(`Empty data returned for ${featureKey}, using fallback values`);
+          setData({ _isDefaultData: true });
+        } else {
+          setData(result);
+        }
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch enterprise data');
-        setData(null);
+        const errorMsg = err instanceof Error ? err.message : 'Failed to fetch enterprise data';
+        console.error(`Error fetching ${featureKey}:`, err);
+        setError(errorMsg);
+        // Still set some data so component shows with fallbacks
+        setData({ _isDefaultData: true, _error: errorMsg });
       } finally {
         setLoading(false);
       }
@@ -80,7 +90,7 @@ export const useEnterpriseData = (featureKey: string, userId?: string) => {
 
     if (userId || featureKey) {
       fetchData();
-      // Refresh every 30 seconds
+      // Refresh every 30 seconds for real-time updates
       const interval = setInterval(fetchData, 30000);
       return () => clearInterval(interval);
     }
