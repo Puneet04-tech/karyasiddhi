@@ -56,31 +56,32 @@ const EmpathyEngine = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('day');
 
   useEffect(() => {
-    if (empathyData) {
+    if (empathyData || true) {  // Always generate metrics, even if empathyData is null
+      const data = empathyData || {};
       const metrics: EmotionalMetrics = {
-        empathy: empathyData.empathy_score || 75,
-        stress: empathyData.stress_level || 45,
-        engagement: empathyData.engagement_score || 82,
-        collaboration: empathyData.collaboration_score || 78,
-        communication: empathyData.communication_score || 70,
-        leadership: empathyData.leadership_score || 68,
-        adaptability: empathyData.adaptability_score || 85,
-        resilience: empathyData.resilience_score || 72
+        empathy: data.empathy_score || 75,
+        stress: data.stress_level || 45,
+        engagement: data.engagement_score || 82,
+        collaboration: data.collaboration_score || 78,
+        communication: data.communication_score || 70,
+        leadership: data.leadership_score || 68,
+        adaptability: data.adaptability_score || 85,
+        resilience: data.resilience_score || 72
       };
       
       setCurrentMetrics(metrics);
       
       const emotionHistory: TeamEmotionData[] = Array.from({ length: 30 }, (_, i) => ({
         timestamp: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000),
-        teamHarmony: empathyData.team_harmony || 75,
-        collectiveStress: empathyData.collective_stress || 45,
-        motivationLevel: empathyData.motivation_level || 82,
-        communicationQuality: empathyData.communication_quality || 78
+        teamHarmony: data.team_harmony || 75,
+        collectiveStress: data.collective_stress || 45,
+        motivationLevel: data.motivation_level || 82,
+        communicationQuality: data.communication_quality || 78
       }));
       
       setTeamEmotionHistory(emotionHistory);
       
-      const alertList: EmotionalAlert[] = empathyData.alerts || [];
+      const alertList: EmotionalAlert[] = data.alerts || [];
       setAlerts(alertList);
     }
   }, [empathyData]);
