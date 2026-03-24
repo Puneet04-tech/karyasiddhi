@@ -363,7 +363,7 @@ const DigitalMirror = () => {
               <div>
                 <h3 className="text-2xl font-bold text-white">{digitalProfile.name}</h3>
                 <p className="text-gray-400">{digitalProfile.role}</p>
-                <p className="text-sm text-gray-400">{digitalProfile?.department ? (typeof digitalProfile?.department === 'object' ? digitalProfile?.department?.name : digitalProfile?.department) : ''}</p>
+                <p className="text-sm text-gray-400">{(() => { const d = digitalProfile?.department; return d ? (typeof d === 'object' ? d.name : d) : ''; })()}</p>
                 <p className="text-sm text-blue-400">Level {digitalProfile.experience_level} Professional</p>
               </div>
             </div>

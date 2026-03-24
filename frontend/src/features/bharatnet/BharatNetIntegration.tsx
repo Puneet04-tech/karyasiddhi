@@ -228,7 +228,7 @@ const BharatNetIntegration = () => {
                   <div>
                     <p className="font-semibold text-white capitalize">{alert.type.replace('_', ' ')}</p>
                     <p className="text-sm text-gray-400">
-                      {alert?.department ? (typeof alert?.department === 'object' ? alert?.department?.name : alert?.department) : ''} • {alert.timestamp.toLocaleTimeString()} • {alert.citizenCount} citizens
+                      {(() => { const d = alert?.department; return d ? (typeof d === 'object' ? d.name : d) : ''; })()}  • {alert.timestamp.toLocaleTimeString()} • {alert.citizenCount} citizens
                     </p>
                   </div>
                 </div>
@@ -382,7 +382,7 @@ const BharatNetIntegration = () => {
                   <div>
                     <h3 className="font-semibold text-white">{item.citizenName}</h3>
                     <p className="text-sm text-gray-400">
-                      {item.service} • {item?.department ? (typeof item?.department === 'object' ? item?.department?.name : item?.department) : ''} • {item.location}
+                      {item.service} • {(() => { const d = item?.department; return d ? (typeof d === 'object' ? d.name : d) : ''; })()}  • {item.location}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex items-center gap-1">

@@ -218,7 +218,7 @@ const Dashboard = () => {
           </h1>
           <p className="text-gray-300 mt-2 text-lg flex items-center gap-2">
             <Users size={20} className="text-orange-500" />
-            {user?.department ? (typeof user?.department === 'object' ? user?.department?.name : user?.department) : 'Unknown'}
+            {(() => { const d = user?.department; return d ? (typeof d === 'object' ? d.name : d) : 'Unknown'; })()}
           </p>
         </div>
         <div className="mt-4 md:mt-0">
