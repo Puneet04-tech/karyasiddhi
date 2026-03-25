@@ -24,6 +24,8 @@ const Goals = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadingGoal, setUploadingGoal] = useState<Goal | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Form state for upload
   const [uploadData, setUploadData] = useState({
@@ -45,6 +47,21 @@ const Goals = () => {
   });
 
   const { user } = useAuthStore();
+
+  // Auto-clear messages after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   useEffect(() => {
     const fetchGoals = async () => {
@@ -134,10 +151,31 @@ const Goals = () => {
 
   const handleCreateGoal = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    
+    // Validation
+    if (!newGoal.title.trim()) {
+      setError('Goal title is required');
+      return;
+    }
+    if (!newGoal.endDate) {
+      setError('End date is required');
+      return;
+    }
+    if (!newGoal.assignedUserId) {
+      setError('Please assign the goal to a user');
+      return;
+    }
+    
     setCreating(true);
     
     try {
-      await api.post('/goals', newGoal);
+      console.log('Creating goal with data:', newGoal);
+      const createResponse = await api.post('/goals', newGoal);
+      console.log('Goal created successfully:', createResponse.data);
+      
+      setSuccess(`Goal "${newGoal.title}" created successfully and saved to database!`);
       setShowCreateModal(false);
       setNewGoal({
         title: '',
@@ -150,11 +188,16 @@ const Goals = () => {
         departmentId: '',
         assignedUserId: '',
       });
+      
       // Refresh goals
+      console.log('Refreshing goals list...');
       const response = await api.get('/goals');
+      console.log('Goals refreshed:', response.data);
       setGoals(response.data);
-    } catch (error) {
-      console.error('Failed to create goal:', error);
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || error?.message || 'Failed to create goal';
+      console.error('Error creating goal:', error);
+      setError(`Failed to create goal: ${errorMsg}`);
     } finally {
       setCreating(false);
     }
@@ -183,10 +226,14 @@ const Goals = () => {
   const handleUpdateGoal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingGoal) return;
+    setError(null);
+    setSuccess(null);
     setCreating(true);
     
     try {
+      console.log('Updating goal:', editingGoal.id, newGoal);
       await api.put(`/goals/${editingGoal.id}`, newGoal);
+      setSuccess(`Goal "${newGoal.title}" updated successfully in database!`);
       setShowEditModal(false);
       setEditingGoal(null);
       setNewGoal({
@@ -203,8 +250,10 @@ const Goals = () => {
       // Refresh goals
       const response = await api.get('/goals');
       setGoals(response.data);
-    } catch (error) {
-      console.error('Failed to update goal:', error);
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || error?.message || 'Failed to update goal';
+      console.error('Error updating goal:', error);
+      setError(`Failed to update goal: ${errorMsg}`);
     } finally {
       setCreating(false);
     }
@@ -318,6 +367,38 @@ const Goals = () => {
 
   return (
     <div className="space-y-6">
+      {/* Error Alert */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3"
+        >
+          <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+          <div>
+            <p className="text-red-400 font-semibold">Error</p>
+            <p className="text-red-300 text-sm">{error}</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Success Alert */}
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="p-4 bg-green-500/10 border border-green-500/50 rounded-lg flex items-start gap-3"
+        >
+          <CheckCircle2 className="text-green-400 flex-shrink-0 mt-0.5" size={20} />
+          <div>
+            <p className="text-green-400 font-semibold">Success</p>
+            <p className="text-green-300 text-sm">{success}</p>
+          </div>
+        </motion.div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <div>

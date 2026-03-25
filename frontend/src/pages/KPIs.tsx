@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuthStore } from '../store/authStore';
-import { BarChart3, TrendingUp, TrendingDown, Minus, Plus, Search, Calendar, Edit, Trash2 } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Minus, Plus, Search, Calendar, Edit, Trash2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Brush } from 'recharts';
 import api from '../lib/api';
@@ -18,6 +18,8 @@ const KPIs = () => {
   const [editingKPI, setEditingKPI] = useState<KPI | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const { user } = useAuthStore();
 
   // Form state for new KPI
@@ -32,6 +34,21 @@ const KPIs = () => {
     category: '',
     goalId: '',
   });
+
+  // Auto-clear messages after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   useEffect(() => {
     const fetchKPIs = async () => {
@@ -60,10 +77,31 @@ const KPIs = () => {
 
   const handleCreateKPI = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    
+    // Validation
+    if (!newKPI.name.trim()) {
+      setError('KPI name is required');
+      return;
+    }
+    if (newKPI.target <= 0) {
+      setError('Target value must be greater than 0');
+      return;
+    }
+    if (!newKPI.goalId) {
+      setError('Please select a goal');
+      return;
+    }
+    
     setCreating(true);
     
     try {
-      await api.post('/kpis', newKPI);
+      console.log('Creating KPI with data:', newKPI);
+      const createResponse = await api.post('/kpis', newKPI);
+      console.log('KPI created successfully:', createResponse.data);
+      
+      setSuccess(`KPI "${newKPI.name}" created successfully and saved to database!`);
       setShowCreateModal(false);
       setNewKPI({
         name: '',
@@ -76,11 +114,16 @@ const KPIs = () => {
         category: '',
         goalId: '',
       });
+      
       // Refresh KPIs
+      console.log('Refreshing KPIs list...');
       const response = await api.get('/kpis');
+      console.log('KPIs refreshed:', response.data);
       setKpis(response.data);
-    } catch (error) {
-      console.error('Failed to create KPI:', error);
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || error?.message || 'Failed to create KPI';
+      console.error('Error creating KPI:', error);
+      setError(`Failed to create KPI: ${errorMsg}`);
     } finally {
       setCreating(false);
     }
@@ -109,10 +152,14 @@ const KPIs = () => {
   const handleUpdateKPI = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingKPI) return;
+    setError(null);
+    setSuccess(null);
     setCreating(true);
     
     try {
+      console.log('Updating KPI:', editingKPI.id, newKPI);
       await api.put(`/kpis/${editingKPI.id}`, newKPI);
+      setSuccess(`KPI "${newKPI.name}" updated successfully in database!`);
       setShowEditModal(false);
       setEditingKPI(null);
       setNewKPI({
@@ -129,8 +176,10 @@ const KPIs = () => {
       // Refresh KPIs
       const response = await api.get('/kpis');
       setKpis(response.data);
-    } catch (error) {
-      console.error('Failed to update KPI:', error);
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || error?.message || 'Failed to update KPI';
+      console.error('Error updating KPI:', error);
+      setError(`Failed to update KPI: ${errorMsg}`);
     } finally {
       setCreating(false);
     }
@@ -258,6 +307,38 @@ const KPIs = () => {
 
   return (
     <div className="space-y-6">
+      {/* Error Alert */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3"
+        >
+          <AlertCircle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+          <div>
+            <p className="text-red-400 font-semibold">Error</p>
+            <p className="text-red-300 text-sm">{error}</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Success Alert */}
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="p-4 bg-green-500/10 border border-green-500/50 rounded-lg flex items-start gap-3"
+        >
+          <CheckCircle2 className="text-green-400 flex-shrink-0 mt-0.5" size={20} />
+          <div>
+            <p className="text-green-400 font-semibold">Success</p>
+            <p className="text-green-300 text-sm">{success}</p>
+          </div>
+        </motion.div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
