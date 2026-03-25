@@ -179,6 +179,36 @@ const RevolutionaryFeatures = () => {
       status: 'active'
     },
     {
+      id: 'ar-vr-training',
+      title: 'AR/VR Training',
+      description: 'Immersive Learning Modules',
+      icon: Trophy,
+      color: 'from-cyan-500/30 to-blue-500/30',
+      iconColor: 'text-cyan-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'ecosystem-intelligence',
+      title: 'Ecosystem Intelligence',
+      description: 'Interconnected Strategy Network',
+      icon: Network,
+      color: 'from-blue-500/30 to-teal-500/30',
+      iconColor: 'text-blue-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
+      id: 'tidal-wave-analytics',
+      title: 'Tidal Wave Analytics',
+      description: 'Trend Wave Metrics',
+      icon: BarChartIcon,
+      color: 'from-teal-500/30 to-green-500/30',
+      iconColor: 'text-teal-400',
+      badge: 'NEW',
+      status: 'active'
+    },
+    {
       id: 'deepfake-detection',
       title: 'Deepfake Detection',
       description: 'Authenticity Verification',
