@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { GoalUpload } from './goal-upload.entity';
+import { GoalUpload, UploadStatus } from './goal-upload.entity';
 import { Goal } from './goal.entity';
 import { User } from '../users/user.entity';
 import { CreateGoalUploadDto, UpdateGoalUploadDto } from './dto/goal-upload.dto';
@@ -146,5 +146,127 @@ export class GoalUploadsService {
     }
 
     await this.goalUploadsRepository.remove(upload);
+  }
+
+  async approveUpload(
+    uploadId: string,
+    managerId: string,
+    progressPercentage: number,
+    approvalComments?: string
+  ): Promise<GoalUpload> {
+    // Verify manager
+    const manager = await this.usersRepository.findOne({ where: { id: managerId } });
+    if (!manager || manager.role !== 'Department Head') {
+      throw new ForbiddenException('Only managers can approve uploads');
+    }
+
+    // Get upload with goal
+    const upload = await this.goalUploadsRepository.findOne({
+      where: { id: uploadId },
+      relations: ['goal', 'user', 'goal.kpis'],
+    });
+
+    if (!upload) {
+      throw new NotFoundException('Upload not found');
+    }
+
+    // Verify manager has permission (same department)
+    const goal = await this.goalsRepository.findOne({
+      where: { id: upload.goal.id },
+      relations: ['department'],
+    });
+
+    if (goal.department.id !== manager.department.id) {
+      throw new ForbiddenException('You can only approve uploads from your department');
+    }
+
+    // Update upload
+    upload.status = UploadStatus.APPROVED;
+    upload.progressPercentage = progressPercentage;
+    upload.approvalComments = approvalComments;
+    upload.approvedBy = manager;
+    upload.approvedAt = new Date();
+    
+    await this.goalUploadsRepository.save(upload);
+
+    // Update goal progress (take the average of all approved uploads)
+    const allUploads = await this.goalUploadsRepository.find({
+      where: { 
+        goal: { id: upload.goal.id },
+        status: UploadStatus.APPROVED,
+      },
+    });
+
+    const averageProgress = allUploads.length > 0
+      ? Math.round(allUploads.reduce((sum, u) => sum + (u.progressPercentage || 0), 0) / allUploads.length)
+      : 0;
+
+    // Update goal progress
+    goal.progress = averageProgress;
+    if (averageProgress >= 100) {
+      goal.status = 'completed';
+    } else if (averageProgress > 0) {
+      goal.status = 'in_progress';
+    }
+    
+    await this.goalsRepository.save(goal);
+
+    // Update related KPIs progress if any
+    if (goal.kpis && goal.kpis.length > 0) {
+      for (const kpi of goal.kpis) {
+        // Update KPI progress proportionally to goal progress
+        const progressRatio = Math.min(100, averageProgress) / 100;
+        kpi.current = Math.min(
+          kpi.target,
+          Math.round((kpi.baseline + ((kpi.target - kpi.baseline) * progressRatio)))
+        );
+        await this.goalUploadsRepository.manager.save(kpi);
+      }
+    }
+
+    return this.goalUploadsRepository.findOne({
+      where: { id: uploadId },
+      relations: ['goal', 'user', 'approvedBy'],
+    });
+  }
+
+  async rejectUpload(
+    uploadId: string,
+    managerId: string,
+    rejectionReason?: string
+  ): Promise<GoalUpload> {
+    // Verify manager
+    const manager = await this.usersRepository.findOne({ where: { id: managerId } });
+    if (!manager || manager.role !== 'Department Head') {
+      throw new ForbiddenException('Only managers can reject uploads');
+    }
+
+    // Get upload with goal
+    const upload = await this.goalUploadsRepository.findOne({
+      where: { id: uploadId },
+      relations: ['goal'],
+    });
+
+    if (!upload) {
+      throw new NotFoundException('Upload not found');
+    }
+
+    // Verify manager has permission
+    const goal = await this.goalsRepository.findOne({
+      where: { id: upload.goal.id },
+      relations: ['department'],
+    });
+
+    if (goal.department.id !== manager.department.id) {
+      throw new ForbiddenException('You can only reject uploads from your department');
+    }
+
+    // Update upload
+    upload.status = UploadStatus.REJECTED;
+    upload.approvalComments = rejectionReason;
+    upload.approvedBy = manager;
+    upload.approvedAt = new Date();
+    
+    return this.goalUploadsRepository.save(upload);
   }
 }

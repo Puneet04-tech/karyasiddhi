@@ -100,4 +100,29 @@ export class GoalUploadsController {
   async remove(@Param('id') id: string, @Request() req) {
     return this.goalUploadsService.remove(id, req.user.id);
   }
+
+  @Put(':id/approve')
+  @ApiOperation({ summary: 'Manager approves an upload and sets goal progress' })
+  async approveUpload(
+    @Param('id') id: string,
+    @Body() body: { progressPercentage: number; approvalComments?: string },
+    @Request() req
+  ) {
+    return this.goalUploadsService.approveUpload(
+      id,
+      req.user.id,
+      body.progressPercentage,
+      body.approvalComments
+    );
+  }
+
+  @Put(':id/reject')
+  @ApiOperation({ summary: 'Manager rejects an upload' })
+  async rejectUpload(
+    @Param('id') id: string,
+    @Body() body: { rejectionReason?: string },
+    @Request() req
+  ) {
+    return this.goalUploadsService.rejectUpload(id, req.user.id, body.rejectionReason);
+  }
 }

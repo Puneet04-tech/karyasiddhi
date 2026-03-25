@@ -784,25 +784,94 @@ const Dashboard = () => {
 const EmployeeUploadsSection = () => {
   const [uploads, setUploads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [approvalData, setApprovalData] = useState({ progress: 50, comments: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUploads = async () => {
-      try {
-        console.log('Fetching uploads...');
-        const response = await api.get('/goal-uploads/manager');
-        console.log('Uploads response:', response.data);
-        setUploads(response.data);
-      } catch (error) {
-        console.error('Failed to fetch uploads:', error);
-        // Fallback to empty array if API fails
-        setUploads([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUploads();
   }, []);
+
+  // Auto-clear messages
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+  const fetchUploads = async () => {
+    try {
+      console.log('Fetching uploads...');
+      const response = await api.get('/goal-uploads/manager');
+      console.log('Uploads response:', response.data);
+      setUploads(response.data);
+    } catch (error) {
+      console.error('Failed to fetch uploads:', error);
+      setUploads([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApproveUpload = async (uploadId: string) => {
+    if (approvalData.progress < 0 || approvalData.progress > 100) {
+      setError('Progress must be between 0 and 100');
+      return;
+    }
+
+    setError(null);
+    setSuccess(null);
+
+    try {
+      console.log('Approving upload:', uploadId, approvalData);
+      await api.put(`/goal-uploads/${uploadId}/approve`, {
+        progressPercentage: approvalData.progress,
+        approvalComments: approvalData.comments,
+      });
+
+      setSuccess(`Upload approved! Goal progress updated to ${approvalData.progress}%`);
+      setApprovingId(null);
+      setApprovalData({ progress: 50, comments: '' });
+      
+      // Refresh uploads
+      await fetchUploads();
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.message || 'Failed to approve upload';
+      console.error('Error approving upload:', err);
+      setError(`Failed to approve: ${errorMsg}`);
+    }
+  };
+
+  const handleRejectUpload = async (uploadId: string) => {
+    const reason = window.prompt('Enter rejection reason (optional):');
+    if (reason === null) return; // User cancelled
+
+    setError(null);
+    setSuccess(null);
+
+    try {
+      console.log('Rejecting upload:', uploadId, reason);
+      await api.put(`/goal-uploads/${uploadId}/reject`, {
+        rejectionReason: reason || undefined,
+      });
+
+      setSuccess('Upload rejected successfully');
+      await fetchUploads();
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.message || 'Failed to reject upload';
+      console.error('Error rejecting upload:', err);
+      setError(`Failed to reject: ${errorMsg}`);
+    }
+  };
 
   if (loading) {
     return (
@@ -816,12 +885,44 @@ const EmployeeUploadsSection = () => {
 
   return (
     <div className="mt-8">
+      {/* Error Alert */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="mb-4 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3"
+        >
+          <AlertTriangle className="text-red-400 flex-shrink-0 mt-0.5" size={20} />
+          <div>
+            <p className="text-red-400 font-semibold">Error</p>
+            <p className="text-red-300 text-sm">{error}</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Success Alert */}
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="mb-4 p-4 bg-green-500/10 border border-green-500/50 rounded-lg flex items-start gap-3"
+        >
+          <CheckCircle className="text-green-400 flex-shrink-0 mt-0.5" size={20} />
+          <div>
+            <p className="text-green-400 font-semibold">Success</p>
+            <p className="text-green-300 text-sm">{success}</p>
+          </div>
+        </motion.div>
+      )}
+
       <div className="mb-4">
         <h2 className="text-2xl font-bold text-white flex items-center">
           <BarChart3 className="mr-3 text-green-500" size={32} />
           Employee Work Uploads
         </h2>
-        <p className="text-gray-400 mt-1">Recent work submissions from team members</p>
+        <p className="text-gray-400 mt-1">Review and approve work submissions from team members</p>
       </div>
       <div className="card p-6">
         {uploads.length === 0 ? (
@@ -831,37 +932,177 @@ const EmployeeUploadsSection = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {uploads.slice(0, 10).map((upload: any) => (
-              <div key={upload.id} className="flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-primary-500 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center text-white font-bold">
-                    {upload.user?.name?.charAt(0) || 'U'}
+            {uploads.slice(0, 20).map((upload: any) => (
+              <motion.div
+                key={upload.id}
+                layout
+                className="p-4 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-primary-500 transition-all"
+              >
+                <div className="space-y-3">
+                  {/* Header */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+                        {upload.user?.name?.charAt(0) || 'U'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-white truncate">{upload.fileName}</h3>
+                          <span className={`px-2 py-0.5 text-xs rounded font-semibold flex-shrink-0 ${
+                            upload.status === 'approved' ? 'bg-green-500/20 text-green-400' :
+                            upload.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                            'bg-yellow-500/20 text-yellow-400'
+                          }`}>
+                            {upload.status?.toUpperCase() || 'PENDING'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-400">
+                          {upload.user?.name} • {upload.goal?.title} • {new Date(upload.uploadedAt).toLocaleDateString()}
+                        </p>
+                        {upload.description && (
+                          <p className="text-xs text-gray-500 mt-1">{upload.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-4">
+                      <span className="text-xs text-gray-400">
+                        {(upload.fileSize / 1024).toFixed(1)} KB
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-white">{upload.fileName}</h3>
-                    <p className="text-sm text-gray-400">
-                      {upload.user?.name} • {upload.goal?.title} • {new Date(upload.uploadedAt).toLocaleDateString()}
-                    </p>
-                    {upload.description && (
-                      <p className="text-xs text-gray-500 mt-1">{upload.description}</p>
-                    )}
-                  </div>
+
+                  {/* Approval Info (if already approved) */}
+                  {upload.status === 'approved' && (
+                    <div className="bg-green-500/10 border border-green-500/30 rounded p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-green-400 font-semibold">
+                            Approved by {upload.approvedBy?.name || 'Manager'}
+                          </p>
+                          {upload.approvedAt && (
+                            <p className="text-xs text-gray-400">
+                              {new Date(upload.approvedAt).toLocaleString()}
+                            </p>
+                          )}
+                          {upload.approvalComments && (
+                            <p className="text-xs text-gray-300 mt-1">Comments: {upload.approvalComments}</p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-green-400">{upload.progressPercentage}%</p>
+                          <p className="text-xs text-gray-400">Goal Progress</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Rejection Info (if rejected) */}
+                  {upload.status === 'rejected' && (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded p-3">
+                      <p className="text-sm text-red-400 font-semibold">
+                        Rejected by {upload.approvedBy?.name || 'Manager'}
+                      </p>
+                      {upload.approvalComments && (
+                        <p className="text-xs text-red-300 mt-1">Reason: {upload.approvalComments}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Approval Form (if pending) */}
+                  {upload.status === 'pending' && approvingId === upload.id && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-blue-500/10 border border-blue-500/30 rounded p-4 space-y-3"
+                    >
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Set Goal Progress: {approvalData.progress}%
+                        </label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={approvalData.progress}
+                          onChange={(e) => setApprovalData(prev => ({ ...prev, progress: parseInt(e.target.value) }))}
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Approval Comments (Optional)
+                        </label>
+                        <textarea
+                          value={approvalData.comments}
+                          onChange={(e) => setApprovalData(prev => ({ ...prev, comments: e.target.value }))}
+                          className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
+                          rows={2}
+                          placeholder="Add any comments about this work..."
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleApproveUpload(upload.id)}
+                          className="flex-1 px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition-colors font-medium"
+                        >
+                          ✓ Approve & Update Progress
+                        </button>
+                        <button
+                          onClick={() => handleRejectUpload(upload.id)}
+                          className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors font-medium"
+                        >
+                          ✕ Reject
+                        </button>
+                        <button
+                          onClick={() => setApprovingId(null)}
+                          className="px-3 py-2 bg-slate-700 text-gray-300 text-sm rounded hover:bg-slate-600 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Action Buttons (if pending and not editing) */}
+                  {upload.status === 'pending' && approvingId !== upload.id && (
+                    <div className="flex items-center justify-between">
+                      <button
+                        onClick={() => {
+                          const baseUrl = api.defaults.baseURL.replace('/api', '');
+                          window.open(`${baseUrl}${upload.fileUrl}`, '_blank');
+                        }}
+                        className="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700 transition-colors"
+                      >
+                        View File
+                      </button>
+                      <button
+                        onClick={() => {
+                          setApprovingId(upload.id);
+                          setApprovalData({ progress: 50, comments: '' });
+                        }}
+                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors font-medium"
+                      >
+                        Review & Approve
+                      </button>
+                    </div>
+                  )}
+
+                  {/* View File Only (if already approved/rejected) */}
+                  {upload.status !== 'pending' && (
+                    <button
+                      onClick={() => {
+                        const baseUrl = api.defaults.baseURL.replace('/api', '');
+                        window.open(`${baseUrl}${upload.fileUrl}`, '_blank');
+                      }}
+                      className="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700 transition-colors"
+                    >
+                      View File
+                    </button>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">
-                    {(upload.fileSize / 1024).toFixed(1)} KB
-                  </span>
-                  <button
-                    onClick={() => {
-                      const baseUrl = api.defaults.baseURL.replace('/api', '');
-                      window.open(`${baseUrl}${upload.fileUrl}`, '_blank');
-                    }}
-                    className="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700 transition-colors"
-                  >
-                    View
-                  </button>
-                </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
