@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GoalUpload, UploadStatus } from './goal-upload.entity';
-import { Goal } from './goal.entity';
+import { Goal, GoalStatus } from './goal.entity';
 import { User } from '../users/user.entity';
 import { CreateGoalUploadDto, UpdateGoalUploadDto } from './dto/goal-upload.dto';
 
@@ -204,9 +204,9 @@ export class GoalUploadsService {
     // Update goal progress
     goal.progress = averageProgress;
     if (averageProgress >= 100) {
-      goal.status = 'completed';
+      goal.status = GoalStatus.COMPLETED;
     } else if (averageProgress > 0) {
-      goal.status = 'in_progress';
+      goal.status = GoalStatus.IN_PROGRESS;
     }
     
     await this.goalsRepository.save(goal);

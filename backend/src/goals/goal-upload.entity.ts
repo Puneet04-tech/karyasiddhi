@@ -28,7 +28,11 @@ export class GoalUpload {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column({ type: 'enum', enum: UploadStatus, default: UploadStatus.PENDING })
+  @Column({ 
+    type: process.env.NODE_ENV === 'production' ? 'enum' : 'varchar', 
+    enum: process.env.NODE_ENV === 'production' ? UploadStatus : undefined,
+    default: UploadStatus.PENDING 
+  })
   status: UploadStatus;
 
   @Column({ type: 'int', nullable: true, default: 0 })
